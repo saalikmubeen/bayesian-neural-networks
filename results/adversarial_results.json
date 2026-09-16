@@ -1,0 +1,80 @@
+{
+  "mnist_id": {
+    "mean": 0.8254421949386597,
+    "std": 0.5015591382980347,
+    "median": 0.7617456912994385,
+    "pct_high": 0.6791
+  },
+  "fashion_ood": {
+    "mean": 1.4873219728469849,
+    "std": 0.3650764524936676,
+    "median": 1.5254302024841309,
+    "pct_high": 0.9883
+  },
+  "rotated_15": {
+    "mean": 1.0588899850845337,
+    "std": 0.5075339078903198,
+    "median": 1.073150396347046,
+    "pct_high": 0.8303
+  },
+  "rotated_30": {
+    "mean": 1.3441658020019531,
+    "std": 0.4615960121154785,
+    "median": 1.4340448379516602,
+    "pct_high": 0.9386
+  },
+  "rotated_45": {
+    "mean": 1.4967739582061768,
+    "std": 0.39533886313438416,
+    "median": 1.5854942798614502,
+    "pct_high": 0.9743
+  },
+  "rotated_60": {
+    "mean": 1.569871425628662,
+    "std": 0.37368667125701904,
+    "median": 1.6542084217071533,
+    "pct_high": 0.9836
+  },
+  "rotated_90": {
+    "mean": 1.4542019367218018,
+    "std": 0.39600852131843567,
+    "median": 1.528062105178833,
+    "pct_high": 0.9812
+  },
+  "fgsm_eps0.05": {
+    "mean": 0.8832128047943115,
+    "std": 0.49567174911499023,
+    "median": 0.8478564023971558,
+    "pct_high": 0.736,
+    "dnn_accuracy_after_attack": 0.8391,
+    "bnn_mean_confidence": 0.7152419090270996,
+    "bnn_pct_confident_wrong": 0.0028
+  },
+  "fgsm_eps0.1": {
+    "mean": 0.9403301477432251,
+    "std": 0.4803929626941681,
+    "median": 0.9236141443252563,
+    "pct_high": 0.7922,
+    "dnn_accuracy_after_attack": 0.6764,
+    "bnn_mean_confidence": 0.6886225342750549,
+    "bnn_pct_confident_wrong": 0.0049
+  },
+  "fgsm_eps0.2": {
+    "mean": 1.0484951734542847,
+    "std": 0.45182883739471436,
+    "median": 1.0617425441741943,
+    "pct_high": 0.8695,
+    "dnn_accuracy_after_attack": 0.2523,
+    "bnn_mean_confidence": 0.637374222278595,
+    "bnn_pct_confident_wrong": 0.0117
+  },
+  "fgsm_eps0.3": {
+    "mean": 1.1186474561691284,
+    "std": 0.4213479161262512,
+    "median": 1.1391595602035522,
+    "pct_high": 0.9095,
+    "dnn_accuracy_after_attack": 0.102,
+    "bnn_mean_confidence": 0.6009048223495483,
+    "bnn_pct_confident_wrong": 0.0276
+  }
+}

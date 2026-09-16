@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tooling and test caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Downloaded datasets
+data/
+
+# Generated analysis outputs
+# figures_cifar/
+# figures_fixed/
+# figures_mechanism/
+# results/
+# results_fixed/
+# tables_fixed/
+
+# Generated reports and images
+# *.html
+# *.png
+# *.jpg
+# *.jpeg
