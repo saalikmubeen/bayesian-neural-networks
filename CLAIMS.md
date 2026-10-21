@@ -75,3 +75,15 @@ listed result files. Check with
 | Ledger: 29 entries; 9 confirmed, 16 falsified, 3 mixed, 1 none | 29, 9, 16, 3, 1 | tally of the appendix table (each row from its protocol) |
 | Ledger thresholds and outcomes: ±0.02, ±0.03, 0.035, 0.005, 5×, 70%, 30%, 20%, 67%, 0.31 | as written | `experiments/*/protocol.md` predictions |
 | Appendix table column widths (layout, not a result; the checker reads "8" from "8.6cm") | 0.9, 8, 8.6, 4.6 cm | `report/bnn.tex` tabular spec |
+
+## Additions after review 2 (no new compute)
+| Claim | Values | Source |
+|---|---|---|
+| Wilcoxon with 5 seeds cannot fall below p = 0.0625 | 0.0625 | exact two-sided minimum for n = 5 |
+| E6 KMNIST MI-Δ +0.073 (10k), +0.071 (30k), +0.061 (50k); test entropy 0.30 → 0.94 | 0.073, 0.071, 0.061, 0.30, 0.94 | `results/E6/dyn_n2000_rho-5_s*.csv` (mean of 3 seeds; `delta_kmnist_mi`, `H_id`) |
+| Entropy-Δ KMNIST at 40k: +0.033 (n = 500), +0.060 (n = 10,000) | 0.033, 0.060 | `results/E9/dyn_n{500,10000}_rho-5_s*.csv` (mean of 3 seeds) |
+| Collapsed runs (σ0 ≥ 0.31): entropy-Δ ≈ −0.86, MI-Δ ≈ +0.10 | 0.86, 0.10 | `results/E6/dyn_n2000_rho{-1,0}_s*.csv` (mean over checkpoints) |
+| Mean fc1 ρ ≈ softplus⁻¹(mean σ) at 1k / 3k / 5k: −3.54/−3.52/−3.62, −1.88/−1.85/−1.92, −1.01/−0.99/−1.09 (n = 500 / 2,000 / 10,000) | as written | `results/E9/dyn_n*_rho-5_s*.csv` (`sigma_fc1`, mean of 3 seeds) |
+| Fixed stop at 8k / 10k: Δ̄ +0.048 / +0.047, 72% / 71% of oracle; MI at last checkpoint +0.049 | 0.048, 0.047, 0.72, 0.71, 72, 0.049 | recomputed from `results/E9/dyn_*.csv` (12 runs) |
+| CIFAR CNN SVHN MI-AUROC 0.24–0.60 | 0.238, 0.599 | `results/E7/dyn_*.csv` (`auroc_svhn_mi`) |
+| CIFAR accuracy range 37–68% | 0.367 (E7b BBB max), 0.683 (E7 BBB max) | `results/E7b/summary.txt`, `results/E7/summary.txt` |

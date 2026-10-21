@@ -57,11 +57,12 @@ say(best[["rho_init", "seed", "step", "delta_kmnist", "delta_fashion", "acc", "e
 # Figure: small multiples, one line per sigma init (mean over seeds)
 COLORS = {-5: "#2a78d6", -3: "#eb6834", -1: "#1baf7a", 0: "#eda100"}
 LABEL = {-5: "σ₀ = 0.007", -3: "σ₀ = 0.049", -1: "σ₀ = 0.31", 0: "σ₀ = 0.69"}
-panels = [("delta_kmnist", "Δ AUROC vs matched DNN (KMNIST)"), ("acc", "Test accuracy"),
+panels = [("delta_kmnist", "Δ entropy-AUROC (KMNIST)"), ("delta_kmnist_mi", "Δ MI-AUROC (KMNIST)"),
+          ("acc", "Test accuracy"),
           ("sigma_fc1", "Mean posterior σ, layer 1"), ("neg_elbo", "Negative ELBO per example")]
 plt.rcParams.update({"font.size": 8, "axes.spines.top": False, "axes.spines.right": False,
                      "axes.grid": True, "grid.color": "#e4e3df", "grid.linewidth": 0.6, "pdf.fonttype": 42})
-fig, axes = plt.subplots(1, 4, figsize=(10, 2.4))
+fig, axes = plt.subplots(1, 5, figsize=(12, 2.4))
 mean = df.groupby(["rho_init", "step"]).mean(numeric_only=True).reset_index()
 for ax, (col, title) in zip(axes, panels):
     for r, g in mean.groupby("rho_init"):
@@ -70,8 +71,9 @@ for ax, (col, title) in zip(axes, panels):
     ax.set_xlabel("steps (×1000)")
     if col == "neg_elbo":
         ax.set_yscale("log")
-    if col == "delta_kmnist":
+    if col.startswith("delta"):
         ax.axhline(0, color="#52514e", lw=0.8)
+        ax.set_ylim(-0.15, 0.12)
 axes[0].legend(frameon=False, fontsize=7)
 fig.tight_layout()
 Path("figures").mkdir(exist_ok=True)

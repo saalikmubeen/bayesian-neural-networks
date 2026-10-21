@@ -1,11 +1,11 @@
-# When Does Bayes by Backprop Know What It Doesn't Know?
+# Bayes by Backprop's OOD Advantage Depends on Where Training Stops
 
 A study of out-of-distribution (OOD) detection with Bayesian neural networks,
 built around a Bayes-by-Backprop (BBB) implementation written from scratch in
 PyTorch. Every experiment's hypothesis, predictions and falsification
 criteria were committed to git before it ran.
 
-**Report:** [bnn.pdf](bnn.pdf) (9 pages; source `report/bnn.tex`)
+**Report:** [bnn.pdf](bnn.pdf) (10 pages; source `report/bnn.tex`)
 
 ## The question
 
@@ -25,32 +25,41 @@ On MLPs trained on MNIST (OOD sets: Fashion-MNIST, KMNIST):
    last-layer Laplace is worse (10 seeds per setting).
 2. **BBB's advantage is set by the number of optimizer steps, not by the
    amount of data.** With the same data, about 23,500 steps give +0.06 to
-   +0.08 AUROC over the control (5/5 seeds); 4,800 steps give none.
-3. **It is a transient window.** As training continues, the KL term widens the
-   posterior. For a while BBB beats the control and a deep ensemble. Then the
-   ELBO keeps improving towards a near-prior posterior that underfits and loses
-   the advantage. A large initial σ prevents learning altogether.
-4. **It needs posterior noise in both hidden layers together**, and it is not
-   explained by a pixel shortcut (removing ink on always-blank pixels changes
-   nothing).
-5. **Neither held-out NLL nor the ELBO finds the window. Synthetic outliers
-   do:** picking the checkpoint that best separates validation digits from
-   noise, flipped and pixel-permuted digits recovers 73% of the best achievable
-   advantage, with no real OOD data.
+   +0.08 AUROC over the control (5/5 seeds); 4,800 steps give none. The
+   posterior standard deviations follow almost the same path for 500 to
+   10,000 training images, which suggests the optimizer (Adam) sets the pace.
+   This is a hypothesis I have not yet tested directly.
+3. **The uncertainty score matters.** Along training, the entropy-based
+   advantage can rise and then disappear as the model starts to underfit and
+   becomes uncertain on normal digits too. The mutual-information (MI)
+   advantage persists. But MI is also high for runs that never learned the
+   task, so MI alone does not show a useful model.
+4. **The advantage needs posterior noise in both hidden layers together**, and
+   it is not explained by a pixel shortcut (removing ink on always-blank pixels
+   changes nothing).
+5. **Choosing when to stop is unsolved.** Held-out NLL stops too early and the
+   ELBO too late. A synthetic-outlier selection rule does no better than
+   stopping at a fixed step count.
 
-On CIFAR-10 (OOD: SVHN, CIFAR-100), neither a small CNN nor the same MLP
-shows a comparable window. There, even a deep ensemble loses to a single
-softness-matched network on SVHN. The drift towards the prior does replicate.
+On CIFAR-10 with small, underfit models (37–68% accuracy), no comparable
+advantage appears. That result says little about well-trained networks.
 
-![BBB training dynamics](figures/E6_dynamics.pdf)
+![BBB training dynamics](figures/E6_dynamics.png)
 
 ## How the study got here
 
 The project started from a simpler question ("is the BNN's advantage just
 softness?"). Most of my pre-registered predictions failed: 16 of 29, listed
-in the report's appendix. Those failures are what led to the training-window
+in the report's appendix. Those failures are what led to the training-path
 account. Each step is in [experiments/](experiments/) (E1–E9, E7b), with the
 prediction written first and the result added after the run.
+
+## Limitations and next steps
+
+The N(0,1) prior is misspecified for these layers and has not been swept; the
+dynamics runs use a constant learning rate and 3 seeds; there is no
+exact-posterior (HMC) reference; and the CIFAR models are small and underfit.
+Planned next experiments: learning-rate and SGD tests of the optimizer-clock hypothesis, a prior-scale sweep, ResNet-20 on CIFAR-10, HMC.
 
 ## Methodological notes
 
