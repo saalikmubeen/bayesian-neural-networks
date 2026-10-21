@@ -1,0 +1,17 @@
+    n  seed  first_dS  first_dC  peak_dS  step_dS  acc_at_peak_dS  peak_dC  step_dC  acc_at_peak_dC  acc_max  acc_last  sigma_f1_last
+10000     0    -0.031     0.004    0.005     4000           0.468    0.032     3000           0.469    0.469     0.278          0.997
+10000     1    -0.049    -0.003   -0.014     3000           0.474    0.037     4000           0.472    0.474     0.237          0.997
+10000     2    -0.031    -0.002    0.019     3000           0.461    0.030     6000           0.451    0.471     0.285          0.997
+ 2000     0    -0.042    -0.004   -0.001     3000           0.378    0.091    58000           0.165    0.378     0.176          0.999
+ 2000     1    -0.081     0.001   -0.031     3000           0.379    0.103    54000           0.167    0.379     0.174          0.999
+ 2000     2    -0.012     0.015    0.030     4000           0.367    0.205    39000           0.095    0.384     0.096          0.999
+n=2000: H_arch criterion met in 2/3 seeds; H_data criterion (both peaks < 0.01) in 0/3
+n=10000: H_arch criterion met in 3/3 seeds; H_data criterion (both peaks < 0.01) in 0/3
+
+Exploratory: peaks restricted to checkpoints with acc >= 90% of the run's max accuracy
+  n=10000 s=0: steps 1000-7000, peak dS +0.005, peak dC +0.032
+  n=10000 s=1: steps 1000-6000, peak dS -0.013, peak dC +0.037
+  n=10000 s=2: steps 1000-7000, peak dS +0.019, peak dC +0.030
+  n=2000 s=0: steps 1000-4000, peak dS -0.001, peak dC +0.033
+  n=2000 s=1: steps 1000-4000, peak dS -0.031, peak dC +0.046
+  n=2000 s=2: steps 1000-4000, peak dS +0.030, peak dC +0.037

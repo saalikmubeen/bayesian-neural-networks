@@ -155,6 +155,52 @@ layers.
 
 ---
 
+## 9. E9 checkpoint selection with synthetic outliers ✅
+
+Protocol: `experiments/E9_selection/`. 12 dynamics runs with proxies, ~20 min on 2 GPUs.
+
+```bash
+scripts/run_E9.sh 0 10000:-5 500:-5 > logs/E9_gpu0.log 2>&1 &
+scripts/run_E9.sh 1 2000:-5 2000:-3 > logs/E9_gpu1.log 2>&1 &
+$PY scripts/analyze_window_scaling.py           # window vs n (exploratory)
+```
+
+The selection table is computed by the inline script recorded in the E9
+protocol result (`results/E9/selection.csv`). Result: combined proxies recover
+73% of the oracle advantage; NLL stopping lands before the window. The window
+peak does not move reliably with n, but it closes later at n = 10000.
+
+---
+
+## 10. E7 CIFAR-10 CNN and E7b CIFAR-10 MLP ✅
+
+Protocols: `experiments/E7_cifar/`, `experiments/E7b_cifar_mlp/`. E7 ~1 h, E7b ~25 min on 2 GPUs.
+
+```bash
+scripts/run_E7.sh 0 0 2 > logs/E7_gpu0.log 2>&1 &
+scripts/run_E7.sh 1 1   > logs/E7_gpu1.log 2>&1 &
+scripts/run_E7b.sh 0 2000  > logs/E7b_gpu0.log 2>&1 &
+scripts/run_E7b.sh 1 10000 > logs/E7b_gpu1.log 2>&1 &
+```
+
+Result: no OOD window on CIFAR-10 with either architecture. The drift towards
+the prior replicates. Summaries: `results/E7/summary.txt`, `results/E7b/summary.txt`.
+
+---
+
+## 11. Report rewrite ✅
+
+```bash
+PYTHONPATH=. $PY scripts/analyze_support_rule.py     # results/E45/support_rule.csv
+$PY scripts/make_figures_paper.py                    # figures/paper_steps_vs_n.pdf, paper_cifar.pdf
+cd report && pdflatex bnn && bibtex bnn && pdflatex bnn && pdflatex bnn && cd .. && cp report/bnn.pdf bnn.pdf
+python3 scripts/check_claims.py report/bnn.tex CLAIMS.md
+```
+
+Result: 9 pages; every number traced in `CLAIMS.md`.
+
+---
+
 ## Where things are
 
 | Path | What |

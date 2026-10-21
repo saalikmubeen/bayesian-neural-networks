@@ -1,94 +1,99 @@
-# Is the Bayesian OOD Advantage Just Softness?
+# When Does Bayes by Backprop Know What It Doesn't Know?
 
-A study of uncertainty in Bayesian neural networks, built around a
-Bayes-by-Backprop (BBB) implementation written from scratch in PyTorch. One
-question drives it: **does a Bayesian neural network still detect
-out-of-distribution (OOD) inputs better once a plain network is given the
-same overall softness?**
+A study of out-of-distribution (OOD) detection with Bayesian neural networks,
+built around a Bayes-by-Backprop (BBB) implementation written from scratch in
+PyTorch. Every experiment's hypothesis, predictions and falsification
+criteria were committed to git before it ran.
 
-**Report:** [bnn.pdf](bnn.pdf)
+**Report:** [bnn.pdf](bnn.pdf) (9 pages; source `report/bnn.tex`)
 
 ## The question
 
-A BNN averages predictions over a distribution of weights. Its outputs are
-therefore softer (higher-entropy) than a plain network's on every input, and
-many comparisons read "higher entropy on OOD data" as "the BNN knows what it
-doesn't know". Temperature scaling also softens a plain network, at no cost.
-The fair question is whether the BNN separates OOD inputs from
-in-distribution inputs better than a plain network of the **same softness**.
-Here the temperature is fitted on validation data only.
+A BNN averages predictions over a distribution of weights, so its outputs are
+softer than a plain network's on *every* input. A plain network can be
+softened for free with a temperature. So each method here is compared with a
+plain network softened, on validation data only, to that method's own
+in-distribution entropy. The question is whether the method separates OOD
+inputs from in-distribution inputs better than a network of the same softness.
 
-## Pilot result (MNIST, n = 2,000, 3 seeds)
+## Findings
 
-| Model | Accuracy | ECE | OOD AUROC Fashion-MNIST | OOD AUROC KMNIST |
-| ----- | -------- | --- | ----------------------- | ---------------- |
-| DNN | 0.925 | 0.045 | 0.857 | 0.872 |
-| DNN, softness-matched (T = 2.05) | 0.925 | **0.007** | **0.866** | **0.893** |
-| BNN (BBB, KL weight 1/N) | **0.936** | 0.022 | 0.832 | 0.886 |
-| BNN (BBB, KL weight 1/n_batches) | 0.904 | 0.185 | 0.836 | 0.895 |
+On MLPs trained on MNIST (OOD sets: Fashion-MNIST, KMNIST):
 
-- **No detectable OOD advantage for the BNN.** On Fashion-MNIST even the plain
-  DNN does as well; on KMNIST the BNN's small lead (+0.014) disappears once the
-  DNN is softened. My pre-registered prediction of equivalence held on KMNIST
-  but failed on Fashion-MNIST, where the BNN was worse.
-- **The matched temperature equals ordinary temperature scaling (T = 2.05)**,
-  so here the control is the standard calibration baseline.
-- **One hint of a real Bayesian signal:** scored by mutual information, an
-  over-regularised BNN beats its softness-matched DNN on KMNIST in every seed
-  (not on Fashion-MNIST). The KL-weight sweep in E2 tests this.
-- **Three seeds are too few.** Fashion-MNIST AUROC ranges from 0.72 to 0.90 for
-  the same method across seeds. A 10-seed study is under way, covering MC
-  dropout, deep ensembles, last-layer Laplace, three training sizes and a
-  KL-weight sweep ([protocol](experiments/E2_mnist_grid/protocol.md)).
+1. **At standard training budgets, BBB is no better than the softness-matched
+   network.** Deep ensembles are slightly better, MC dropout ties, and
+   last-layer Laplace is worse (10 seeds per setting).
+2. **BBB's advantage is set by the number of optimizer steps, not by the
+   amount of data.** With the same data, about 23,500 steps give +0.06 to
+   +0.08 AUROC over the control (5/5 seeds); 4,800 steps give none.
+3. **It is a transient window.** As training continues, the KL term widens the
+   posterior. For a while BBB beats the control and a deep ensemble. Then the
+   ELBO keeps improving towards a near-prior posterior that underfits and loses
+   the advantage. A large initial σ prevents learning altogether.
+4. **It needs posterior noise in both hidden layers together**, and it is not
+   explained by a pixel shortcut (removing ink on always-blank pixels changes
+   nothing).
+5. **Neither held-out NLL nor the ELBO finds the window. Synthetic outliers
+   do:** picking the checkpoint that best separates validation digits from
+   noise, flipped and pixel-permuted digits recovers 73% of the best achievable
+   advantage, with no real OOD data.
 
-Details, per-seed numbers and the pre-registered predictions are in
-[experiments/E1_pilot/protocol.md](experiments/E1_pilot/protocol.md).
+On CIFAR-10 (OOD: SVHN, CIFAR-100), neither a small CNN nor the same MLP
+shows a comparable window. There, even a deep ensemble loses to a single
+softness-matched network on SVHN. The drift towards the prior does replicate.
+
+![BBB training dynamics](figures/E6_dynamics.pdf)
+
+## How the study got here
+
+The project started from a simpler question ("is the BNN's advantage just
+softness?"). Most of my pre-registered predictions failed: 16 of 29, listed
+in the report's appendix. Those failures are what led to the training-window
+account. Each step is in [experiments/](experiments/) (E1–E9, E7b), with the
+prediction written first and the result added after the run.
 
 ## Methodological notes
 
-1. **KL scaling.** With the cross-entropy averaged over a mini-batch, the
-   per-example ELBO needs `KL / N`. Dividing by the number of mini-batches
-   instead is an easy slip, and it over-weights the KL term by about the
-   batch size (62.5× at N = 2,000, batch 64). The over-weighted posterior
-   underfits: accuracy falls from 0.936 to 0.904 and ECE rises from 0.022 to
-   0.185. This variant is kept as an ablation (`bbb_bug`).
-2. **No fixed-threshold rejection rates.** Thresholding entropy for one model
-   and 1 − max-probability for another compares different scales.
-   Comparisons use threshold-free AUROC, paired by seed.
-3. **Process.** Each hypothesis and prediction is committed to git before the
-   run. Metrics are recomputed from saved per-sample predictions, and every
-   number in the report is traced to a file in [CLAIMS.md](CLAIMS.md).
+- **KL scaling.** With the cross-entropy averaged over a mini-batch, the
+  per-example ELBO needs `KL / N`. Dividing by the number of mini-batches
+  instead over-weights the KL term by about the batch size (62.5× at N = 2,000)
+  and costs about 3 points of accuracy. It is kept as an ablation (`bbb_bug`).
+- **No fixed-threshold rejection rates.** Comparisons use threshold-free
+  AUROC, paired by seed, with bootstrap CIs.
+- **Every number in the report is traced** to a result file in
+  [CLAIMS.md](CLAIMS.md).
 
 ## Repository layout
 
 ```
-bnn.pdf                    revised report (source: report/bnn.tex)
-bnnstudy/                  study code
-  data.py                  MNIST subsets, disjoint validation pool, OOD sets
-  models.py                DNN, MC dropout, ensembles, BBB, last-layer Laplace
-  train.py                 one run -> per-sample predictions (.npz)
-  evaluate.py              metrics + temperature-scaled / softness-matched DNNs
-  compare.py               paired per-seed comparisons with bootstrap CIs
-experiments/<id>/protocol.md   pre-registered hypotheses, predictions, results
-scripts/                   run scripts and figure scripts
-results/<id>/              metrics.csv, summary.txt (per-sample .npz not tracked)
-figures/                   report figures
+bnn.pdf                       report (source: report/bnn.tex, report/refs.bib)
+bnnstudy/                     code
+  data.py, models.py          MNIST data; DNN, MAP, MC dropout, ensemble, BBB, last-layer Laplace
+  train.py, evaluate.py       one run -> per-sample predictions; metrics + softness-matched controls
+  compare.py                  paired per-seed comparisons (bootstrap CI, Wilcoxon)
+  dynamics.py                 BBB training dynamics with checkpoint-wise evaluation (E6, E9)
+  cifar.py                    CIFAR-10 pipeline, CNN and MLP (E7, E7b)
+  softmatch.py                softness-matched comparison for on-the-fly variants
+experiments/<id>/protocol.md  pre-registered hypotheses and predictions, with results
+scripts/                      run scripts, analysis and figure scripts
+results/<id>/                 metrics and summaries (per-sample .npz and model .pt files are not tracked)
+figures/                      report figures
 COMMANDS.md, CLAIMS.md           every command run; every report number -> its source file
 ```
 
 ## Reproduce
 
+Every command actually run, in order, is in [COMMANDS.md](COMMANDS.md).
+Developed with torch 1.9 (CUDA 11.1) on RTX 3090s. The datasets download into
+`data/` on first run.
+
 ```bash
 pip install -r requirements.txt
-scripts/run_E1.sh                       # pilot, ~4 min on one GPU
-python -m bnnstudy.evaluate results/E1_pilot
-python scripts/make_figures_E1.py
+scripts/run_E1.sh                          # pilot, ~4 min
+scripts/run_E6.sh 0 -5 -3                  # training dynamics, ~15 min per GPU
+python scripts/analyze_E6.py
 cd report && pdflatex bnn && bibtex bnn && pdflatex bnn && pdflatex bnn
 ```
-
-Every command actually run, in order: [COMMANDS.md](COMMANDS.md). Developed
-with torch 1.9 (CUDA 11.1) on an RTX 3090. MNIST, Fashion-MNIST and KMNIST
-download into `data/` on first run.
 
 ## License
 

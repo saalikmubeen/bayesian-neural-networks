@@ -32,7 +32,33 @@ softness-matched DNN (E4, E6, E9). A CNN on CIFAR-10 shows none (E7).
   window needs fully connected early layers with posterior noise". H_data →
   "the window is specific to MNIST-like data".
 
-## Result (filled after running)
-- Outcome:
-- CONFIRMATORY / EXPLORATORY
-- What it rules out / suggests:
+## Result (filled after running, 2026-10-22)
+Files: `results/E7b/dyn_*.csv`, `results/E7b/summary.txt`; logs `logs/E7b_gpu*.log`.
+DNN (MLP) test accuracy: see the `test acc` lines in the logs. BBB MLP accuracy
+peaks at 0.47 (n = 10000) and 0.37–0.38 (n = 2000), then collapses towards
+the prior (0.24–0.29 and 0.10–0.18 at 60k; σ_f1 → 0.997–0.999).
+
+| n | seed | first Δ_S / Δ_C | peak Δ_SVHN (step, acc) | peak Δ_C100 (step, acc) |
+|---|---|---|---|---|
+| 10000 | 0 | −0.031 / +0.004 | +0.005 (4k, 0.47) | +0.032 (3k, 0.47) |
+| 10000 | 1 | −0.049 / −0.003 | −0.014 (3k, 0.47) | +0.037 (4k, 0.47) |
+| 10000 | 2 | −0.031 / −0.002 | +0.019 (3k, 0.46) | +0.030 (6k, 0.45) |
+| 2000 | 0 | −0.042 / −0.004 | −0.001 (3k, 0.38) | +0.091 (58k, 0.17) |
+| 2000 | 1 | −0.081 / +0.001 | −0.031 (3k, 0.38) | +0.103 (54k, 0.17) |
+| 2000 | 2 | −0.012 / +0.015 | +0.030 (4k, 0.37) | +0.205 (39k, 0.10) |
+
+- **Pre-registered rule: H_arch supported** (criterion met in 3/3 seeds at
+  n = 10000 and 2/3 at n = 2000; H_data's criterion in 0/6).
+- **But the evidence is weak.** The qualifying gains are on CIFAR-100 only and
+  barely above the +0.03 threshold while the model still learns (+0.030 to
+  +0.046 at checkpoints with ≥ 90% of max accuracy, steps 1k–7k). That is
+  similar to the CNN's CIFAR-100 gain in E7 (+0.024 to +0.031). The largest
+  n = 2000 gains (+0.09 to +0.21) come after collapse to near-chance accuracy
+  and are not meaningful. SVHN shows no window for either architecture. The
+  rule did not include an accuracy condition; that was an omission.
+- Reading: on CIFAR-10 neither architecture shows the MNIST-sized window
+  (+0.06 to +0.08 on both OOD sets). The MLP shows a brief, small CIFAR-100
+  gain before collapsing. This does not cleanly separate architecture from
+  data; it points more to the data (or to task difficulty, at 37–47%
+  accuracy) than to the CNN's structure.
+- CONFIRMATORY for the rule as written; the substantive reading is EXPLORATORY.

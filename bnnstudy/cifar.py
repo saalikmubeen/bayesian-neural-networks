@@ -5,6 +5,7 @@
     python -m bnnstudy.cifar bbb      --n 10000 --seed 0 --out results/E7 --steps 60000
 
 `dnn` / `ensemble` save per-sample outputs (.npz, logits for the DNN).
+--arch mlp swaps in the MNIST study's MLP on flattened images (E7b).
 `bbb` trains Bayes by Backprop with a constant learning rate and, every --every
 steps, logs accuracy, ECE, OOD AUROCs, delta vs the softness-matched DNN from
 the same directory, validation-vs-proxy AUROCs, mean sigma per layer and the
@@ -71,6 +72,28 @@ def make_proxies(x_val, seed):
 
 
 # ── Models ─────────────────────────────────────────────────────────────────────
+
+
+def mlp():
+    """Same MLP as the MNIST study, on flattened 32x32x3 images (E7b)."""
+    return nn.Sequential(nn.Flatten(), nn.Linear(3 * 32 * 32, 256), nn.ReLU(),
+                         nn.Linear(256, 256), nn.ReLU(), nn.Linear(256, 10))
+
+
+class BayesMLP(nn.Module):
+    LAYERS = ["f1", "f2", "f3"]
+
+    def __init__(self, rho_init=-5.0):
+        super().__init__()
+        self.f1 = BayesianLinear(3 * 32 * 32, 256, rho_init=rho_init)
+        self.f2 = BayesianLinear(256, 256, rho_init=rho_init)
+        self.f3 = BayesianLinear(256, 10, rho_init=rho_init)
+
+    def forward(self, x):
+        return self.f3(F.relu(self.f2(F.relu(self.f1(x.flatten(1))))))
+
+    def kl(self):
+        return sum(getattr(self, l).kl() for l in self.LAYERS)
 
 
 def cnn():
@@ -145,7 +168,7 @@ def run_deterministic(a, splits, gen):
     members = 5 if a.method == "ensemble" else 1
     nets = []
     for _ in range(members):
-        m = cnn().cuda()
+        m = (mlp() if a.arch == "mlp" else cnn()).cuda()
         train_dnn(m, *splits["train"], a.epochs, gen)
         nets.append(m)
     arrays = {}
@@ -170,7 +193,7 @@ def run_bbb(a, splits, gen):
     ys = {k: y.cpu().numpy() for k, (_, y) in splits.items()}
     dnn = np.load(Path(a.out) / f"dnn_n{a.n}_s{a.seed}.npz")
     x, y = splits["train"]
-    model = BayesCNN(a.rho_init).cuda()
+    model = (BayesMLP if a.arch == "mlp" else BayesCNN)(a.rho_init).cuda()
     opt = torch.optim.Adam(model.parameters(), lr=a.lr)
     warmup = a.warmup
     rows, step, ce_sum, kl_sum, cnt, t0 = [], 0, 0.0, 0.0, 0, time.time()
@@ -198,7 +221,7 @@ def run_bbb(a, splits, gen):
                     hp = entropy(ps[k].mean(0))
                     row[f"auroc_{k}_entropy"] = auroc(h_val, hp)
                     row[f"auroc_{k}_mi"] = auroc(mi_val, hp - entropy(ps[k]).mean(0))
-                for l in BayesCNN.LAYERS:
+                for l in model.LAYERS:
                     row[f"sigma_{l}"] = float(F.softplus(getattr(model, l).rho).mean())
                 row.update(step=step, ce=ce_sum / cnt, kl_per_n=kl_sum / cnt,
                            neg_elbo=(ce_sum + kl_sum) / cnt, seconds=round(time.time() - t0))
@@ -227,6 +250,7 @@ def main():
     ap.add_argument("--warmup", type=int, default=2000)
     ap.add_argument("--samples", type=int, default=20)
     ap.add_argument("--lr", type=float, default=1e-3)
+    ap.add_argument("--arch", choices=["cnn", "mlp"], default="cnn")
     a = ap.parse_args()
     Path(a.out).mkdir(parents=True, exist_ok=True)
     torch.manual_seed(a.seed)
