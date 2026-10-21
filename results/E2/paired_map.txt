@@ -1,0 +1,137 @@
+    n      method                metric                    vs  seeds  mean_M  mean_dnnT    diff   ci_lo   ci_hi  M_higher  dnnT_higher  wilcoxon_p      T
+  500         bbb auroc_fashion_entropy auroc_fashion_entropy     10  0.8037     0.7900  0.0138  0.0010  0.0263         7            3      0.0645 1.4635
+  500         bbb      auroc_fashion_mi auroc_fashion_entropy     10  0.8123     0.7900  0.0224  0.0098  0.0349         7            3      0.0273 1.4635
+  500         bbb  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8583     0.8801 -0.0218 -0.0278 -0.0162         0           10      0.0020 1.4635
+  500         bbb       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.8764     0.8801 -0.0037 -0.0098  0.0022         4            6      0.2754 1.4635
+  500         bbb                   acc                   acc     10  0.8875     0.8763  0.0112  0.0073  0.0148         9            1      0.0039 1.4635
+  500         bbb                   nll                   nll     10  0.4023     0.4096 -0.0073 -0.0162  0.0019         1            9      0.0645 1.4635
+  500         bbb                   ece                   ece     10  0.0320     0.0130  0.0190  0.0163  0.0219        10            0      0.0020 1.4635
+  500         bbb                  aurc                  aurc     10  0.0210     0.0246 -0.0037 -0.0047 -0.0025         1            9      0.0039 1.4635
+  500    ensemble auroc_fashion_entropy auroc_fashion_entropy     10  0.8424     0.7836  0.0588  0.0359  0.0865        10            0      0.0020 0.6606
+  500    ensemble      auroc_fashion_mi auroc_fashion_entropy     10  0.8534     0.7836  0.0698  0.0428  0.1026        10            0      0.0020 0.6606
+  500    ensemble  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8674     0.8512  0.0162  0.0125  0.0192        10            0      0.0020 0.6606
+  500    ensemble       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.8768     0.8512  0.0256  0.0212  0.0294        10            0      0.0020 0.6606
+  500    ensemble                   acc                   acc     10  0.8804     0.8763  0.0042  0.0010  0.0071         7            3      0.0488 0.6606
+  500    ensemble                   nll                   nll     10  0.5824     0.5948 -0.0125 -0.0372  0.0090         5            5      0.5566 0.6606
+  500    ensemble                   ece                   ece     10  0.0692     0.0750 -0.0058 -0.0085 -0.0030         1            9      0.0098 0.6606
+  500    ensemble                  aurc                  aurc     10  0.0227     0.0241 -0.0014 -0.0025 -0.0005         2            8      0.0371 0.6606
+  500     laplace auroc_fashion_entropy auroc_fashion_entropy     10  0.7784     0.7900 -0.0116 -0.0399  0.0215         3            7      0.3750 1.4521
+  500     laplace      auroc_fashion_mi auroc_fashion_entropy     10  0.6863     0.7900 -0.1037 -0.1404 -0.0641         1            9      0.0039 1.4521
+  500     laplace  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.7812     0.8798 -0.0986 -0.1103 -0.0884         0           10      0.0020 1.4521
+  500     laplace       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.6298     0.8798 -0.2500 -0.2710 -0.2308         0           10      0.0020 1.4521
+  500     laplace                   acc                   acc     10  0.8773     0.8763  0.0010 -0.0026  0.0045         6            4      0.6953 1.4521
+  500     laplace                   nll                   nll     10  0.4470     0.4104  0.0366  0.0278  0.0453        10            0      0.0020 1.4521
+  500     laplace                   ece                   ece     10  0.0331     0.0150  0.0181  0.0117  0.0233         9            1      0.0039 1.4521
+  500     laplace                  aurc                  aurc     10  0.0252     0.0246  0.0006 -0.0004  0.0015         6            4      0.3223 1.4521
+  500  mc_dropout auroc_fashion_entropy auroc_fashion_entropy     10  0.8276     0.7849  0.0427  0.0221  0.0688        10            0      0.0020 0.7217
+  500  mc_dropout      auroc_fashion_mi auroc_fashion_entropy     10  0.7721     0.7849 -0.0128 -0.0368  0.0173         3            7      0.2324 0.7217
+  500  mc_dropout  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8414     0.8540 -0.0126 -0.0165 -0.0089         0           10      0.0020 0.7217
+  500  mc_dropout       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.7731     0.8540 -0.0809 -0.0850 -0.0773         0           10      0.0020 0.7217
+  500  mc_dropout                   acc                   acc     10  0.8806     0.8763  0.0043  0.0009  0.0077         7            3      0.0488 0.7217
+  500  mc_dropout                   nll                   nll     10  0.5526     0.5561 -0.0035 -0.0281  0.0182         5            5      0.9219 0.7217
+  500  mc_dropout                   ece                   ece     10  0.0633     0.0700 -0.0067 -0.0099 -0.0036         1            9      0.0039 0.7217
+  500  mc_dropout                  aurc                  aurc     10  0.0227     0.0240 -0.0013 -0.0025 -0.0002         3            7      0.0645 0.7217
+ 2000         bbb auroc_fashion_entropy auroc_fashion_entropy     10  0.8544     0.8757 -0.0214 -0.0415 -0.0074         2            8      0.0195 1.6433
+ 2000         bbb      auroc_fashion_mi auroc_fashion_entropy     10  0.8591     0.8757 -0.0167 -0.0371 -0.0028         3            7      0.0488 1.6433
+ 2000         bbb  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8863     0.9063 -0.0200 -0.0232 -0.0169         0           10      0.0020 1.6433
+ 2000         bbb       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.8960     0.9063 -0.0103 -0.0135 -0.0069         0           10      0.0020 1.6433
+ 2000         bbb                   acc                   acc     10  0.9385     0.9334  0.0051  0.0041  0.0062        10            0      0.0020 1.6433
+ 2000         bbb                   nll                   nll     10  0.2245     0.2263 -0.0018 -0.0068  0.0032         4            6      0.5566 1.6433
+ 2000         bbb                   ece                   ece     10  0.0232     0.0093  0.0140  0.0125  0.0154        10            0      0.0020 1.6433
+ 2000         bbb                  aurc                  aurc     10  0.0071     0.0081 -0.0011 -0.0013 -0.0008         0           10      0.0020 1.6433
+ 2000    ensemble auroc_fashion_entropy auroc_fashion_entropy     10  0.8826     0.8706  0.0121 -0.0034  0.0284         6            4      0.2754 0.8942
+ 2000    ensemble      auroc_fashion_mi auroc_fashion_entropy     10  0.8962     0.8706  0.0257  0.0108  0.0405         9            1      0.0098 0.8942
+ 2000    ensemble  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8921     0.8908  0.0013 -0.0017  0.0041         6            4      0.4316 0.8942
+ 2000    ensemble       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.9078     0.8908  0.0170  0.0138  0.0202        10            0      0.0020 0.8942
+ 2000    ensemble                   acc                   acc     10  0.9278     0.9334 -0.0056 -0.0064 -0.0046         0           10      0.0020 0.8942
+ 2000    ensemble                   nll                   nll     10  0.3243     0.2860  0.0383  0.0317  0.0447        10            0      0.0020 0.8942
+ 2000    ensemble                   ece                   ece     10  0.0390     0.0351  0.0039  0.0030  0.0049        10            0      0.0020 0.8942
+ 2000    ensemble                  aurc                  aurc     10  0.0091     0.0080  0.0011  0.0009  0.0014        10            0      0.0020 0.8942
+ 2000     laplace auroc_fashion_entropy auroc_fashion_entropy     10  0.8385     0.8758 -0.0373 -0.0551 -0.0212         0           10      0.0020 1.7364
+ 2000     laplace      auroc_fashion_mi auroc_fashion_entropy     10  0.7894     0.8758 -0.0865 -0.1061 -0.0683         0           10      0.0020 1.7364
+ 2000     laplace  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8557     0.9076 -0.0519 -0.0585 -0.0460         0           10      0.0020 1.7364
+ 2000     laplace       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.8111     0.9076 -0.0965 -0.1042 -0.0881         0           10      0.0020 1.7364
+ 2000     laplace                   acc                   acc     10  0.9257     0.9334 -0.0076 -0.0091 -0.0063         0           10      0.0020 1.7364
+ 2000     laplace                   nll                   nll     10  0.2645     0.2277  0.0368  0.0331  0.0406        10            0      0.0020 1.7364
+ 2000     laplace                   ece                   ece     10  0.0173     0.0153  0.0020 -0.0001  0.0044         6            4      0.1602 1.7364
+ 2000     laplace                  aurc                  aurc     10  0.0101     0.0082  0.0019  0.0016  0.0022        10            0      0.0020 1.7364
+ 2000  mc_dropout auroc_fashion_entropy auroc_fashion_entropy     10  0.8765     0.8715  0.0050 -0.0129  0.0238         6            4      0.6953 0.9757
+ 2000  mc_dropout      auroc_fashion_mi auroc_fashion_entropy     10  0.8364     0.8715 -0.0351 -0.0505 -0.0203         1            9      0.0039 0.9757
+ 2000  mc_dropout  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8693     0.8929 -0.0236 -0.0261 -0.0209         0           10      0.0020 0.9757
+ 2000  mc_dropout       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.8394     0.8929 -0.0534 -0.0572 -0.0493         0           10      0.0020 0.9757
+ 2000  mc_dropout                   acc                   acc     10  0.9298     0.9334 -0.0035 -0.0049 -0.0022         0           10      0.0020 0.9757
+ 2000  mc_dropout                   nll                   nll     10  0.2947     0.2699  0.0247  0.0173  0.0323        10            0      0.0020 0.9757
+ 2000  mc_dropout                   ece                   ece     10  0.0328     0.0315  0.0014 -0.0001  0.0029         6            4      0.2324 0.9757
+ 2000  mc_dropout                  aurc                  aurc     10  0.0088     0.0079  0.0008  0.0005  0.0012         9            0      0.0076 0.9757
+ 2000 bbb_beta0.1 auroc_fashion_entropy auroc_fashion_entropy     10  0.8826     0.8731  0.0096 -0.0011  0.0204         8            2      0.1055 1.1298
+ 2000 bbb_beta0.1      auroc_fashion_mi auroc_fashion_entropy     10  0.8858     0.8731  0.0128  0.0020  0.0236         8            2      0.0645 1.1298
+ 2000 bbb_beta0.1  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8835     0.8965 -0.0130 -0.0160 -0.0099         0           10      0.0020 1.1298
+ 2000 bbb_beta0.1       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.8897     0.8965 -0.0068 -0.0098 -0.0037         1            9      0.0059 1.1298
+ 2000 bbb_beta0.1                   acc                   acc     10  0.9372     0.9334  0.0038  0.0026  0.0051        10            0      0.0020 1.1298
+ 2000 bbb_beta0.1                   nll                   nll     10  0.2705     0.2483  0.0223  0.0130  0.0317         9            1      0.0039 1.1298
+ 2000 bbb_beta0.1                   ece                   ece     10  0.0156     0.0243 -0.0087 -0.0097 -0.0077         0           10      0.0020 1.1298
+ 2000 bbb_beta0.1                  aurc                  aurc     10  0.0071     0.0079 -0.0008 -0.0011 -0.0005         0           10      0.0020 1.1298
+ 2000 bbb_beta0.3 auroc_fashion_entropy auroc_fashion_entropy     10  0.8722     0.8748 -0.0026 -0.0113  0.0057         4            6      0.6953 1.3686
+ 2000 bbb_beta0.3      auroc_fashion_mi auroc_fashion_entropy     10  0.8755     0.8748  0.0007 -0.0078  0.0086         5            5      0.9219 1.3686
+ 2000 bbb_beta0.3  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8823     0.9016 -0.0193 -0.0225 -0.0160         0           10      0.0020 1.3686
+ 2000 bbb_beta0.3       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.8887     0.9016 -0.0129 -0.0162 -0.0094         0           10      0.0020 1.3686
+ 2000 bbb_beta0.3                   acc                   acc     10  0.9380     0.9334  0.0046  0.0032  0.0059         9            1      0.0039 1.3686
+ 2000 bbb_beta0.3                   nll                   nll     10  0.2396     0.2306  0.0090  0.0015  0.0166         9            1      0.0371 1.3686
+ 2000 bbb_beta0.3                   ece                   ece     10  0.0065     0.0117 -0.0053 -0.0070 -0.0037         0           10      0.0020 1.3686
+ 2000 bbb_beta0.3                  aurc                  aurc     10  0.0070     0.0080 -0.0010 -0.0013 -0.0006         1            9      0.0039 1.3686
+ 2000  bbb_beta10 auroc_fashion_entropy auroc_fashion_entropy     10  0.8443     0.8743 -0.0300 -0.0400 -0.0211         0           10      0.0020 2.2685
+ 2000  bbb_beta10      auroc_fashion_mi auroc_fashion_entropy     10  0.8552     0.8743 -0.0191 -0.0313 -0.0094         1            9      0.0039 2.2685
+ 2000  bbb_beta10  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8965     0.9126 -0.0161 -0.0193 -0.0133         0           10      0.0020 2.2685
+ 2000  bbb_beta10       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.9254     0.9126  0.0128  0.0093  0.0163        10            0      0.0020 2.2685
+ 2000  bbb_beta10                   acc                   acc     10  0.9330     0.9334 -0.0003 -0.0015  0.0007         5            4      0.6784 2.2685
+ 2000  bbb_beta10                   nll                   nll     10  0.2668     0.2574  0.0094  0.0060  0.0129        10            0      0.0020 2.2685
+ 2000  bbb_beta10                   ece                   ece     10  0.0749     0.0608  0.0142  0.0126  0.0156        10            0      0.0020 2.2685
+ 2000  bbb_beta10                  aurc                  aurc     10  0.0087     0.0088 -0.0000 -0.0003  0.0002         5            4      0.9526 2.2685
+ 2000   bbb_beta3 auroc_fashion_entropy auroc_fashion_entropy     10  0.8514     0.8757 -0.0243 -0.0386 -0.0133         1            9      0.0039 1.8896
+ 2000   bbb_beta3      auroc_fashion_mi auroc_fashion_entropy     10  0.8575     0.8757 -0.0182 -0.0339 -0.0067         1            9      0.0098 1.8896
+ 2000   bbb_beta3  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8924     0.9094 -0.0171 -0.0208 -0.0133         0           10      0.0020 1.8896
+ 2000   bbb_beta3       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.9083     0.9094 -0.0011 -0.0051  0.0030         4            6      0.5566 1.8896
+ 2000   bbb_beta3                   acc                   acc     10  0.9374     0.9334  0.0041  0.0033  0.0050        10            0      0.0020 1.8896
+ 2000   bbb_beta3                   nll                   nll     10  0.2308     0.2328 -0.0020 -0.0064  0.0026         3            7      0.4316 1.8896
+ 2000   bbb_beta3                   ece                   ece     10  0.0425     0.0267  0.0158  0.0148  0.0170        10            0      0.0020 1.8896
+ 2000   bbb_beta3                  aurc                  aurc     10  0.0074     0.0084 -0.0010 -0.0013 -0.0007         0           10      0.0020 1.8896
+ 2000  bbb_beta30 auroc_fashion_entropy auroc_fashion_entropy     10  0.8338     0.8705 -0.0367 -0.0480 -0.0251         0           10      0.0020 2.8483
+ 2000  bbb_beta30      auroc_fashion_mi auroc_fashion_entropy     10  0.8511     0.8705 -0.0194 -0.0275 -0.0108         1            9      0.0098 2.8483
+ 2000  bbb_beta30  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8980     0.9148 -0.0167 -0.0207 -0.0132         0           10      0.0020 2.8483
+ 2000  bbb_beta30       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.9416     0.9148  0.0268  0.0223  0.0310        10            0      0.0020 2.8483
+ 2000  bbb_beta30                   acc                   acc     10  0.9196     0.9334 -0.0137 -0.0148 -0.0127         0           10      0.0020 2.8483
+ 2000  bbb_beta30                   nll                   nll     10  0.3585     0.3196  0.0390  0.0353  0.0429        10            0      0.0020 2.8483
+ 2000  bbb_beta30                   ece                   ece     10  0.1282     0.1226  0.0056  0.0037  0.0074         9            1      0.0039 2.8483
+ 2000  bbb_beta30                  aurc                  aurc     10  0.0126     0.0096  0.0030  0.0027  0.0032        10            0      0.0020 2.8483
+10000         bbb auroc_fashion_entropy auroc_fashion_entropy     10  0.9740     0.9295  0.0445  0.0335  0.0572        10            0      0.0020 2.5092
+10000         bbb      auroc_fashion_mi auroc_fashion_entropy     10  0.9855     0.9295  0.0559  0.0451  0.0688        10            0      0.0020 2.5092
+10000         bbb  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.9875     0.9337  0.0538  0.0511  0.0569        10            0      0.0020 2.5092
+10000         bbb       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.9948     0.9337  0.0611  0.0584  0.0642        10            0      0.0020 2.5092
+10000         bbb                   acc                   acc     10  0.9640     0.9689 -0.0049 -0.0059 -0.0041         0           10      0.0020 2.5092
+10000         bbb                   nll                   nll     10  0.1458     0.1257  0.0201  0.0182  0.0221        10            0      0.0020 2.5092
+10000         bbb                   ece                   ece     10  0.0445     0.0377  0.0068  0.0059  0.0079        10            0      0.0020 2.5092
+10000         bbb                  aurc                  aurc     10  0.0028     0.0022  0.0006  0.0004  0.0007        10            0      0.0020 2.5092
+10000    ensemble auroc_fashion_entropy auroc_fashion_entropy     10  0.9316     0.9215  0.0101 -0.0013  0.0219         7            3      0.1602 0.9016
+10000    ensemble      auroc_fashion_mi auroc_fashion_entropy     10  0.9326     0.9215  0.0111 -0.0007  0.0235         7            3      0.1934 0.9016
+10000    ensemble  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.9282     0.9219  0.0062  0.0042  0.0085        10            0      0.0020 0.9016
+10000    ensemble       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.9337     0.9219  0.0118  0.0098  0.0141        10            0      0.0020 0.9016
+10000    ensemble                   acc                   acc     10  0.9695     0.9689  0.0005  0.0001  0.0009         8            2      0.0840 0.9016
+10000    ensemble                   nll                   nll     10  0.1428     0.1342  0.0086  0.0057  0.0122        10            0      0.0020 0.9016
+10000    ensemble                   ece                   ece     10  0.0158     0.0179 -0.0021 -0.0026 -0.0016         0           10      0.0020 0.9016
+10000    ensemble                  aurc                  aurc     10  0.0018     0.0019 -0.0001 -0.0001 -0.0000         0            7      0.0167 0.9016
+10000     laplace auroc_fashion_entropy auroc_fashion_entropy     10  0.9091     0.9277 -0.0185 -0.0371  0.0010         2            8      0.0645 1.6851
+10000     laplace      auroc_fashion_mi auroc_fashion_entropy     10  0.8898     0.9277 -0.0378 -0.0581 -0.0161         1            9      0.0195 1.6851
+10000     laplace  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.9012     0.9297 -0.0285 -0.0323 -0.0244         0           10      0.0020 1.6851
+10000     laplace       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.8932     0.9297 -0.0365 -0.0409 -0.0319         0           10      0.0020 1.6851
+10000     laplace                   acc                   acc     10  0.9671     0.9689 -0.0019 -0.0025 -0.0013         0           10      0.0020 1.6851
+10000     laplace                   nll                   nll     10  0.1182     0.1030  0.0153  0.0139  0.0166        10            0      0.0020 1.6851
+10000     laplace                   ece                   ece     10  0.0075     0.0060  0.0015 -0.0002  0.0033         6            4      0.2324 1.6851
+10000     laplace                  aurc                  aurc     10  0.0023     0.0020  0.0003  0.0002  0.0004        10            0      0.0020 1.6851
+10000  mc_dropout auroc_fashion_entropy auroc_fashion_entropy     10  0.9061     0.9220 -0.0160 -0.0328  0.0023         2            8      0.0645 0.9568
+10000  mc_dropout      auroc_fashion_mi auroc_fashion_entropy     10  0.8981     0.9220 -0.0239 -0.0407 -0.0050         2            8      0.0488 0.9568
+10000  mc_dropout  auroc_kmnist_entropy  auroc_kmnist_entropy     10  0.8989     0.9226 -0.0237 -0.0261 -0.0214         0           10      0.0020 0.9568
+10000  mc_dropout       auroc_kmnist_mi  auroc_kmnist_entropy     10  0.9018     0.9226 -0.0208 -0.0231 -0.0185         0           10      0.0020 0.9568
+10000  mc_dropout                   acc                   acc     10  0.9693     0.9689  0.0004 -0.0003  0.0012         6            4      0.4922 0.9568
+10000  mc_dropout                   nll                   nll     10  0.1349     0.1286  0.0063  0.0039  0.0085         9            1      0.0039 0.9568
+10000  mc_dropout                   ece                   ece     10  0.0153     0.0170 -0.0016 -0.0023 -0.0010         1            9      0.0039 0.9568
+10000  mc_dropout                  aurc                  aurc     10  0.0019     0.0019 -0.0000 -0.0001  0.0000         3            4      0.5461 0.9568

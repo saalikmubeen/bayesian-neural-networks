@@ -43,7 +43,34 @@ grows from 0.007 (init) to ~0.1 (4800 steps) and ~0.8–0.97 (23550 steps).
   convergence (or initialise σ larger) before comparing BBB with other
   methods.
 
-## Result (filled after running)
-- Outcome:
-- CONFIRMATORY / EXPLORATORY
-- What it rules out / suggests:
+## Result (filled after running, 2026-10-21)
+Files: `results/E6/dyn_*.csv` (12 runs × 50 checkpoints), `summary.txt`,
+`figures/E6_dynamics.pdf`; script `scripts/analyze_E6.py`; logs `logs/E6_gpu*.log`.
+
+| σ init (rho) | first step Δ_K ≥ 0.04 | peak Δ_K (step, σ_fc1) | at 50k: acc / ECE / Δ_F / Δ_K / σ_fc1 / −ELBO |
+|---|---|---|---|
+| 0.007 (−5) | 6000 (all seeds) | +0.067 to +0.074 (9k–14k, σ 0.65–0.82) | 0.889 / 0.186 / +0.028 / +0.006 / 0.985 / 3.54 |
+| 0.049 (−3) | 3000 (all seeds) | +0.050 to +0.065 (4k, σ ≈ 0.51) | 0.891 / 0.178 / +0.033 / +0.021 / 0.987 / 3.38 |
+| 0.31 (−1) | never | — (accuracy 0.11, chance) | 0.114 / 0.012 / −0.77 / −0.86 / 0.970 / 8.99 |
+| 0.69 (0) | never | — (accuracy 0.11, chance) | 0.111 / 0.012 / −0.77 / −0.86 / 0.970 / 9.24 |
+
+- **P1 FALSIFIED:** Δ does not rise with σ (Spearman −0.34, −0.17, −0.04). It
+  peaks at intermediate σ (0.5–0.8 in layer 1) and falls as σ approaches the prior.
+- **P2 FALSIFIED (no plateau):** Δ_K at 4–5k steps is +0.010 / +0.014 / +0.001
+  (borderline). It peaks at 9k–14k, is *negative* at 25k–30k (−0.02 to −0.04),
+  and is near 0 at 50k. The advantage is a transient window, not a converged
+  property.
+- **P3 FALSIFIED:** a moderately larger init (σ₀ 0.049) reaches the window
+  sooner (3k vs 6k steps). Larger inits (σ₀ ≥ 0.31) never learn: accuracy
+  stays at chance, a bad local optimum (−ELBO 9.0–9.2 vs 3.4–3.5 for the runs
+  that learned).
+- **P4 CONFIRMED:** −ELBO 143.3 ± 2.1 at 4–5k vs 6.8 ± 0.9 at 24–25k. The
+  ELBO keeps improving well past the window, towards a near-prior posterior
+  (σ ≈ 0.98) that underfits (acc 0.89, ECE 0.18, train CE 1.09).
+- Exploratory (not pre-registered): neither in-distribution stopping rule
+  finds the window. Minimum held-out NLL (test NLL as a proxy) stops at 1k–3k
+  steps (no advantage); minimum −ELBO stops at 50k (advantage gone).
+- Caveat: constant learning rate here. E4's cosine schedule froze the
+  23550-step runs near the window (Δ +0.07, acc 0.933), so the schedule
+  determines where on the path training ends.
+- CONFIRMATORY for P1–P4 as stated.

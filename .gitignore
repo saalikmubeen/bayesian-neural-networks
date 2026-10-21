@@ -30,16 +30,16 @@ htmlcov/
 # Downloaded datasets
 data/
 
-# Generated analysis outputs
-# figures_cifar/
-# figures_fixed/
-# figures_mechanism/
-# results/
-# results_fixed/
-# tables_fixed/
 
-# Generated reports and images
-# *.html
-# *.png
-# *.jpg
-# *.jpeg
+# Per-sample model outputs (large; regenerate with bnnstudy.train)
+results/*/*.npz
+logs/
+
+# LaTeX build files (the compiled report is copied to ./bnn.pdf)
+report/*.aux
+report/*.bbl
+report/*.blg
+report/*.log
+report/*.out
+report/bnn.pdf
+results/*/*.pt

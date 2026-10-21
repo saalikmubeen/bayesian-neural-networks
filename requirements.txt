@@ -7,3 +7,5 @@ scikit-learn
 jupyter
 ipykernel
 tqdm
+scipy
+pandas

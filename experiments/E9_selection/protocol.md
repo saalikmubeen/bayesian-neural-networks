@@ -40,7 +40,39 @@ ELBO keeps improving past the window.
   "select BBB checkpoints with synthetic outliers". If not, the paper's
   message is that BBB's OOD advantage cannot be reliably obtained in practice.
 
-## Result (filled after running)
-- Outcome:
-- CONFIRMATORY / EXPLORATORY
-- What it rules out / suggests:
+## Result (filled after running, 2026-10-21)
+Files: `results/E9/dyn_*.csv` (12 runs), `results/E9/selection.csv`; logs `logs/E9_gpu*.log`.
+Δ̄ = (Δ_Fashion + Δ_KMNIST) / 2 at the selected checkpoint; mean over 12 runs.
+
+| rule | mean step | Δ̄ | fraction of oracle | acc | ECE |
+|---|---|---|---|---|---|
+| Oracle (uses real OOD) | 10917 | +0.067 | 1.00 | 0.922 | 0.043 |
+| **R_proxy (mean of 3 proxies)** | 10417 | **+0.049** | **0.73** | 0.924 | 0.043 |
+| R_flip | 13750 | +0.045 | 0.67 | 0.923 | 0.048 |
+| R_permute | 20583 | +0.027 | 0.42 | 0.909 | 0.105 |
+| R_noise | 16167 | +0.020 | 0.32 | 0.912 | 0.086 |
+| R_elbo | 39417 | +0.034 | 0.52 | 0.906 | 0.117 |
+| R_nll | 2250 | −0.032 | −0.49 | 0.922 | 0.027 |
+
+R_proxy by setting: n 500 → 0.69, n 2000 (rho −5) → 0.77, n 2000 (rho −3) → 0.75,
+n 10000 → 0.72 of oracle.
+Peak step (oracle, rho −5): n 500 → 9.7k, n 2000 → 11.0k, n 10000 → 18.7k.
+
+- **P1 CONFIRMED:** the combined proxy rule reaches 73% of the oracle advantage
+  (0.69–0.77 in every setting), at the same accuracy and ECE as the oracle
+  checkpoint. NLL-based stopping lands before the window (negative Δ).
+- **P2 FALSIFIED (narrowly):** the best single proxy (flip) reaches 67%, below
+  70%. Combining proxies matters.
+- **P3 confirmed as stated (mean peak step rises with n), but not robust.**
+  The n = 10000 mean (18.7k) comes from one seed peaking at 35k; the other two
+  peak at 10–11k. Median peak steps: 10k / 11k / 11k for n = 500 / 2000 /
+  10000. Log-log slope of peak step vs n: 0.13 (12 runs, E6 + E9). Treat "the
+  peak moves with n" as unsupported.
+- Follow-up (EXPLORATORY, `scripts/analyze_window_scaling.py`,
+  `results/E9/window_scaling.csv`, `figures/E9_window_vs_n.pdf`; window =
+  contiguous span where the smoothed Δ̄ ≥ half its peak). The window *opens* at
+  a similar step for every n (5k–8k). What changes is when it *closes*: by
+  14k–19k at n = 2000 (6/6 runs), but still open at 40k at n = 10000 (3/3 runs),
+  consistent with a weaker KL pull (1/N) slowing the drift towards the prior.
+  n = 500 does not fit: 2 of 3 windows also stay open to 40k. Unexplained.
+- CONFIRMATORY for P1–P2; P3 as above.

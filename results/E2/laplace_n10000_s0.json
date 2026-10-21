@@ -1,0 +1,19 @@
+{
+  "method": "laplace",
+  "n": 10000,
+  "seed": 0,
+  "config": {
+    "kind": "laplace",
+    "epochs": 40,
+    "lr": 0.001
+  },
+  "epochs": 40,
+  "batch": 64,
+  "prior_precision": 100.0,
+  "train_seconds": 9.4,
+  "test_acc": 0.9671,
+  "torch": "1.9.0+cu111",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "host": "morgoth",
+  "date": "2026-10-21 19:42"
+}

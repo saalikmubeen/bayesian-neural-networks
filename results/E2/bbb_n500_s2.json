@@ -1,0 +1,20 @@
+{
+  "method": "bbb",
+  "n": 500,
+  "seed": 2,
+  "config": {
+    "kind": "bbb",
+    "epochs": 150,
+    "lr": 0.001,
+    "kl": "1/N"
+  },
+  "epochs": 600,
+  "batch": 64,
+  "prior_precision": null,
+  "train_seconds": 17.1,
+  "test_acc": 0.89,
+  "torch": "1.9.0+cu111",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "host": "morgoth",
+  "date": "2026-10-21 19:55"
+}

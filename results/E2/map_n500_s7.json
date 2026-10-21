@@ -1,0 +1,21 @@
+{
+  "method": "map",
+  "n": 500,
+  "seed": 7,
+  "config": {
+    "kind": "dnn",
+    "epochs": 150,
+    "lr": 0.001,
+    "prior_sigma": 1.0,
+    "clip": 1.0
+  },
+  "epochs": 600,
+  "batch": 64,
+  "prior_precision": null,
+  "train_seconds": 8.2,
+  "test_acc": 0.8732,
+  "torch": "1.9.0+cu111",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "host": "morgoth",
+  "date": "2026-10-21 20:19"
+}

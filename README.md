@@ -1,93 +1,94 @@
-# Bayesian Neural Networks: Uncertainty Quantification
+# Is the Bayesian OOD Advantage Just Softness?
 
-Comparing predictive uncertainty from a Bayes-by-Backprop (BBB) Bayesian neural network against deterministic baselines on MNIST (in-distribution) and Fashion-MNIST (out-of-distribution) data.
+A study of uncertainty in Bayesian neural networks, built around a
+Bayes-by-Backprop (BBB) implementation written from scratch in PyTorch. One
+question drives it: **does a Bayesian neural network still detect
+out-of-distribution (OOD) inputs better once a plain network is given the
+same overall softness?**
 
 **Report:** [bnn.pdf](bnn.pdf)
 
-## Overview
+## The question
 
-This repository implements a three-layer BNN from scratch in pure PyTorch using the reparameterization trick and ELBO training. The main notebook walks through:
+A BNN averages predictions over a distribution of weights. Its outputs are
+therefore softer (higher-entropy) than a plain network's on every input, and
+many comparisons read "higher entropy on OOD data" as "the BNN knows what it
+doesn't know". Temperature scaling also softens a plain network, at no cost.
+The fair question is whether the BNN separates OOD inputs from
+in-distribution inputs better than a plain network of the **same softness**.
+Here the temperature is fitted on validation data only.
 
-- A deterministic MLP baseline
-- A Bayesian MLP with weight posteriors trained via Bayes by Backprop
-- Monte Carlo predictive uncertainty (entropy, confidence, epistemic std)
-- OOD detection and rejection curves
-- Posterior weight analysis and calibration plots
+## Pilot result (MNIST, n = 2,000, 3 seeds)
 
-The extended scripts compare additional uncertainty baselines (MC Dropout, deep ensembles) and run adversarial / CIFAR-10 follow-up experiments.
+| Model | Accuracy | ECE | OOD AUROC Fashion-MNIST | OOD AUROC KMNIST |
+| ----- | -------- | --- | ----------------------- | ---------------- |
+| DNN | 0.925 | 0.045 | 0.857 | 0.872 |
+| DNN, softness-matched (T = 2.05) | 0.925 | **0.007** | **0.866** | **0.893** |
+| BNN (BBB, KL weight 1/N) | **0.936** | 0.022 | 0.832 | 0.886 |
+| BNN (BBB, KL weight 1/n_batches) | 0.904 | 0.185 | 0.836 | 0.895 |
 
-## Key Results (MNIST, n = 2,000)
+- **No detectable OOD advantage for the BNN.** On Fashion-MNIST even the plain
+  DNN does as well; on KMNIST the BNN's small lead (+0.014) disappears once the
+  DNN is softened. My pre-registered prediction of equivalence held on KMNIST
+  but failed on Fashion-MNIST, where the BNN was worse.
+- **The matched temperature equals ordinary temperature scaling (T = 2.05)**,
+  so here the control is the standard calibration baseline.
+- **One hint of a real Bayesian signal:** scored by mutual information, an
+  over-regularised BNN beats its softness-matched DNN on KMNIST in every seed
+  (not on Fashion-MNIST). The KL-weight sweep in E2 tests this.
+- **Three seeds are too few.** Fashion-MNIST AUROC ranges from 0.72 to 0.90 for
+  the same method across seeds. A 10-seed study is under way, covering MC
+  dropout, deep ensembles, last-layer Laplace, three training sizes and a
+  KL-weight sweep ([protocol](experiments/E2_mnist_grid/protocol.md)).
 
-| Metric                   | DNN   | BNN   |
-| ------------------------ | ----- | ----- |
-| Test accuracy            | 0.919 | 0.923 |
-| Mean confidence (ID)     | 0.968 | 0.890 |
-| Mean confidence (OOD)    | 0.808 | 0.584 |
-| Predictive entropy (ID)  | —     | 0.327 |
-| Predictive entropy (OOD) | —     | 1.099 |
+Details, per-seed numbers and the pre-registered predictions are in
+[experiments/E1_pilot/protocol.md](experiments/E1_pilot/protocol.md).
 
-The BNN matches DNN accuracy while assigning lower confidence and higher entropy on OOD inputs.
+## Methodological notes
 
-## Repository Structure
+1. **KL scaling.** With the cross-entropy averaged over a mini-batch, the
+   per-example ELBO needs `KL / N`. Dividing by the number of mini-batches
+   instead is an easy slip, and it over-weights the KL term by about the
+   batch size (62.5× at N = 2,000, batch 64). The over-weighted posterior
+   underfits: accuracy falls from 0.936 to 0.904 and ECE rises from 0.022 to
+   0.185. This variant is kept as an ablation (`bbb_bug`).
+2. **No fixed-threshold rejection rates.** Thresholding entropy for one model
+   and 1 − max-probability for another compares different scales.
+   Comparisons use threshold-free AUROC, paired by seed.
+3. **Process.** Each hypothesis and prediction is committed to git before the
+   run. Metrics are recomputed from saved per-sample predictions, and every
+   number in the report is traced to a file in [CLAIMS.md](CLAIMS.md).
+
+## Repository layout
 
 ```
-bnn_project.ipynb          # Main course project notebook
-bnn.pdf                    # Written report (linked above)
-bnn_project.html           # HTML export of the notebook
-
-step1_train_baselines.py   # Train DNN, BNN, MC Dropout, ensemble (multi-seed)
-step2_adversarial_experiment.py   # FGSM / rotated MNIST OOD tests
-step3_results_and_plots.py        # Aggregate plots from baseline runs
-
-step1_fixed_baselines.py
-step2_fixed_adversarial.py
-step3_fixed_plots.py       # Corrected KL-weight / annealing variants
-
-CIFAR-10 full analysis.py  # CIFAR-10 BNN vs DNN distance analysis
-PGD attack.py              # PGD adversarial attack utilities
-
-results/                   # Baseline experiment JSON outputs
-results_fixed/             # Fixed-pipeline experiment outputs
-figures_cifar/             # CIFAR-10 figures and results
-figures_mechanism/         # PGD / mechanism analysis outputs
-tables_fixed/              # Summary tables
+bnn.pdf                    revised report (source: report/bnn.tex)
+bnnstudy/                  study code
+  data.py                  MNIST subsets, disjoint validation pool, OOD sets
+  models.py                DNN, MC dropout, ensembles, BBB, last-layer Laplace
+  train.py                 one run -> per-sample predictions (.npz)
+  evaluate.py              metrics + temperature-scaled / softness-matched DNNs
+  compare.py               paired per-seed comparisons with bootstrap CIs
+experiments/<id>/protocol.md   pre-registered hypotheses, predictions, results
+scripts/                   run scripts and figure scripts
+results/<id>/              metrics.csv, summary.txt (per-sample .npz not tracked)
+figures/                   report figures
+COMMANDS.md, CLAIMS.md           every command run; every report number -> its source file
 ```
 
-## Setup
+## Reproduce
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+scripts/run_E1.sh                       # pilot, ~4 min on one GPU
+python -m bnnstudy.evaluate results/E1_pilot
+python scripts/make_figures_E1.py
+cd report && pdflatex bnn && bibtex bnn && pdflatex bnn && pdflatex bnn
 ```
 
-Requirements: `torch`, `torchvision`, `numpy`, `matplotlib`, `seaborn`, `scikit-learn`, `jupyter`.
-
-## Running
-
-**Main notebook (recommended starting point):**
-
-```bash
-jupyter notebook bnn_project.ipynb
-```
-
-Datasets (MNIST, Fashion-MNIST) download automatically into `data/` on first run. The notebook uses 2,000 training samples by default; change `TRAIN_SIZE` to use the full 60k set.
-
-**Extended experiment pipeline:**
-
-```bash
-python step1_train_baselines.py      # ~20 min GPU / ~1 hr CPU
-python step2_adversarial_experiment.py
-python step3_results_and_plots.py
-```
-
-**CIFAR-10 analysis:**
-
-```bash
-python "CIFAR-10 full analysis.py"
-```
-
-Figures and JSON results are written to the directories listed above.
+Every command actually run, in order: [COMMANDS.md](COMMANDS.md). Developed
+with torch 1.9 (CUDA 11.1) on an RTX 3090. MNIST, Fashion-MNIST and KMNIST
+download into `data/` on first run.
 
 ## License
 

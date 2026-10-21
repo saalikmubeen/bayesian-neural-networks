@@ -1,0 +1,21 @@
+{
+  "method": "bbb_beta3",
+  "n": 2000,
+  "seed": 7,
+  "config": {
+    "kind": "bbb",
+    "epochs": 150,
+    "lr": 0.001,
+    "kl": "1/N",
+    "beta": 3
+  },
+  "epochs": 150,
+  "batch": 64,
+  "prior_precision": null,
+  "train_seconds": 19.4,
+  "test_acc": 0.9396,
+  "torch": "1.9.0+cu111",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "host": "morgoth",
+  "date": "2026-10-21 20:00"
+}

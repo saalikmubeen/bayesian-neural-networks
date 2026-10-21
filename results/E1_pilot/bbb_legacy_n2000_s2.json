@@ -1,0 +1,19 @@
+{
+  "method": "bbb_legacy",
+  "n": 2000,
+  "seed": 2,
+  "config": {
+    "kind": "bbb",
+    "epochs": 120,
+    "lr": 0.0001,
+    "kl": "1/n_batches",
+    "legacy_init": true
+  },
+  "batch": 64,
+  "train_seconds": 13.7,
+  "test_acc": 0.8988,
+  "torch": "1.9.0+cu111",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "host": "morgoth",
+  "date": "2026-10-21 19:27"
+}

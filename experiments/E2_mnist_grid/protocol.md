@@ -40,7 +40,40 @@ Written: 2026-10-21, before running. Status: planned
   method beats a matched temperature on MNIST"; then CIFAR-10 (E4) is
   essential before any general claim.
 
-## Result (filled after running)
-- Outcome:
-- CONFIRMATORY / EXPLORATORY
-- What it rules out / suggests:
+## Result (filled after running, 2026-10-21)
+Files: `results/E2/` (200 runs). Analysis with `bnnstudy.evaluate` and
+`bnnstudy.compare` (base `dnn`); for this table the MAP runs added later by E3
+were excluded. Δ = AUROC_entropy(M) − AUROC_entropy(dnn_Tmatch[M]), 10 seeds,
+95% bootstrap CI, Wilcoxon p.
+
+| n | method | Δ Fashion [CI] (wins/10) | Δ KMNIST [CI] (wins/10) |
+|---|---|---|---|
+| 500 | bbb | −0.046 [−0.063, −0.032] (0) | −0.035 [−0.041, −0.028] (0) |
+| 500 | ensemble | +0.014 [0.003, 0.027] (8) | +0.010 [0.008, 0.012] (10) |
+| 500 | mc_dropout | −0.003 [−0.016, 0.009] (4) | −0.019 [−0.021, −0.018] (0) |
+| 500 | laplace | −0.072 [−0.088, −0.055] (0) | −0.112 [−0.122, −0.102] (0) |
+| 2000 | bbb | −0.024 [−0.048, −0.001] (3) | −0.010 [−0.014, −0.007] (0) |
+| 2000 | ensemble | +0.015 [0.007, 0.022] (8) | +0.015 [0.013, 0.018] (10) |
+| 2000 | mc_dropout | +0.007 [0.002, 0.012] (9) | −0.010 [−0.012, −0.007] (0) |
+| 2000 | laplace | −0.040 [−0.047, −0.032] (0) | −0.043 [−0.047, −0.038] (0) |
+| 10000 | bbb | **+0.048 [0.038, 0.059] (10)** | **+0.069 [0.065, 0.074] (10)** |
+| 10000 | ensemble | +0.016 [0.008, 0.026] (9) | +0.023 [0.021, 0.025] (10) |
+| 10000 | mc_dropout | −0.010 [−0.018, −0.001] (3) | −0.007 [−0.010, −0.003] (2) |
+| 10000 | laplace | −0.014 [−0.023, −0.006] (2) | −0.012 [−0.016, −0.008] (0) |
+
+β sweep (n = 2000, mean of 10 seeds): β 0.1 / 0.3 / 1 / 3 / 10 / 30 → acc
+0.937 / 0.938 / 0.939 / 0.937 / 0.933 / 0.920; KMNIST MI AUROC 0.890 / 0.889 /
+0.896 / 0.908 / 0.925 / 0.942; Fashion MI AUROC 0.886 / 0.876 / 0.859 / 0.858 /
+0.855 / 0.851. Spearman with β (per run): acc −0.63, KMNIST MI +0.88.
+
+- **P1 FAILED at n = 10000:** BBB beats the softness control in 10/10 seeds on
+  both OOD sets (CI excludes 0). It holds at n = 500 and 2000, where BBB is
+  significantly *worse* than the control.
+- **P2 CONFIRMED:** ensembles beat the control at every n, including n = 500.
+- **P3 split:** MC dropout |mean Δ| ≤ 0.019 everywhere (holds). Last-layer
+  Laplace is far *below* the control (−0.012 to −0.112), so P3 fails for Laplace.
+- **P4 CONFIRMED** for accuracy (↓) and KMNIST MI (↑). Not predicted: Fashion
+  MI *decreases* with β.
+- CONFIRMATORY for P1–P4 as stated. The interpretation of the n = 10000 result
+  (pixel-support shortcut switched on by step count) is EXPLORATORY and is
+  tested in E4/E5.

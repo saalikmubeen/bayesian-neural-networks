@@ -1,0 +1,19 @@
+{
+  "method": "dnn",
+  "n": 10000,
+  "seed": 7,
+  "config": {
+    "kind": "dnn",
+    "epochs": 40,
+    "lr": 0.001
+  },
+  "epochs": 40,
+  "batch": 64,
+  "prior_precision": null,
+  "train_seconds": 5.9,
+  "test_acc": 0.9694,
+  "torch": "1.9.0+cu111",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "host": "morgoth",
+  "date": "2026-10-21 19:56"
+}

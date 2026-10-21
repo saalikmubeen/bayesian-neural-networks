@@ -43,7 +43,39 @@ ECE 0.157 at n=2000).
   ensembles/Laplace/HMC and CIFAR. If P2 fails → the Bayesian advantage is
   real at small n; the paper characterises when and why.
 
-## Result (filled after running)
-- Outcome:
-- CONFIRMATORY / EXPLORATORY
-- What it rules out / suggests:
+## Result (filled after running, 2026-10-21)
+Files: `results/E1_pilot/metrics.csv` (per seed), `summary.txt`, log `logs/E1_pilot.log`.
+Run: `scripts/run_E1.sh` on one RTX 3090, ~4 min total.
+
+| method | acc | ECE | AUROC Fashion (H) | AUROC KMNIST (H) | AUROC KMNIST (MI) |
+|---|---|---|---|---|---|
+| dnn | 0.925 ± 0.004 | 0.045 | 0.857 ± 0.045 | 0.872 ± 0.005 | — |
+| dnn_Tnll (T = 2.05) | 0.925 | 0.008 | 0.867 ± 0.040 | 0.893 ± 0.008 | — |
+| dnn_Tmatch[bbb] (T = 2.05) | 0.925 | 0.007 | 0.866 ± 0.040 | 0.893 ± 0.007 | — |
+| bbb (KL/N) | **0.936 ± 0.003** | 0.022 | 0.832 ± 0.096 | 0.886 ± 0.005 | 0.895 |
+| bbb_bug (KL/n_batches) | 0.904 ± 0.004 | 0.185 | 0.836 ± 0.018 | 0.895 ± 0.007 | **0.945** |
+| bbb_legacy | 0.900 ± 0.002 | 0.154 | 0.848 ± 0.018 | 0.887 ± 0.013 | 0.927 |
+
+(mean ± std over 3 seeds; H = predictive entropy, MI = mutual information)
+
+- **P0 (parity):** accuracy 0.900 vs old 0.899 ✓, ECE 0.154 vs 0.157 ✓;
+  Fashion AUROC 0.848 vs old 0.813 — just outside the ±0.03 band. Seed-to-seed
+  spread of Fashion AUROC is ±0.02–0.10 for every method, so not alarming, but
+  noted.
+- **P1 confirmed:** fixing the KL weight raises BBB accuracy by 3.2 points
+  (0.904 → 0.936) and cuts ECE 8× (0.185 → 0.022). Correct BBB is the most
+  accurate and among the best-calibrated models.
+- **P2:** no Bayesian advantage after the softness control. Paired per-seed
+  BBB − dnn_Tmatch: Fashion +0.026 / −0.025 / −0.104, KMNIST −0.010 / −0.001 /
+  −0.010. Mean diff −0.034 (Fashion) and −0.007 (KMNIST): within 0.02 on KMNIST,
+  BBB *worse* on Fashion (driven by seed 2). Falsification condition (BBB ≥ +0.02
+  in all seeds on both) not met.
+- CONFIRMATORY for P1 and P2's falsification test; the rest EXPLORATORY.
+- **Unexpected (exploratory):** (a) the entropy-matched temperature for correct
+  BBB equals the NLL-optimal temperature (2.05 vs 2.05). (b) The over-regularised
+  bbb_bug has the best KMNIST detection by MI (0.945 vs 0.895 for bbb) despite
+  worse accuracy, so KL weight trades accuracy for MI-based detection. (c)
+  Seed variance on Fashion (0.72–0.90 for bbb) dominates method differences:
+  3 seeds cannot resolve them.
+- Suggests: more seeds (≥10) with paired tests; sweep KL weight β as an
+  explicit knob; add ensembles/MC dropout/Laplace and an HMC reference.

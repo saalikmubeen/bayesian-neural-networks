@@ -1,0 +1,21 @@
+{
+  "method": "mc_dropout",
+  "n": 10000,
+  "seed": 8,
+  "config": {
+    "kind": "dnn",
+    "epochs": 40,
+    "lr": 0.001,
+    "p_drop": 0.1,
+    "mc": 50
+  },
+  "epochs": 40,
+  "batch": 64,
+  "prior_precision": null,
+  "train_seconds": 6.3,
+  "test_acc": 0.971,
+  "torch": "1.9.0+cu111",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "host": "morgoth",
+  "date": "2026-10-21 20:03"
+}

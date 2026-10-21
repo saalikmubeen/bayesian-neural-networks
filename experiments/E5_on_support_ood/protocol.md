@@ -39,7 +39,28 @@ every trained model.
   natural images have no dead pixels, so does a constant border recreate the
   effect?
 
-## Result (filled after running)
-- Outcome:
-- CONFIRMATORY / EXPLORATORY
-- What it rules out / suggests:
+## Result (filled after running, 2026-10-21)
+Files: `results/E45/metrics.csv`, `paired_dnn.csv`, `paired_map.csv`.
+
+Δ vs `dnn_Tmatch` (entropy AUROC), original → on-support, 5 seeds:
+
+| n | method | Fashion | KMNIST |
+|---|---|---|---|
+| 10000 | bbb | +0.057 → +0.055 | +0.070 → +0.070 |
+| 10000 | ensemble | +0.024 → +0.023 | +0.022 → +0.022 |
+| 2000 | bbb_steps23550 | +0.076 → +0.078 | +0.069 → +0.076 |
+| 2000 | ensemble | +0.016 → +0.017 | +0.018 → +0.018 |
+| 2000 | mc_dropout | +0.011 → +0.014 | −0.009 → −0.006 |
+| 2000 | laplace | −0.038 → −0.030 | −0.040 → −0.037 |
+
+Raw AUROC barely moves (e.g. bbb n = 10000: Fashion 0.974 → 0.971, KMNIST
+0.987 → 0.986; dnn n = 10000: 0.919 → 0.918).
+
+- **P1** holds by construction (no ink on dead pixels remains).
+- **P2 FALSIFIED:** BBB keeps 96–100% of its Δ on on-support sets.
+- **P3 FALSIFIED:** the ensemble's Δ is unchanged.
+- **P4 not supported:** neither the DNN nor BBB depends on dead-pixel ink.
+- Conclusion: the model-free "ink on never-inked pixels" rule (AUROC 0.99+) is
+  a real weakness of MNIST → Fashion/KMNIST as a benchmark, but none of the
+  trained models exploit it, so it does not explain BBB's gain. The interim
+  interim hypothesis is withdrawn. CONFIRMATORY.
