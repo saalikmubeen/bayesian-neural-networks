@@ -1,0 +1,21 @@
+P1/P2 per seed (BBB vs softness-matched DNN, entropy AUROC):
+  seed 0: peak dSVHN -0.044 at 2000 | last dSVHN -0.112 | peak dC100 +0.031 | acc first/max/last 0.631/0.672/0.614 | sigma_f1 last 0.996, sigma_c1 last 0.039
+  seed 1: peak dSVHN +0.006 at 8000 | last dSVHN -0.010 | peak dC100 +0.027 | acc first/max/last 0.653/0.675/0.613 | sigma_f1 last 0.996, sigma_c1 last 0.038
+  seed 2: peak dSVHN -0.056 at 4000 | last dSVHN -0.128 | peak dC100 +0.024 | acc first/max/last 0.664/0.683/0.626 | sigma_f1 last 0.996, sigma_c1 last 0.039
+
+P3 selection (mean over seeds):
+  Oracle   step    4667  d -0.005  acc 0.660
+  R_proxy  step   53333  d -0.053  acc 0.613
+  R_nll    step    6000  d -0.025  acc 0.675
+  R_elbo   step   53333  d -0.040  acc 0.614
+
+P4 ensemble vs DNN softened to the ensemble's validation entropy:
+  seed 0: T 1.73 | ens AUROC svhn 0.740 c100 0.690 | dnnT svhn 0.787 c100 0.661 | dnn raw svhn 0.757 | acc ens 0.689
+  seed 1: T 1.83 | ens AUROC svhn 0.731 c100 0.689 | dnnT svhn 0.759 c100 0.662 | dnn raw svhn 0.737 | acc ens 0.687
+  seed 2: T 1.78 | ens AUROC svhn 0.727 c100 0.692 | dnnT svhn 0.807 c100 0.669 | dnn raw svhn 0.780 | acc ens 0.698
+
+BBB raw AUROC at its best SVHN checkpoint:       auroc_svhn_entropy  auroc_svhn_dnnT  auroc_cifar100_entropy  auroc_cifar100_dnnT
+seed                                                                                  
+0                  0.755            0.798                   0.677                0.667
+1                  0.788            0.782                   0.712                0.685
+2                  0.774            0.830                   0.712                0.688
