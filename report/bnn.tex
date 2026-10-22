@@ -48,7 +48,12 @@ signal, and a single analytic pass over the first layer's means and
 variances reproduces BBB's sampled OOD detection within 0.02 AUROC, confirmed
 on fresh models and two unseen OOD sets. A natural-gradient method (IVON)
 escapes the optimizer clock, its variances scaling as $1/\sqrt{N}$, and shows no
-advantage over the softness-matched network. On CIFAR-10 with small, underfit models (37--68\% accuracy across a CNN and
+advantage over the softness-matched network. Under a prior of scale 0.3, where full-batch HMC
+converges (8 chains per run, maximum $\hat R$ 1.022), the exact posterior also beats the
+softness-matched network ($+0.05$ to $+0.11$ AUROC on three data subsets), and
+BBB's MI matches its advantage on KMNIST within 0.012; but the exact posterior's per-weight
+marginals equal the prior and its information lies in weight correlations, so
+BBB reaches this signal by a different route. On CIFAR-10 with small, underfit models (37--68\% accuracy across a CNN and
 an MLP), no comparable advantage appears.
 \end{abstract}
 
@@ -100,6 +105,12 @@ sampled OOD detection in one analytic pass (\S\ref{sec:r1}).
 \item IVON, a natural-gradient variational method, follows $N$ rather than
 the step count and has no advantage over the control; inflating its
 variances does not create one (\S\ref{sec:ivon}).
+\item Under a prior of scale 0.3, where HMC converges, the exact posterior
+also beats the softness-matched network ($+0.05$ to $+0.11$ on three data
+subsets), and BBB's MI signal on KMNIST matches it within 0.012. The exact posterior's per-weight
+marginals are the prior and its information sits in weight correlations, so BBB
+reaches the same signal by a different route. Under $\mathcal N(0,1)$, HMC does
+not mix at this scale (\S\ref{sec:hmc}).
 \item Neither held-out NLL nor the ELBO picks a good stopping point. A
 synthetic-outlier rule does no better than a fixed step count
 (\S\ref{sec:select}).
@@ -107,7 +118,7 @@ synthetic-outlier rule does no better than a fixed step count
 appears (\S\ref{sec:cifar}).
 \end{enumerate}
 Every experiment had its hypothesis, predictions and falsification criteria
-written before it ran (committed to git for E1--E9; for E10--E18, SHA-256
+written before it ran (committed to git for E1--E9; for E10--E20, SHA-256
 hashes that I recorded before launch, which are self-attested rather than
 independently timestamped). Appendix~\ref{app:ledger} lists all
 predictions, including the many that failed.
@@ -538,6 +549,110 @@ network on KMNIST. Right: test accuracy. Source: \texttt{experiments/E14\_ivon}.
 \label{fig:ivon}
 \end{figure}
 
+\subsection{The exact posterior}\label{sec:hmc}
+Is BBB's advantage a property of the Bayesian posterior, or of mean-field VI
+under Adam? I compared it with full-batch Hamiltonian Monte Carlo
+\citep{neal2011mcmc} on the same model at width 100 (89{,}610 parameters),
+$n\in\{500, 2{,}000\}$, in two pre-registered experiments.
+
+\paragraph{Under $\mathcal N(0,1)$, HMC does not mix at this scale.} With
+4 chains of 2{,}500 iterations (E19), split-$\hat R$ on the predicted
+probability of the true class had a 90th percentile of 2.8 and 2.5
+(threshold 1.1), so I draw no conclusion from that run. The obstacle is the
+posterior, not the sampler settings: its weights sit near the prior scale
+(standard deviation $\approx0.85$ in every layer), the logits reach $\sim$700,
+and the likelihood acts like a hard wall around ``every training point
+correct''. The stable leapfrog step was $\sim3\times10^{-5}$ for 300-step
+trajectories and fell to $\sim1.5\times10^{-6}$ when trajectories were
+lengthened to $10^4$ steps. A diagonal mass matrix and a width-20 network did
+not help (pilots that looked only at sampler diagnostics).
+
+\paragraph{Under $\mathcal N(0, 0.3^2)$, it does, and the exact posterior has
+the advantage.} With a prior of scale 0.3, where BBB's advantage is stable
+(\S\ref{sec:prior}), the median stable step size was about 20--30 times larger than under
+$\mathcal N(0,1)$ at similar trajectory lengths (300--760 leapfrog steps). Eight
+chains per $n$ (E20; batched in one process; identity mass matrix;
+dual-averaging step size \citep{hoffman2014nuts}; trajectory length
+$\pi\sigma_p/2$ \citep{izmailov2021what}; 500 warm-up and 1{,}000 sampling
+iterations, 100 kept samples per chain) passed the convergence check in all six runs
+(two values of $n$, three data subsets; 90th-percentile $\hat R$ 1.004--1.005,
+maximum 1.022), and on the first subset a sampler self-test held:
+$\mathbb E[\theta\cdot\nabla U]/d$, which must be 1 at stationarity, was
+0.998--1.002 in every chain. BBB was retrained under
+the same prior for the same 23{,}550 steps. Table~\ref{tab:hmc} shows
+the result on the first data subset; a pre-registered replication on two
+more subsets (E20b) converged as well and agreed (Figure~\ref{fig:hmc}). The exact posterior beats the
+softness-matched network on both OOD sets at both $n$ on every subset
+($\Delta_K$ $+0.052$ to $+0.077$, $\Delta_F$ $+0.074$ to $+0.115$; on the first
+subset FPR95 on KMNIST is 0.14--0.19 against 0.48--0.49), and it is more
+accurate than BBB on every subset (mean 0.887 vs 0.784 at $n=500$, 0.931 vs
+0.906 at $n=2{,}000$). On the first subset it is also better calibrated, and
+every single chain shows the advantage ($\Delta_K$ $+0.064$ to $+0.073$), so it is not
+diversity between chains; a single posterior draw is poor (accuracy 0.72 and
+0.83). Part of the advantage comes from HMC's higher accuracy: on the first
+subset, restricted to test images that both HMC and the plain network
+classify correctly, $\Delta$ is
+$+0.054$ to $+0.099$. BBB's MI-based advantage on KMNIST matches the exact
+posterior's on every subset (difference 0.002--0.012, as predicted). Its
+entropy-based advantage recovers only part of it (mean $\Delta_K$ $+0.030$ against
+$+0.075$ at $n=2{,}000$) and none at $n=500$ ($-0.032$ against $+0.060$), and on
+Fashion-MNIST at $n=2{,}000$ its MI falls short as well (mean $+0.047$ against
+$+0.092$).
+
+\begin{table}[!htb]
+\centering
+\small
+\caption{Exact posterior (HMC, 8 chains $\times$ 100 samples) against BBB
+(seed 0, same data subset) under the same $\mathcal N(0, 0.3^2)$ prior; width
+100. $\Delta$: AUROC difference from the plain network softened to the
+method's validation entropy. FPR95 on KMNIST, softened network in brackets.
+Source: \texttt{experiments/E20\_hmc\_sp03}.}
+\label{tab:hmc}
+\begin{tabular}{llcccccc}
+\toprule
+$n$ & method & acc. & ECE & $\Delta_F$ & $\Delta_K$ & MI $\Delta_K$ & FPR95$_K$ \\
+\midrule
+500 & HMC & 0.890 & 0.158 & $+0.079$ & $+0.070$ & $+0.075$ & 0.19 (0.49) \\
+500 & BBB & 0.798 & 0.253 & $-0.002$ & $-0.021$ & $+0.081$ & 0.70 (0.48) \\
+2{,}000 & HMC & 0.929 & 0.072 & $+0.115$ & $+0.074$ & $+0.077$ & 0.14 (0.48) \\
+2{,}000 & BBB & 0.909 & 0.131 & $+0.077$ & $+0.033$ & $+0.072$ & 0.34 (0.46) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.85\linewidth]{../figures/E20_hmc.pdf}
+\caption{OOD advantage over the softness-matched network for the exact
+posterior (HMC, 8 chains) and BBB under the same $\mathcal N(0,0.3^2)$ prior, by
+score and OOD set: mean over three data subsets, bars show the range. Source:
+\texttt{experiments/E20\_hmc\_sp03}, \texttt{experiments/E20b\_hmc\_seeds}.}
+\label{fig:hmc}
+\end{figure}
+
+\paragraph{BBB gets there by a different route.} I had predicted that the
+exact posterior would be less ``overpruned'' than BBB; it is the opposite
+(0\% of hidden weights with $|\text{mean}|>\text{std}$ within a chain, against
+0.4--1.0\% for BBB). Follow-up analyses (exploratory) explain why. Each
+weight's marginal under the exact posterior is the prior: the within-chain
+standard deviation is 0.299--0.300 in every layer (prior 0.3), and $|\text{mean}|$
+is about 0.02, the sampling error of a mean of 100 draws. Drawing every weight
+independently from its HMC marginal gives chance accuracy (0.09). The exact
+posterior's information lies entirely in correlations between weights, which a
+mean-field family cannot hold. BBB instead fits a few means and leaves most
+weights at prior-scale noise, and the first-layer noise-to-signal ratio of
+\S\ref{sec:r1} describes that solution (AUROC 0.85--0.97 from BBB's $\mu$
+and $\sigma$) but not the exact posterior (0.69--0.88 from its per-weight
+moments). So under this prior, an OOD advantage beyond softness is a property
+of Bayesian model averaging itself, and BBB's mutual information recovers its
+size on KMNIST, but through a structurally different approximation, not by
+matching the posterior's marginals. It also puts \S\ref{sec:ivon} in context:
+IVON's per-weight standard deviations (0.04--0.17 under $\mathcal N(0,1)$) are far
+below the spread of exact-posterior samples, which sits at the prior scale
+here and had already reached $\approx0.85$ in the unconverged $\mathcal N(0,1)$
+chains, so IVON's data-scaled variances are not closer to the exact
+marginals than BBB's.
+
 \subsection{Choosing when to stop}\label{sec:select}
 Neither in-distribution criterion picks a good checkpoint. Minimum held-out
 NLL stops at 1{,}000--3{,}000 steps, before the advantage appears; minimum
@@ -642,7 +757,11 @@ split behind \S\ref{sec:window}; Wimmer et al.\ \citep{wimmer2023quantifying}
 question whether conditional entropy and MI are appropriate measures of these
 parts, which fits the caution about MI in \S\ref{sec:window}. Shen et al.\ \citep{shen2024variational}
 show that a natural-gradient variational method (IVON) trains large networks
-as well as Adam; whether its variances follow a similar clock is open. Izmailov et al.\
+as well as Adam. Izmailov et al.\ \citep{izmailov2021what} run full-batch HMC on
+much larger networks and find that the exact posterior predicts well and
+differs from mean-field VI; \S\ref{sec:hmc} finds the same split for OOD
+detection at small scale, and that an $\mathcal N(0,1)$ prior makes HMC much
+harder than a prior of scale 0.3. Izmailov et al.\
 \citep{izmailov2021dangers} show that weights on always-zero pixels keep their
 prior under HMC and hurt accuracy under covariate shift; I find no such
 pixel-specific effect in BBB's OOD detection. Ovadia et al.\
@@ -659,7 +778,10 @@ switch off units by sending their weights to the prior; \S\ref{sec:prune}
 finds the same structure in long-trained BBB and links it to OOD detection. Fortuin et al.\
 \citep{fortuin2022priors} show that isotropic Gaussian priors are often poor
 choices for neural networks. Henning et al.\ \citep{henning2021bayesian} question
-whether exact BNN posteriors are intrinsically good OOD detectors. Raina and
+whether exact BNN posteriors are intrinsically good OOD detectors, arguing that
+it depends on the prior and architecture; \S\ref{sec:hmc} gives one setting
+(MLP, MNIST, prior scale 0.3) where the exact posterior beats a
+softness-matched network. Raina and
 Schmah \citep{raina2025ood} report Bayesian advantages for OOD detection from
 small training sets; the results here suggest checking training length and
 softness before attributing such advantages to the posterior.
@@ -688,16 +810,14 @@ hyperparameters, without per-method tuning. A kNN feature detector comes within
 exploratory analysis and then confirmed in a separate pre-registered test; it
 does not cover near-OOD inputs. IVON was run with one tuned setting, kept
 fixed when tempering.
-\item \textbf{No exact posterior.} I cannot say whether any of this reflects
-Bayesian behaviour or only mean-field VI under Adam. A pre-registered
-full-batch HMC run (E19; width-100 MLP, $n\in\{500,2000\}$, 4 chains of 2,500
-iterations with 300 leapfrog steps) failed its own convergence check
-(split-$\hat R$ 90th percentile 2.8 and 2.5, threshold 1.1). The adapted step
-size was so small that each chain stayed near its starting MAP solution (the
-spread of weight means across chains was 6--8$\times$ the within-chain
-standard deviation), and its test accuracy was below both BBB's and the
-plain network's. I therefore draw no conclusion from it; a sampler with an
-adapted mass matrix, or a smaller model, would be needed.
+\item \textbf{Exact posterior.} HMC converged only under the $\mathcal N(0,0.3^2)$
+prior, at width 100, on three data subsets per $n$; under BBB's default
+$\mathcal N(0,1)$ prior it did not mix (\S\ref{sec:hmc}), so the comparison with
+the exact posterior does not cover the setting of most other experiments.
+There is one HMC run and one BBB model per subset, so only ranges over
+three subsets are reported, the $\hat R$ used is not rank-normalised, and at $n=2{,}000$ the
+potential drifted slightly between the halves of sampling (2.2 standard
+errors).
 \end{itemize}
 
 \section{Conclusion}
@@ -713,7 +833,10 @@ weight-noise control, with a kNN feature detector close behind. The uncertainty 
 the advantage lasts. Mechanistically, long training leaves BBB overpruned, and
 OOD inputs route disproportionate noise through its first layer; a
 natural-gradient method that ties its variances to the data instead shows no
-such advantage. Comparisons between BBB and other methods should report
+such advantage. Under a prior where it can be sampled, the exact
+posterior has an OOD advantage of the same size as BBB's MI signal, so the
+advantage is not only an artefact of mean-field VI, even though BBB's
+posterior looks nothing like the exact one weight by weight. Comparisons between BBB and other methods should report
 the optimizer, learning rate and training budget, the score, and a
 softness-matched baseline.
 
@@ -734,8 +857,8 @@ at $N=2{,}000$, $B=64$). In a 3-seed pilot it cost BBB 3.2 points of accuracy
 Each protocol (\texttt{experiments/<id>/protocol.md}) was written before its
 runs: committed to git for E1--E9, and for E10--E19 with SHA-256 hashes I
 recorded before launch (the files \texttt{experiments/E*\_prereg.txt};
-self-attested, not independently timestamped). Of the 64 entries below, 26 were confirmed, 25 falsified,
-10 had mixed outcomes and 3 had no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
+self-attested, not independently timestamped). Of the 72 entries below, 32 were confirmed, 26 falsified,
+10 had mixed outcomes, 3 had no outcome and 1 was a decision rule. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
 just softness?'' to the training-path account.
 \end{sloppypar}
 
@@ -815,6 +938,14 @@ E18 & P4: $R_1$ within 0.05 of MI on rotated digits & $n=2{,}000$ yes; $n=10{,}0
 E19 & P1: decision rule on HMC's $\Delta$ (exact posterior) & no outcome: chains did not converge ($\hat R$ 90th pct.\ 2.5--2.8) \\
 E19 & P2: HMC less overpruned than BBB ($\ge2\times$) & no outcome: within-chain spread reflects poor mixing \\
 E19 & P3: HMC accuracy $\ge$ BBB at $n\in\{500,2000\}$ & falsified (0.899 vs 0.920; 0.833 vs 0.881), exploratory \\
+E20 & P1: decision rule on HMC's $\Delta$ under $\mathcal N(0,0.3^2)$ (converged) & decision: advantage at both $n$ \\
+E20 & P2: HMC less overpruned than BBB ($\ge2\times$) & falsified (0\% vs 0.4--1.0\%) \\
+E20 & P3: HMC accuracy $\ge$ BBB & confirmed (0.890 vs 0.798; 0.929 vs 0.909) \\
+E20 & P4: HMC and BBB MI $\Delta_K$ within 0.03 & confirmed (0.006 at both $n$) \\
+E20b & Q1: HMC $\Delta_K,\Delta_F\ge+0.03$ on every subset & confirmed (6/6 runs) \\
+E20b & Q2: mean $|$MI $\Delta_K$ HMC $-$ BBB$|\le0.03$ & confirmed (0.006, 0.007) \\
+E20b & Q3: HMC accuracy $\ge$ BBB on every subset & confirmed (6/6) \\
+E20b & Q4: HMC entropy $\Delta_K$ exceeds BBB's by $\ge0.02$ & confirmed ($+0.092$, $+0.045$) \\
 \end{longtable}
 }
 

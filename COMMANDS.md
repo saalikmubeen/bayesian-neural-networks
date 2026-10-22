@@ -328,3 +328,38 @@ PYTHONPATH=. $PY scripts/analyze_E19.py
 
 Result: chains failed the R̂ check at both n (each stayed near its MAP start),
 so E19 is exploratory and the exact-posterior question remains open.
+
+---
+
+## 18. E20 HMC that mixes: prior N(0, 0.3²), 8 batched chains
+
+Protocol: `experiments/E20_hmc_sp03/protocol.md`; hash in `E20_prereg.txt`.
+Pilots (sampler diagnostics only, n = 500): `logs/E20_pilot_c*.log`,
+`logs/E20_pilot2.log`, `logs/E20_probe_w20.log`, `logs/E20_probe_sp03.log`.
+
+```bash
+scripts/run_E20.sh 0 500 & scripts/run_E20.sh 1 2000    # HMC, then BBB (prior 0.3) seeds 0-2
+PYTHONPATH=. $PY scripts/analyze_E20.py
+PYTHONPATH=. $PY scripts/analyze_E20_extra.py           # exploratory follow-ups (inference only)
+PYTHONPATH=. $PY scripts/make_figures_mechanism.py      # adds figures/E20_hmc.{pdf,png}
+```
+
+Result: converged at both n (split-R̂ ≤ 1.02). The exact posterior beats the
+softness-matched network (+0.07 to +0.11); BBB's MI matches it on KMNIST
+within 0.006. Its per-weight marginals equal the prior, and its information
+lies in weight correlations.
+
+---
+
+## 19. E20b same HMC comparison on data subsets 1 and 2
+
+Protocol: `experiments/E20b_hmc_seeds/protocol.md`; hash in `E20b_prereg.txt`.
+BBB (prior 0.3) and DNN for seeds 1–2 come from sections 17–18.
+
+```bash
+scripts/run_E20b.sh 0 1 & scripts/run_E20b.sh 1 2      # HMC, data seeds 1 and 2 (n = 2000, then 500)
+PYTHONPATH=. $PY scripts/analyze_E20b.py
+PYTHONPATH=. $PY scripts/make_figures_mechanism.py      # E20 figure: mean and range over 3 subsets
+```
+
+Result: all runs converged; Q1–Q4 confirmed on every subset.

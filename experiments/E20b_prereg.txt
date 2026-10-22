@@ -1,0 +1,5 @@
+E20b pre-registration (self-attested). Recorded 2026-10-22 06:16 CEST before any E20b run.
+f3b675c1efc9160cbaad65ffbf2a2d6ca7cb943b569cca112e4af65c7f04c709  experiments/E20b_hmc_seeds/protocol.md
+6f39a16ce91dd411c87beb0264ed0b5b6d48f1e765c07de5205ed16c444b7744  bnnstudy/hmc_batch.py
+9389fa23ca206aef82361ef3187813feae056446cd33733db93d288e6b80199a  scripts/run_E20b.sh
+472439585b53d3ceba9c4edcb36e35419b125ef450e47e9f0f6bf8d020109103  scripts/analyze_E20b.py

@@ -1,0 +1,28 @@
+
+n=500: 8 chains x 100 samples; L = 376 leapfrog steps; step size (frozen) [0.0012440000427886844, 0.001230000052601099, 0.0012390000047162175, 0.0013800000306218863, 0.0011599999852478504, 0.0012110000243410468, 0.0011060000397264957, 0.0011399999493733048]; acceptance [0.800000011920929, 0.800000011920929, 0.800000011920929, 0.7799999713897705, 0.8299999833106995, 0.8100000023841858, 0.8299999833106995, 0.8199999928474426]
+n=500 split-R-hat on p(true class), 1000 test images: median 1.000, 90th pct 1.005, max 1.015 -> CONVERGED (confirmatory)
+n=500 potential energy, mean over chains: first half of sampling 44832.2, second half 44830.3 (change -1.9); per chain spread 44824-44839
+n=500 accuracy: HMC 0.8900 | BBB 0.7975 | DNN 0.8726; NLL HMC 0.470 BBB 0.818; ECE HMC 0.158 BBB 0.253
+n=500 HMC: dF +0.0791 dK +0.0700 | MI: dF +0.0865 dK +0.0745 | AUROC entropy F/K 0.932/0.968 MI F/K 0.939/0.973 | FPR95 K 0.190 (DNN_T 0.493)
+n=500 BBB: dF -0.0024 dK -0.0208 | MI: dF +0.0996 dK +0.0807 | AUROC entropy F/K 0.816/0.875 MI F/K 0.918/0.977 | FPR95 K 0.697 (DNN_T 0.479)
+n=500 BBB seed 1 (context): acc 0.8080 dF +0.0008 dK -0.0203 MI dK +0.0579
+n=500 BBB seed 2 (context): acc 0.7466 dF -0.0263 dK -0.0541 MI dK +0.0550
+n=500 precondition (BBB entropy dK >= +0.03): NOT met
+n=500 P1 (decision rule): exact posterior also has an OOD advantage beyond softness
+n=500 P2: fraction |mean| > std in hidden layers: HMC 0.0000 vs BBB 0.0043 -> FALSIFIED (< BBB)
+n=500 P3: HMC accuracy >= BBB: 0.8900 vs 0.7975 -> holds
+n=500 P4: |MI dK HMC - BBB| = 0.0062 -> holds
+
+n=2000: 8 chains x 100 samples; L = 760 leapfrog steps; step size (frozen) [0.0005419999943114817, 0.0005699999746866524, 0.0006859999848529696, 0.0006339999963529408, 0.0005540000274777412, 0.000610999995842576, 0.000645000021904707, 0.0006580000044777989]; acceptance [0.8399999737739563, 0.8299999833106995, 0.7699999809265137, 0.8100000023841858, 0.8299999833106995, 0.8199999928474426, 0.8100000023841858, 0.7900000214576721]
+n=2000 split-R-hat on p(true class), 1000 test images: median 1.000, 90th pct 1.005, max 1.019 -> CONVERGED (confirmatory)
+n=2000 potential energy, mean over chains: first half of sampling 44851.8, second half 44863.4 (change +11.6); per chain spread 44844-44866
+n=2000 accuracy: HMC 0.9288 | BBB 0.9090 | DNN 0.9101; NLL HMC 0.273 BBB 0.392; ECE HMC 0.072 BBB 0.131
+n=2000 HMC: dF +0.1149 dK +0.0743 | MI: dF +0.1188 dK +0.0773 | AUROC entropy F/K 0.948/0.976 MI F/K 0.952/0.979 | FPR95 K 0.143 (DNN_T 0.482)
+n=2000 BBB: dF +0.0767 dK +0.0333 | MI: dF +0.0804 dK +0.0718 | AUROC entropy F/K 0.916/0.940 MI F/K 0.920/0.978 | FPR95 K 0.342 (DNN_T 0.462)
+n=2000 BBB seed 1 (context): acc 0.9105 dF +0.0096 dK +0.0271 MI dK +0.0738
+n=2000 BBB seed 2 (context): acc 0.8994 dF +0.0184 dK +0.0288 MI dK +0.0687
+n=2000 precondition (BBB entropy dK >= +0.03): met
+n=2000 P1 (decision rule): exact posterior also has an OOD advantage beyond softness
+n=2000 P2: fraction |mean| > std in hidden layers: HMC 0.0000 vs BBB 0.0096 -> FALSIFIED (< BBB)
+n=2000 P3: HMC accuracy >= BBB: 0.9288 vs 0.9090 -> holds
+n=2000 P4: |MI dK HMC - BBB| = 0.0055 -> holds

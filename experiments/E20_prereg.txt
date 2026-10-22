@@ -1,0 +1,4 @@
+E20 pre-registration (self-attested). Recorded 2026-10-22 05:18 CEST before any E20 confirmatory run.
+7056870d94317bbfe1086689e3f13c40e8596b47f7d0d680da15523d80c93f37  experiments/E20_hmc_sp03/protocol.md
+be3d7458de95d4bd2e7e9ab01a45ab9971c1ff81635a569b367636ba7a970eab  bnnstudy/hmc_batch.py
+16d4ae11ac18981a9b0dc8a08844d9818d7569ead17776111276b50395b258b2  scripts/run_E20.sh

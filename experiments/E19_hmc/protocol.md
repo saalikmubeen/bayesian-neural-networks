@@ -87,3 +87,7 @@ Files: `results/E19/hmc_n{2000,500}_c{0..3}.pt`, width-100 BBB/DNN models
   answer needs a better sampler (e.g. a preconditioned or adapted mass
   matrix, many more iterations, or a smaller model) and an R̂ check
   passed before any comparison. The paper keeps the question open.
+- Follow-up: E20 (`experiments/E20_hmc_sp03/`) diagnosed the cause (under
+  N(0,1) the logits reach ~700 and the stable step size collapses as
+  trajectories lengthen) and ran a converged comparison under an N(0, 0.3²)
+  prior instead.

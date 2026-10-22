@@ -1,0 +1,30 @@
+n=500 seed 0: R-hat 90th pct 1.005 max 1.015 (converged) | HMC acc 0.8900 dF +0.0791 dK +0.0700 MI dK +0.0745 | BBB acc 0.7975 dF -0.0024 dK -0.0208 MI dK +0.0807
+n=500 seed 1: R-hat 90th pct 1.005 max 1.017 (converged) | HMC acc 0.8817 dF +0.0744 dK +0.0515 MI dK +0.0558 | BBB acc 0.8080 dF +0.0008 dK -0.0203 MI dK +0.0579
+n=500 seed 2: R-hat 90th pct 1.005 max 1.022 (converged) | HMC acc 0.8888 dF +0.0783 dK +0.0600 MI dK +0.0645 | BBB acc 0.7466 dF -0.0263 dK -0.0541 MI dK +0.0550
+n=2000 seed 0: R-hat 90th pct 1.005 max 1.019 (converged) | HMC acc 0.9288 dF +0.1149 dK +0.0743 MI dK +0.0773 | BBB acc 0.9090 dF +0.0767 dK +0.0333 MI dK +0.0718
+n=2000 seed 1: R-hat 90th pct 1.005 max 1.015 (converged) | HMC acc 0.9344 dF +0.0737 dK +0.0737 MI dK +0.0773 | BBB acc 0.9105 dF +0.0096 dK +0.0271 MI dK +0.0738
+n=2000 seed 2: R-hat 90th pct 1.004 max 1.017 (converged) | HMC acc 0.9300 dF +0.0752 dK +0.0771 MI dK +0.0802 | BBB acc 0.8994 dF +0.0184 dK +0.0288 MI dK +0.0687
+
+n=500: 3 converged subsets [0, 1, 2]
+  acc: HMC +0.8868 (range +0.8817 to +0.8900) | BBB +0.7840 (range +0.7466 to +0.8080)
+  delta_fashion: HMC +0.0772 (range +0.0744 to +0.0791) | BBB -0.0093 (range -0.0263 to +0.0008)
+  delta_kmnist: HMC +0.0605 (range +0.0515 to +0.0700) | BBB -0.0317 (range -0.0541 to -0.0203)
+  delta_fashion_mi: HMC +0.0839 (range +0.0797 to +0.0865) | BBB +0.0650 (range +0.0432 to +0.0996)
+  delta_kmnist_mi: HMC +0.0649 (range +0.0558 to +0.0745) | BBB +0.0646 (range +0.0550 to +0.0807)
+  Q1 (HMC dK, dF >= +0.03 on every subset): holds (3/3)
+  Q2 (mean |MI dK HMC - BBB| <= 0.03): 0.0059 (per subset [0.0062, 0.0021, 0.0095]) -> holds
+  Q3 (HMC acc >= BBB on every subset): holds (3/3)
+  Q4 (mean entropy dK HMC - BBB >= 0.02): +0.0922 -> holds
+
+n=2000: 3 converged subsets [0, 1, 2]
+  acc: HMC +0.9311 (range +0.9288 to +0.9344) | BBB +0.9063 (range +0.8994 to +0.9105)
+  delta_fashion: HMC +0.0879 (range +0.0737 to +0.1149) | BBB +0.0349 (range +0.0096 to +0.0767)
+  delta_kmnist: HMC +0.0750 (range +0.0737 to +0.0771) | BBB +0.0298 (range +0.0271 to +0.0333)
+  delta_fashion_mi: HMC +0.0922 (range +0.0776 to +0.1188) | BBB +0.0470 (range +0.0299 to +0.0804)
+  delta_kmnist_mi: HMC +0.0783 (range +0.0773 to +0.0802) | BBB +0.0714 (range +0.0687 to +0.0738)
+  Q1 (HMC dK, dF >= +0.03 on every subset): holds (3/3)
+  Q2 (mean |MI dK HMC - BBB| <= 0.03): 0.0068 (per subset [0.0055, 0.0034, 0.0115]) -> holds
+  Q3 (HMC acc >= BBB on every subset): holds (3/3)
+  Q4 (mean entropy dK HMC - BBB >= 0.02): +0.0453 -> holds
+
+Falsification (Q1 fails on >= 2 of the 4 new runs): not met (0 new runs fail Q1)

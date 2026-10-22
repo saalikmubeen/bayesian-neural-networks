@@ -1,0 +1,28 @@
+
+n=500 per-layer medians (HMC: within-chain, averaged over chains | BBB seed 0) -- prior std 0.3
+  fc1: HMC std 0.299, |mean| 0.020 | BBB sigma 0.299, |mu| 0.019
+  fc2: HMC std 0.299, |mean| 0.020 | BBB sigma 0.297, |mu| 0.012
+  fc3: HMC std 0.299, |mean| 0.021 | BBB sigma 0.260, |mu| 0.017
+n=500 single chains (100 draws each): acc 0.8850-0.8882; dF +0.068 to +0.079; dK +0.064 to +0.069; MI dK +0.069 to +0.073
+n=500 one posterior draw: acc 0.7195, dF -0.291, dK -0.234
+n=500 mean-field projection of HMC (8 x 100 independent draws): acc 0.0872, dF -0.277, dK -0.372, MI dK -0.271
+n=500 R1 AUROC fashion: from HMC moments 0.688 | from BBB 0.848
+n=500 R1 AUROC kmnist: from HMC moments 0.842 | from BBB 0.964
+n=500 Delta on test images correct for both HMC and DNN (0.857 of test): dF +0.063, dK +0.054 (all images: +0.079, +0.070)
+n=500 equipartition E[theta.gradU]/dim (should be 1): 1.0001 (chains 0.9982-1.0022)
+n=500 potential drift between halves -1.9 (batch-means s.e. 5.5, -0.3 s.e.; chains with positive drift 3/8)
+n=500 leapfrog steps per iteration while sampling: 360-430
+
+n=2000 per-layer medians (HMC: within-chain, averaged over chains | BBB seed 0) -- prior std 0.3
+  fc1: HMC std 0.299, |mean| 0.020 | BBB sigma 0.298, |mu| 0.025
+  fc2: HMC std 0.299, |mean| 0.020 | BBB sigma 0.295, |mu| 0.011
+  fc3: HMC std 0.300, |mean| 0.022 | BBB sigma 0.147, |mu| 0.027
+n=2000 single chains (100 draws each): acc 0.9259-0.9285; dF +0.107 to +0.116; dK +0.072 to +0.073; MI dK +0.075 to +0.076
+n=2000 one posterior draw: acc 0.8302, dF -0.157, dK -0.201
+n=2000 mean-field projection of HMC (8 x 100 independent draws): acc 0.0892, dF -0.273, dK -0.424, MI dK -0.328
+n=2000 R1 AUROC fashion: from HMC moments 0.790 | from BBB 0.868
+n=2000 R1 AUROC kmnist: from HMC moments 0.879 | from BBB 0.970
+n=2000 Delta on test images correct for both HMC and DNN (0.903 of test): dF +0.099, dK +0.060 (all images: +0.115, +0.074)
+n=2000 equipartition E[theta.gradU]/dim (should be 1): 0.9993 (chains 0.9983-1.0011)
+n=2000 potential drift between halves +11.6 (batch-means s.e. 5.3, +2.2 s.e.; chains with positive drift 6/8)
+n=2000 leapfrog steps per iteration while sampling: 702-856

@@ -139,4 +139,29 @@ listed result files. Check with
 | HMC split-R̂ 90th percentile 2.8 (n = 2000) and 2.5 (n = 500), threshold 1.1; width 100; 4 chains; 2,500 iterations; 300 leapfrog steps | 2.8, 2.5, 1.1, 100, 4, 2,500, 300 | `results/E19/summary.txt`; `experiments/E19_hmc/protocol.md` |
 | Spread of weight means across chains 6–8× the within-chain std | 6, 8 | `experiments/E19_hmc/protocol.md` (0.64/0.08, 0.75/0.13; in-session check of `results/E19/hmc_*.pt`) |
 | HMC accuracy 0.899 vs BBB 0.920 (n = 2000); 0.833 vs 0.881 (n = 500) | 0.899, 0.920, 0.833, 0.881 | `results/E19/summary.txt` |
-| Ledger: 64 entries; 26 confirmed, 25 falsified, 10 mixed, 3 none | 64, 26, 25, 10, 3 | scripted tally of the appendix rows |
+| Ledger: 64 entries; 26 confirmed, 25 falsified, 10 mixed, 3 none (superseded below) | 64, 26, 25, 10, 3 | scripted tally of the appendix rows |
+
+## Additions with E20 (HMC under N(0, 0.3²), converged)
+| Claim | Values | Source |
+|---|---|---|
+| Convergence: 8 chains per n; split-R̂ 90th pct 1.005 (both n), max 1.015 / 1.019 (≤ 1.02); 500 warm-up, 1,000 sampling iterations, 100 samples per chain; 376 / 760 leapfrog steps; trajectory π·0.3/2 | 8, 1.005, 1.015, 1.019, 1.02, 500, 1,000, 100, 376, 760 | `results/E20/summary.txt`; `experiments/E20_hmc_sp03/protocol.md` |
+| HMC vs BBB (σ_p 0.3, seed 0) table: acc 0.890/0.798, 0.929/0.909; ECE 0.158/0.253, 0.072/0.131; Δ_F +0.079/−0.002, +0.115/+0.077; Δ_K +0.070/−0.021, +0.074/+0.033; MI Δ_K +0.075/+0.081, +0.077/+0.072; MI Δ_F HMC +0.119 vs BBB +0.080 (n = 2000); FPR95 K 0.19 (0.49), 0.70 (0.48), 0.14 (0.48), 0.34 (0.46) | as listed | `results/E20/summary.txt`, `results/E20/compare.csv` |
+| Summaries: Δ +0.07 to +0.11; FPR95 0.14–0.19 vs 0.48–0.49; MI Δ_K within 0.006; DNN 0.873 / 0.910 | 0.07, 0.11, 0.14, 0.19, 0.48, 0.49, 0.006 | `results/E20/summary.txt` |
+| P2: |mean| > std for 0% (HMC) vs 0.4–1.0% (BBB: 0.0043, 0.0096) of hidden weights | 0, 0.4, 1.0 | `results/E20/summary.txt` |
+| Follow-ups: within-chain std 0.299–0.300 per layer, |mean| ≈ 0.02 (0.020–0.022); mean-field projection accuracy 0.087 / 0.089 (≈ 0.09); per-chain Δ_K +0.064 to +0.073; single draw accuracy 0.72 / 0.83; R₁ AUROC HMC moments 0.69–0.88 vs BBB 0.85–0.97 | 0.299, 0.300, 0.02, 0.09, 0.064, 0.073, 0.72, 0.83, 0.69, 0.88, 0.85, 0.97 | `results/E20/extra.txt` (exploratory) |
+| Median step size about 20–30× larger than under N(0,1) at similar trajectory lengths (300–760 steps): medians E19 ≈ 2.7e-5 (n = 2000), 4.5e-5 (n = 500) at 300 steps vs E20 6.2e-4, 1.22e-3 → 23×, 27× | 20, 30, 300, 760 | `logs/E19_c*.log`, `results/E20/summary.txt` |
+| Model width 100: 89,610 parameters (784·100+100+100·100+100+100·10+10) | 89,610 | `bnnstudy/hmc.py` (shapes), `logs/E19_c0.log` ("dim 89610") |
+| N(0,1) diagnosis: weight std ≈ 0.85 per layer, logits ~700 (|logit| mean 704), λ_max 2.1e6 at an E19 sample; step 1.5e-6 at 10⁴ leapfrog steps; 4 chains of 2,500 iterations | 0.85, 700, 3, 1.5, 10⁴, 4, 2,500 | in-session check of `results/E19/hmc_n500_c0.pt`; `logs/E20_pilot2.log` |
+| IVON per-weight std 0.04–0.17 (E14 σ_fc1 0.039–0.170) | 0.04, 0.17 | `results/E14/summary.txt` |
+| Ledger: 68 entries; 28 confirmed, 26 falsified, 10 mixed, 3 none, 1 decision rule (superseded below) | 68, 28, 26, 10, 3, 1 | scripted tally of the appendix rows |
+| Review checks: equipartition 0.998–1.002 per chain (0.9982–1.0022; means 1.0001, 0.9993); correct-only Δ +0.054 to +0.099 (Δ_K +0.054/+0.060, Δ_F +0.063/+0.099); drift 2.2 s.e. at n = 2000; BBB other-seed MI Δ_K gaps ≤ 0.02 (+0.058/+0.055 vs +0.075) | 0.998, 1.002, 0.054, 0.099, 2.2, 0.02 | `results/E20/extra.txt`, `results/E20/summary.txt` |
+
+## Additions with E20b (HMC on data subsets 1–2)
+| Claim | Values | Source |
+|---|---|---|
+| All 6 runs converged: split-R̂ 90th pct 1.004–1.005, max 1.022 (≤ 1.03); two n, three subsets | 6, 1.004, 1.005, 1.022, 1.03 | `results/E20/seeds_summary.txt` |
+| HMC Δ_K +0.052 to +0.077, Δ_F +0.074 to +0.115 on every run; abstract range +0.05 to +0.11 | 0.052, 0.077, 0.074, 0.115, 0.05, 0.11 | `results/E20/seeds_summary.txt`, `results/E20/seeds.csv` |
+| MI Δ_K difference HMC vs BBB per subset 0.002–0.012 (within 0.012); means 0.006 / 0.007 | 0.002, 0.012, 0.006, 0.007 | `results/E20/seeds_summary.txt` |
+| Accuracy means HMC vs BBB 0.887 vs 0.784 (n = 500), 0.931 vs 0.906 (n = 2000) | 0.887, 0.784, 0.931, 0.906 | `results/E20/seeds_summary.txt` |
+| Entropy Δ_K means: BBB +0.030 vs HMC +0.075 (n = 2000); BBB −0.032 vs HMC +0.060 (n = 500); Q4 gaps +0.092, +0.045; Fashion MI at n = 2000: BBB +0.047 vs HMC +0.092 | 0.030, 0.075, 0.032, 0.060, 0.092, 0.045, 0.047 | `results/E20/seeds_summary.txt` |
+| Ledger: 72 entries; 32 confirmed, 26 falsified, 10 mixed, 3 none, 1 decision rule; 6/6 runs | 72, 32, 26, 10, 3, 1, 6 | scripted tally of the appendix rows |

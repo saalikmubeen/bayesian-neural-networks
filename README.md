@@ -5,7 +5,7 @@ built around a Bayes-by-Backprop (BBB) implementation written from scratch in
 PyTorch. Every experiment's hypothesis, predictions and falsification
 criteria were committed to git before it ran.
 
-**Report:** [bnn.pdf](bnn.pdf) (17 pages; source `report/bnn.tex`)
+**Report:** [bnn.pdf](bnn.pdf) (20 pages; source `report/bnn.tex`)
 
 ## The question
 
@@ -62,7 +62,20 @@ On MLPs trained on MNIST (OOD sets: Fashion-MNIST, KMNIST):
    the data (σ ∝ 1/√N, as predicted) instead of the step count, and it has no
    OOD advantage over the softened network. Inflating its variances doesn't
    create one.
-9. **Neither held-out NLL nor the ELBO picks a good stopping point.** A
+9. **The exact posterior has the advantage too (E19–E20b).** Under a prior of
+   scale 0.3, full-batch HMC converges (8 chains per run, 6 runs over two data
+   sizes and three data subsets, split-R̂ at most 1.022) and beats the
+   softness-matched network on every run by +0.05 to +0.11 AUROC (FPR95 on
+   KMNIST 0.14–0.19 vs 0.48). BBB's MI-based advantage on KMNIST matches it
+   within 0.012 on every subset; its entropy-based advantage recovers only part
+   of it, or none at n = 500. Part of HMC's advantage comes from its higher
+   accuracy (on images both models get right it is +0.05 to +0.10). But the
+   two get there differently: every weight's marginal under the exact
+   posterior is just the prior, and sampling weights independently from those
+   marginals gives chance accuracy. All the information is in correlations
+   that mean-field VI cannot hold. Under BBB's default N(0,1) prior, HMC does
+   not mix at this scale (the logits reach ~700 and the step size collapses).
+10. **Neither held-out NLL nor the ELBO picks a good stopping point.** A
    synthetic-outlier rule does no better than a fixed step count, which is
    what the optimizer clock predicts.
 
@@ -79,24 +92,25 @@ advantage appears. That result says little about well-trained networks.
 
 ![IVON vs BBB](figures/E14_ivon_vs_bbb.png)
 
+![Exact posterior (HMC) vs BBB](figures/E20_hmc.png)
+
 ## How the study got here
 
 The project started from a simpler question ("is the BNN's advantage just
-softness?"). Many of my pre-registered predictions failed: 25 of 64, listed
+softness?"). Many of my pre-registered predictions failed: 26 of 72, listed
 in the report's appendix. Those failures are what led to the training-path
-account. Each step is in [experiments/](experiments/) (E1–E9, E7b), with the
+account. Each step is in [experiments/](experiments/) (E1–E20), with the
 prediction written first and the result added after the run.
 
 ## Limitations and next steps
 
 Only three prior scales were tried, at one data size. The dynamics runs use
 a constant learning rate and 3 seeds, and the clock was tested with Adam and
-SGD on one architecture; a kNN feature detector comes within about 0.02 of BBB. An HMC reference posterior was attempted
-(E19) but its chains did not converge (split-R̂ up to 2.8), so whether the
-exact posterior shares BBB's advantage is still open. The CIFAR models are
-small and underfit. Planned next: a better-mixing sampler (adapted mass matrix
-or a smaller model), and ResNet-20 with augmentation on CIFAR-10 (BBB, IVON,
-ensembles).
+SGD on one architecture; a kNN feature detector comes within about 0.02 of BBB. The
+exact-posterior comparison covers only the 0.3 prior (HMC does not mix under
+N(0,1) at this scale), width 100 and three data subsets per size. The CIFAR models
+are small and underfit. Planned next: ResNet-20 with augmentation on CIFAR-10
+(BBB, IVON, ensembles).
 
 ## Methodological notes
 

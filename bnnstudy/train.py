@@ -42,6 +42,8 @@ for steps in [4800, 23550]:
 # deterministic baselines with BBB's long step budget (E12)
 METHODS["dnn_steps23550"] = dict(kind="dnn", steps=23550, lr=1e-3)
 METHODS["ensemble_steps23550"] = dict(kind="ensemble", steps=23550, lr=1e-3, members=5)
+# BBB under an N(0, 0.3^2) prior, the HMC reference prior of E20
+METHODS["bbb_steps23550_sp0.3"] = dict(kind="bbb", steps=23550, lr=1e-3, kl="1/N", prior_sigma=0.3)
 for beta in [0.1, 0.3, 3, 10, 30]:  # KL weight beta/N (bbb is beta = 1)
     METHODS[f"bbb_beta{beta}"] = dict(kind="bbb", epochs=150, lr=1e-3, kl="1/N", beta=beta)
 
@@ -69,7 +71,7 @@ def build_and_train(cfg, splits, gen):
             members.append(mem)
         m = Ensemble(members)
     else:
-        m = BBB(legacy_init=cfg.get("legacy_init", False)).cuda()
+        m = BBB(legacy_init=cfg.get("legacy_init", False), prior_sigma=cfg.get("prior_sigma", 1.0)).cuda()
         kl_scale = cfg.get("beta", 1) / len(x) if cfg["kl"] == "1/N" else 1 / n_batches
         train_bbb(m, x, y, epochs, cfg["lr"], BATCH, gen, kl_scale,
                   anneal_epochs=max(1, round(20 * scale)))
