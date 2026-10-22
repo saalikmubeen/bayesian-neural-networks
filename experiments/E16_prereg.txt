@@ -1,0 +1,3 @@
+Pre-registration record (written before E16 ran; self-attested)
+2026-10-22T03:33:49+02:00
+38633d3f6e3f42d46dda3c86066ee3f540ff924d9462862f70c42568497a0dc7  experiments/E16_swap/protocol.md

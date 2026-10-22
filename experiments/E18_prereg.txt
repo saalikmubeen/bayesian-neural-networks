@@ -1,0 +1,3 @@
+Pre-registration record (written before any E18 run; self-attested)
+2026-10-22T03:46:22+02:00
+e6d5709edbdff8ef91df862a0fa7682a608f7009d5368aa0c51e79328e87b7ef  experiments/E18_r1_confirm/protocol.md

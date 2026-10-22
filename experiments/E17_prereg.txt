@@ -1,0 +1,3 @@
+Pre-registration record (written before E17 ran; self-attested)
+2026-10-22T03:43:28+02:00
+42324e43d27d272d1e7b44fb13edbb285989eb002ed834f00e73a100764c75e3  experiments/E17_mechanism/protocol.md

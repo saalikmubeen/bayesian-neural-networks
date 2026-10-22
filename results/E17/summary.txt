@@ -1,0 +1,12 @@
+               auroc_R1  auroc_R2  auroc_MI  spearman_R2_MI  median_R2_id  median_R2_ood
+n     ood                                                                               
+2000  fashion    0.9597    0.5069    0.9587         -0.1495        0.2399         0.2380
+      kmnist     0.9812    0.5898    0.9773          0.0173        0.2399         0.2639
+10000 fashion    0.9822    0.4547    0.9842         -0.1639        0.1270         0.1137
+      kmnist     0.9903    0.6918    0.9950          0.3009        0.1270         0.1601
+n=2000 fashion: P1 AUROC(R2)=0.507 (fails; falsified if < 0.75: YES) | P3 R2 > R1: 0.507 vs 0.960 (fails)
+n=2000 kmnist: P1 AUROC(R2)=0.590 (fails; falsified if < 0.75: YES) | P3 R2 > R1: 0.590 vs 0.981 (fails)
+n=10000 fashion: P1 AUROC(R2)=0.455 (fails; falsified if < 0.75: YES) | P3 R2 > R1: 0.455 vs 0.982 (fails)
+n=10000 kmnist: P1 AUROC(R2)=0.692 (fails; falsified if < 0.75: YES) | P3 R2 > R1: 0.692 vs 0.990 (fails)
+n=2000: P2 mean Spearman(R2, MI) = -0.066 (fails)
+n=10000: P2 mean Spearman(R2, MI) = 0.069 (fails)

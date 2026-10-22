@@ -1,0 +1,24 @@
+                       acc  auroc_R1  auroc_MI  spearman_R1_MI
+n     ood                                                     
+2000  cifar10_gray  0.9349    0.9871    0.9988          0.7265
+      fashion       0.9349    0.9605    0.9551          0.7112
+      kmnist        0.9349    0.9820    0.9785          0.7672
+      rotated       0.9349    0.8749    0.8945          0.4953
+      svhn_gray     0.9349    0.9854    0.9952          0.7242
+10000 cifar10_gray  0.9634    0.9811    0.9996          0.7224
+      fashion       0.9634    0.9826    0.9860          0.8126
+      kmnist        0.9634    0.9906    0.9944          0.8251
+      rotated       0.9634    0.8632    0.9496          0.5805
+      svhn_gray     0.9634    0.9836    0.9967          0.7218
+n=2000 fashion      : P1 AUROC(R1) 0.960 ok | P2 |R1-MI| 0.005 ok | P3 rho 0.71 ok
+n=2000 kmnist       : P1 AUROC(R1) 0.982 ok | P2 |R1-MI| 0.003 ok | P3 rho 0.77 ok
+n=2000 cifar10_gray : P1 AUROC(R1) 0.987 ok | P2 |R1-MI| 0.012 ok | P3 rho 0.73 ok
+n=2000 svhn_gray    : P1 AUROC(R1) 0.985 ok | P2 |R1-MI| 0.010 ok | P3 rho 0.72 ok
+n=2000 rotated (near OOD): P4 |AUROC(R1) - AUROC(MI)| = |0.875 - 0.894| = 0.020 ok
+n=10000 fashion      : P1 AUROC(R1) 0.983 ok | P2 |R1-MI| 0.003 ok | P3 rho 0.81 ok
+n=10000 kmnist       : P1 AUROC(R1) 0.991 ok | P2 |R1-MI| 0.004 ok | P3 rho 0.83 ok
+n=10000 cifar10_gray : P1 AUROC(R1) 0.981 ok | P2 |R1-MI| 0.019 ok | P3 rho 0.72 ok
+n=10000 svhn_gray    : P1 AUROC(R1) 0.984 ok | P2 |R1-MI| 0.013 ok | P3 rho 0.72 ok
+n=10000 rotated (near OOD): P4 |AUROC(R1) - AUROC(MI)| = |0.863 - 0.950| = 0.086 FAIL
+
+Falsification condition: not met (P1 failures {2000: 0, 10000: 0}, P3 < 0.4 counts {2000: 0, 10000: 0})

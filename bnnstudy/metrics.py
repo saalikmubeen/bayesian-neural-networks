@@ -25,6 +25,12 @@ def auroc(u_id, u_ood):
     return float(roc_auc_score(y, np.r_[u_id, u_ood]))
 
 
+def fpr95(u_id, u_ood):
+    """False-positive rate at 95% true-positive rate: the share of OOD inputs
+    accepted when the threshold keeps 95% of in-distribution inputs (lower is better)."""
+    return float((u_ood <= np.quantile(u_id, 0.95)).mean())
+
+
 def ece(p, y, n_bins=15):
     conf, correct = p.max(-1), (p.argmax(-1) == y)
     bins = np.minimum((conf * n_bins).astype(int), n_bins - 1)

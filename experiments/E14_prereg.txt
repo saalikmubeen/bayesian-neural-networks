@@ -1,0 +1,3 @@
+Pre-registration record (written before any E14 run started; self-attested)
+2026-10-22T03:13:21+02:00
+c84de379ffd8aad39cbdf78ceb46daea196d8061f2e261dc07d9e06531d649c6  experiments/E14_ivon/protocol.md

@@ -1,0 +1,3 @@
+Pre-registration record (written before any E15 run started; self-attested)
+2026-10-22T03:26:24+02:00
+d5e560c57800d44f07e808f5320bbde9eeebda746a78bb0355093b550ded5618  experiments/E15_ivon_inflation/protocol.md

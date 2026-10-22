@@ -1,0 +1,24 @@
+                     acc  dnn_long_acc  delta_fashion  delta_kmnist  delta_fashion_mi  delta_kmnist_mi  auroc_fashion_entropy  auroc_kmnist_entropy  fpr95_kmnist_entropy
+n     variant                                                                                                                                                            
+2000  A_bbb       0.9332        0.9268         0.0729        0.0692            0.0821           0.0784                 0.9480                0.9681                0.1767
+      B_swap      0.1261        0.9268        -0.3496       -0.4013           -0.3457          -0.3970                 0.4984                0.4933                0.9521
+      C_shuffled  0.8072        0.9268        -0.1565       -0.1888           -0.1519          -0.1815                 0.7063                0.7168                0.8671
+10000 A_bbb       0.9638        0.9692         0.0558        0.0700            0.0673           0.0776                 0.9723                0.9872                0.0622
+      B_swap      0.1470        0.9692        -0.4039       -0.3978           -0.3970          -0.3896                 0.4855                0.4801                0.9500
+      C_shuffled  0.5881        0.9692        -0.3244       -0.3057           -0.3173          -0.2894                 0.5701                0.5816                0.9409
+
+n=2000
+P1: swap accuracy [0.125, 0.1211, 0.1277, 0.1201, 0.1367] vs step-matched DNN; drop >= 0.05 in 5/5 seeds -> holds
+P2 fashion: Delta(A) - Delta(B) = +0.4225 (need >= 0.05) -> holds
+P2 kmnist: Delta(A) - Delta(B) = +0.4705 (need >= 0.05) -> holds
+P3 fashion: Delta(C) / Delta(A) = -0.1565 / +0.0729 = -2.15 (need >= 0.80)
+P3 kmnist: Delta(C) / Delta(A) = -0.1888 / +0.0692 = -2.73 (need >= 0.80)
+P3 accuracy: C - A = -0.1260 (need |d| <= 0.01) -> fails
+
+n=10000
+P1: swap accuracy [0.1728, 0.1515, 0.1502, 0.1517, 0.1088] vs step-matched DNN; drop >= 0.05 in 5/5 seeds -> holds
+P2 fashion: Delta(A) - Delta(B) = +0.4597 (need >= 0.05) -> holds
+P2 kmnist: Delta(A) - Delta(B) = +0.4679 (need >= 0.05) -> holds
+P3 fashion: Delta(C) / Delta(A) = -0.3244 / +0.0558 = -5.81 (need >= 0.80)
+P3 kmnist: Delta(C) / Delta(A) = -0.3057 / +0.0700 = -4.37 (need >= 0.80)
+P3 accuracy: C - A = -0.3756 (need |d| <= 0.01) -> fails

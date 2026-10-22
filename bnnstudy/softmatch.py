@@ -6,7 +6,7 @@ where the saved-run pipeline (train.py -> evaluate.py) does not apply."""
 import numpy as np
 from scipy.special import softmax
 
-from .metrics import auroc, classification, entropy, fit_temperature_entropy
+from .metrics import auroc, classification, entropy, fit_temperature_entropy, fpr95
 
 
 def summarize(ps, ys, dnn_npz, oods):
@@ -28,4 +28,7 @@ def summarize(ps, ys, dnn_npz, oods):
         out[f"auroc_{o}_dnnT"] = auroc(Hd["test"], Hd[o])
         out[f"delta_{o}"] = out[f"auroc_{o}_entropy"] - out[f"auroc_{o}_dnnT"]
         out[f"delta_{o}_mi"] = out[f"auroc_{o}_mi"] - out[f"auroc_{o}_dnnT"]
+        out[f"fpr95_{o}_entropy"] = fpr95(H["test"], H[o])
+        out[f"fpr95_{o}_mi"] = fpr95(MI["test"], MI[o])
+        out[f"fpr95_{o}_dnnT"] = fpr95(Hd["test"], Hd[o])
     return out

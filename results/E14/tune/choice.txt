@@ -1,0 +1,11 @@
+chosen by minimum validation NLL at the last checkpoint: lr=0.2 hess_init=0.1
+
+  lr  hess_init  step  val_nll  diverged
+0.20        0.1 10000  0.30879       NaN
+0.20        1.0 10000  0.31226       NaN
+0.10        1.0 10000  0.34895       NaN
+0.05        0.1 10000  0.36075       NaN
+0.10        0.1 10000  0.36559       NaN
+0.50        1.0 10000  0.38563       NaN
+0.05        1.0 10000  0.38712       NaN
+0.50        0.1 10000  0.43971       NaN
