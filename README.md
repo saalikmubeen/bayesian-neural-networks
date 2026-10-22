@@ -5,7 +5,7 @@ built around a Bayes-by-Backprop (BBB) implementation written from scratch in
 PyTorch. Every experiment's hypothesis, predictions and falsification
 criteria were committed to git before it ran.
 
-**Report:** [bnn.pdf](bnn.pdf) (12 pages; source `report/bnn.tex`)
+**Report:** [bnn.pdf](bnn.pdf) (15 pages; source `report/bnn.tex`)
 
 ## The question
 
@@ -28,7 +28,8 @@ On MLPs trained on MNIST (OOD sets: Fashion-MNIST, KMNIST):
    trained for the same number of steps (5/5 seeds everywhere). Adding random
    weight noise to a trained network does not reproduce it (BBB wins by
    +0.10 to +0.15), so the advantage depends on the variances BBB learns. A kNN
-   detector on network features comes closest, within 0.02.
+   detector on network features comes closest, within about 0.02 (and ties
+   BBB in one setting).
 3. **When this happens is set by the optimizer, not the data.** Under Adam,
    the posterior standard deviations grow on a learning-rate × steps clock.
    Halving or doubling the learning rate doubles or halves the time, while a
@@ -44,6 +45,8 @@ On MLPs trained on MNIST (OOD sets: Fashion-MNIST, KMNIST):
 5. **Why it happens is derived, not just observed:** Adam turns the KL term's
    nearly constant gradient into a fixed step per update, which predicts the
    timing to within a factor of 1.3–1.5 with no fitted constants (report §3.4).
+   The SGD version of the same formula predicts σ at n = 10,000 almost exactly
+   (0.018 predicted, 0.0177 observed).
 6. **The advantage needs posterior noise in both hidden layers together**, and
    it is not a pixel shortcut.
 7. **Neither held-out NLL nor the ELBO picks a good stopping point.** A
@@ -60,7 +63,7 @@ advantage appears. That result says little about well-trained networks.
 ## How the study got here
 
 The project started from a simpler question ("is the BNN's advantage just
-softness?"). Many of my pre-registered predictions failed: 18 of 43, listed
+softness?"). Many of my pre-registered predictions failed: 19 of 43, listed
 in the report's appendix. Those failures are what led to the training-path
 account. Each step is in [experiments/](experiments/) (E1–E9, E7b), with the
 prediction written first and the result added after the run.
@@ -69,7 +72,7 @@ prediction written first and the result added after the run.
 
 Only three prior scales were tried, at one data size. The dynamics runs use
 a constant learning rate and 3 seeds, and the clock was tested with Adam and
-SGD on one architecture; a kNN feature detector comes within 0.02 of BBB. There is no exact-posterior (HMC) reference, and the
+SGD on one architecture; a kNN feature detector comes within about 0.02 of BBB. There is no exact-posterior (HMC) reference, and the
 CIFAR models are small and underfit. Planned next: ResNet-20 with augmentation
 on CIFAR-10 (BBB, IVON, ensembles), HMC on a small MLP, and IVON on MNIST.
 

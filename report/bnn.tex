@@ -27,11 +27,11 @@ training it beats it by $+0.06$ to $+0.08$ AUROC. The advantage holds against
 a plain network and a 5-member deep ensemble trained for the same number of
 steps, and it is not reproduced by adding random weight noise to a trained
 network, so it depends on the variances BBB learns. Among deterministic
-detectors, a kNN detector on network features comes closest (within 0.02
-AUROC). When this happens is set by
+detectors, a kNN detector on network features comes closest (within about
+0.02 AUROC, and tying BBB in one setting). When this happens is set by
 the optimizer, not the data. Under Adam the posterior standard deviations grow
 on a clock of learning rate $\times$ steps: halving or doubling the learning rate
-halves or doubles the time, while a 20-fold change in training-set size changes
+doubles or halves the time, while a 20-fold change in training-set size changes
 it by at most 20\%. Under SGD the same growth depends strongly on the
 training-set size, and where the standard deviations stay small BBB shows no
 advantage at all. Which uncertainty score is reported also matters. With the
@@ -72,7 +72,8 @@ ensembles are slightly better; MC dropout ties; last-layer Laplace is worse
 (\S\ref{sec:grid}).
 \item With enough optimizer steps BBB beats the control whatever the
 training-set size, and also beats step-matched plain networks and ensembles
-and a weight-noise control; a kNN detector on features comes within 0.02
+and a weight-noise control; a kNN detector on features comes within about
+0.02 and ties BBB in one setting
 (\S\ref{sec:steps}, \S\ref{sec:mechanism}).
 \item Under Adam, the posterior standard deviations grow on a learning-rate
 $\times$ steps clock that is nearly independent of the training-set size; under
@@ -260,8 +261,10 @@ when $\rho\ll0$. In Eq.~\ref{eq:elbo} this gradient is weighted by $1/N$, and
 while $\sigma$ is tiny the likelihood term's gradient on $\rho$ (which scales
 with $\sigma$) is negligible. So the gradient on each $\rho$ is roughly the
 constant $-1/N$. Adam divides each gradient by a running estimate of its
-magnitude, so a gradient of constant sign and size produces a step of about
-the learning rate $\eta$, independently of $N$. Hence
+magnitude, so a gradient of constant sign produces a step of about the
+learning rate $\eta$, independently of its size and hence of $N$; this is
+Adam's known sign-descent behaviour \citep{balles2018dissecting}, applied
+here to the variance parameters. Hence
 \begin{equation}
 t^\star \approx \frac{\rho^\star-\rho_0}{\eta},
 \label{eq:clock}
@@ -290,7 +293,10 @@ constant to within 12\%, and changing $n$ twenty-fold changed it by at most
 20\%. Eq.~\ref{eq:clock} predicts 7{,}900, 3{,}950 and 1{,}975 steps with no
 fitted constant: it gets the $1/\eta$ scaling and the independence from $n$
 right, and the observed times are 1.27--1.52 times longer, consistent with
-gradient noise making Adam's steps somewhat smaller than $\eta$. These times are measured on a 1{,}000-step grid, which at the highest
+gradient noise making Adam's steps somewhat smaller than $\eta$. At
+$\eta=10^{-3}$ the gap is larger at $n=10{,}000$ (1.52) than at $n=500$ (1.27),
+which fits that explanation: the constant $1/N$ signal is smaller relative to
+the minibatch noise when $N$ is larger. These times are measured on a 1{,}000-step grid, which at the highest
 learning rate (3{,}000 steps) is coarser than the 12\% figure; and the
 $n=500$, $2\times10^{-3}$ arm collapsed later in training (see below). The onset of the OOD advantage followed the same clock (onset $\times$
 learning rate constant to within 7\% at $n=10{,}000$). With SGD (momentum 0.9)
@@ -300,27 +306,36 @@ $\sigma$ never grew, and BBB had \emph{no} OOD advantage (peak $\Delta$ $-0.007$
 while reaching the best accuracy (0.966). At $n=500$, SGD grew $\sigma$ to 0.67 by
 20{,}000 steps but gave only a small advantage (peak $\Delta$ on KMNIST $+0.03$,
 never reaching the $+0.04$ onset criterion; accuracy 0.882). All four
-pre-registered predictions held.
+pre-registered predictions held. Two side observations: at $n=500$ a learning rate of $2\times10^{-3}$
+collapsed training (final accuracy 0.09--0.67), and plotted against learning
+rate $\times$ steps the Adam curves coincide during growth, with $n$ only
+shifting the plateau slightly.
 
 In these runs gradient clipping acted on all parameters jointly, so under SGD
 the $\rho$ step also depended on the cross-entropy gradient. I therefore
 repeated the SGD arm with clipping on the means only (3 seeds per arm). The
 dependence on $n$ remained. At $n=500$, $\sigma$ reached 0.3 by 5{,}000 steps in
-every seed; at $n=10{,}000$ it never did ($\sigma=0.018$ at 20{,}000 steps, against
-0.945 at $n=500$). Without clipping, the $n=500$ runs also reached a larger
+every seed; at $n=10{,}000$ it never did ($\sigma=0.018$ at 20{,}000 steps,
+against 0.945 at $n=500$ in the one seed that ran past 20{,}000 steps; the other
+two diverged first, see below). The SGD form of Eq.~\ref{eq:clock} predicts
+these numbers with no fitted constant. With $\eta_\rho=0.05$ and momentum 0.9
+the step on $\rho$ is about $0.05\cdot10/N$, i.e.\ $5\times10^{-5}$ at
+$n=10{,}000$. After 20{,}000 steps (less half of the 640-step KL warm-up) that
+gives $\rho\approx-4.02$ and $\sigma\approx0.018$, against 0.0177 observed (0.0173 in
+E10). At $n=500$ the step is $10^{-3}$, so $\sigma$ should reach 0.3 after about
+4{,}300 steps; the first checkpoint at or above 0.3 was 5{,}000. Without clipping, the $n=500$ runs also reached a larger
 advantage ($+0.057$ to $+0.060$), so the small $+0.03$ above was partly the
 clipping slowing $\sigma$ down. Scaling the $\rho$ learning rate with $N$ (1.0 at
-$n=10{,}000$) made $\sigma$ reach 0.3 at exactly the same step as at $n=500$
-(5{,}000) in two of three seeds, as Eq.~\ref{eq:clock} predicts. But
+$n=10{,}000$) made $\sigma$ reach 0.3 at the same checkpoint as at $n=500$
+(5{,}000) in two of three seeds, but both crossed shortly before diverging
+(at 6{,}000 and 9{,}000 steps) and the third diverged first, so this is weak
+evidence. But
 unclipped SGD on $\rho$ turned out to be unstable: it diverged in 6 of 9 runs,
 every run in which $\sigma$ grew large (at 17{,}000--34{,}000 steps for $n=500$,
 and 5{,}000--9{,}000 for the scaled runs). The scaled runs therefore stopped
 before any OOD advantage could appear (peak $+0.022$). Two of the three
 pre-registered predictions of this follow-up failed or could not be scored as
-stated. Two side observations: at $n=500$ a learning rate of $2\times10^{-3}$
-collapsed training (final accuracy 0.09--0.67), and plotted against learning
-rate $\times$ steps the Adam curves coincide during growth, with $n$ only
-shifting the plateau slightly.
+stated.
 
 \begin{figure}[!htb]
 \centering
@@ -585,8 +600,8 @@ Each protocol (\texttt{experiments/<id>/protocol.md}) was written before its
 runs: committed to git for E1--E9, and for E10--E13 with SHA-256 hashes I
 recorded before launch (\texttt{experiments/E10\_E11\_prereg.txt},
 \texttt{experiments/E12\_E13\_prereg.txt}; self-attested, not independently
-timestamped). Of the 43 entries below, 18 were confirmed, 18 falsified,
-6 had mixed outcomes and 1 had no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
+timestamped). Of the 43 entries below, 18 were confirmed, 19 falsified,
+5 had mixed outcomes and 1 had no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
 just softness?'' to the training-path account.
 
 \begin{center}\small
@@ -634,8 +649,8 @@ E12 & P1: weight noise stays $\ge0.02$ below BBB & confirmed \\
 E12 & P2: step-matched softened network stays $\ge0.04$ below BBB & confirmed (narrowly) \\
 E12 & P3: step-matched ensemble stays below BBB & confirmed \\
 E12 & P4: feature detectors $\ge0.95$ and within 0.03 of BBB & kNN yes; Mahalanobis no \\
-E13 & P1: without joint clipping, SGD $\sigma$ still grows $\ge3\times$ faster at $n=500$ & confirmed (53$\times$) \\
-E13 & P2: $\rho$ learning rate $\propto N$ aligns the clocks across $n$ & 2 of 3 seeds exact; 1 diverged first \\
+E13 & P1: without joint clipping, SGD $\sigma$ still grows $\ge3\times$ faster at $n=500$ & confirmed (53$\times$, one $n=500$ seed past 20k) \\
+E13 & P2: $\rho$ learning rate $\propto N$ aligns the clocks across $n$ & falsified as scored (1 run diverged first; 2 crossed just before diverging) \\
 E13 & P3: with that scaling, the OOD advantage appears at $n=10{,}000$ & falsified (runs diverged first) \\
 \bottomrule
 \end{tabular}

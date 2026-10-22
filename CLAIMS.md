@@ -114,3 +114,10 @@ listed result files. Check with
 | Abstract/finding: kNN within 0.02 | 0.02 | max BBB − kNN mean = 0.023 (rounded) — `results/E12/summary.txt` |
 | E13: σ reaches 0.3 by 5,000 at n = 500 (3/3), never at n = 10,000; σ at 20k 0.945 vs 0.018 (53× = 0.9452 / 0.0177); n = 500 advantage +0.057 to +0.060; scaled runs t₀.₃ 5,000 in 2/3; 6 of 9 runs diverged (17,000–34,000 at n = 500; 5,000–9,000 scaled); scaled peak +0.022; ρ lr 1.0 | as written | `results/E13/summary.txt`, `results/E13/per_run.csv`; `experiments/E13_sgd_clean/protocol.md` |
 | Ledger: 43 entries; 18 confirmed, 18 falsified, 6 mixed, 1 none | 43, 18, 6, 1 | scripted tally of the appendix rows |
+
+## Additions after review 4 (no new compute)
+| Claim | Values | Source |
+|---|---|---|
+| SGD clock: step ≈ 0.05·10/N = 5×10⁻⁵ at n = 10,000; after 20,000 steps less half of the 640-step warm-up, ρ ≈ −4.02, σ ≈ 0.018 (observed 0.0177 E13, 0.0173 E10); n = 500: 10⁻³ per step, σ = 0.3 after ≈ 4,300 steps (first checkpoint ≥ 0.3: 5,000) | 5, 10, −4.02, 0.018, 0.0177, 0.0173, 4,300, 640 | arithmetic (`python3 -c` in session; formula in report §3.4) against `results/E13/per_run.csv`, `results/E10/per_run.csv` |
+| Scaled SGD runs crossed σ = 0.3 then diverged at 6,000 and 9,000 | 6,000, 9,000 | `results/E13/per_run.csv` (diverged_step) |
+| Ledger after rescoring E13 P2: 43 entries; 18 confirmed, 19 falsified, 5 mixed, 1 none | 19, 5 | scripted tally of the appendix rows |
