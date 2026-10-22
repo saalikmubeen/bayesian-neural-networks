@@ -201,6 +201,46 @@ Result: 9 pages; every number traced in `CLAIMS.md`.
 
 ---
 
+## 12. E10 optimizer clock + E11 prior scale ✅
+
+Protocols: `experiments/E10_optimizer_clock/`, `experiments/E11_prior_scale/`.
+These were written before running, and their SHA-256 hashes were recorded at
+launch in `experiments/E10_E11_prereg.txt`. 24 dynamics runs, ~45 min on 2 GPUs.
+
+```bash
+scripts/run_E10_E11.sh 0 a > logs/E10_E11_gpu0.log 2>&1 &   # E10 at n = 500 + E11
+scripts/run_E10_E11.sh 1 b > logs/E10_E11_gpu1.log 2>&1 &   # E10 at n = 10000
+$PY scripts/analyze_E10_E11.py      # results/E10/summary.txt, results/E11/summary.txt, figures/E10_clock.pdf
+```
+
+Result: under Adam, posterior σ grows on a learning-rate × steps clock that
+is independent of n (all four predictions confirmed). Under SGD, n = 10000
+barely moves σ and shows no OOD advantage. The prior-scale kill test passed
+(the MI advantage survives σ_p = 0.1 and 0.3). With σ_p = 0.3 the entropy
+advantage no longer collapses. σ_p = 0.1 underfits.
+
+---
+
+## 13. Stronger baselines, report update ✅
+
+No training. These scripts compute the DNN energy, max-logit and oracle-temperature
+scores from the saved E45 logits, and recompute the stopping table with one
+estimator (ratio of means).
+
+```bash
+PYTHONPATH=. $PY scripts/analyze_strong_baselines.py     # results/E45/strong_baselines.csv
+pdftoppm -png -r 150 -singlefile figures/E10_clock.pdf figures/E10_clock
+cd report && pdflatex bnn && bibtex bnn && pdflatex bnn && pdflatex bnn && cd .. && cp report/bnn.pdf bnn.pdf
+python3 scripts/check_claims.py report/bnn.tex CLAIMS.md
+```
+
+The ratio-of-means stopping table was computed with the inline script whose
+output is saved in `results/E9/selection_ratio_of_means.txt`. Result:
+longer-trained BBB beats every deterministic score in 20/20 runs (by ≥ 0.04).
+The report is now 12 pages, with all 201 numbers traced.
+
+---
+
 ## Where things are
 
 | Path | What |

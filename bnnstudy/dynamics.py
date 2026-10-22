@@ -65,11 +65,16 @@ def main():
     ap.add_argument("--dnn-dir", default="results/E45")
     ap.add_argument("--out", required=True)
     ap.add_argument("--proxies", action="store_true", help="score synthetic outliers (E9)")
+    ap.add_argument("--prior-sigma", type=float, default=1.0)
+    ap.add_argument("--rho-optimizer", choices=["adam", "sgd"], default="adam",
+                    help="sgd: rho parameters use SGD+momentum 0.9 with --rho-lr; mu stays on Adam (E10)")
+    ap.add_argument("--rho-lr", type=float, default=0.05)
+    ap.add_argument("--tag", default="", help="suffix for the output file name")
     a = ap.parse_args()
 
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    path = out / f"dyn_n{a.n}_rho{a.rho_init:g}_s{a.seed}.csv"
+    path = out / f"dyn_n{a.n}_rho{a.rho_init:g}_s{a.seed}{'_' + a.tag if a.tag else ''}.csv"
     if path.exists():
         print("exists, skipping:", path)
         return
@@ -87,19 +92,26 @@ def main():
     gen.manual_seed(a.seed)
 
     x, y = splits["train"]
-    model = BBB(rho_init=a.rho_init).cuda()
-    opt = torch.optim.Adam(model.parameters(), lr=a.lr)
+    model = BBB(rho_init=a.rho_init, prior_sigma=a.prior_sigma).cuda()
+    if a.rho_optimizer == "sgd":
+        rho = [p for name, p in model.named_parameters() if "rho" in name]
+        mu = [p for name, p in model.named_parameters() if "rho" not in name]
+        opts = [torch.optim.Adam(mu, lr=a.lr), torch.optim.SGD(rho, lr=a.rho_lr, momentum=0.9)]
+    else:
+        opts = [torch.optim.Adam(model.parameters(), lr=a.lr)]
     rows, step, ce_sum, kl_sum, cnt, t0 = [], 0, 0.0, 0.0, 0, time.time()
     while step < a.steps:
         model.train()
         for xb, yb in batches(x, y, BATCH, gen):
             w = min(1.0, (step + 1) / WARMUP_STEPS) / len(x)
-            opt.zero_grad()
+            for o in opts:
+                o.zero_grad()
             ce = F.cross_entropy(model(xb), yb)
             kl = model.kl()
             (ce + w * kl).backward()
             nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            opt.step()
+            for o in opts:
+                o.step()
             step += 1
             ce_sum, kl_sum, cnt = ce_sum + ce.item(), kl_sum + kl.item() / len(x), cnt + 1
             if step % a.every == 0:
@@ -126,7 +138,8 @@ def main():
                       f"s1 {row['sigma_fc1']:.3f} -elbo {row['neg_elbo']:.4f}", flush=True)
             if step >= a.steps:
                 break
-    pd.DataFrame(rows).assign(n=a.n, seed=a.seed, rho_init=a.rho_init).to_csv(
+    pd.DataFrame(rows).assign(n=a.n, seed=a.seed, rho_init=a.rho_init, lr=a.lr, prior_sigma=a.prior_sigma,
+                              rho_optimizer=a.rho_optimizer, rho_lr=a.rho_lr).to_csv(
         path, index=False, float_format="%.5f")
     print("wrote", path)
 

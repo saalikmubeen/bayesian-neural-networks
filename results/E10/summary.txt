@@ -1,0 +1,26 @@
+E10 per arm (mean over seeds):
+                     t03       onset  sigma_20k  peak_dK  peak_dK_mi  acc_end
+n     arm                                                                    
+500   adam 1e-3   5000.0   7666.6667     0.9646   0.0585      0.0592   0.8819
+      adam 2e-3   3000.0   5000.0000     0.9839   0.0525      0.0531   0.3202
+      adam 5e-4  10000.0  13000.0000     0.8297   0.0613      0.0618   0.8827
+      sgd (rho)   9000.0         NaN     0.6674   0.0316      0.0319   0.8819
+10000 adam 1e-3   6000.0   5333.3333     0.8497   0.0648      0.0778   0.9508
+      adam 2e-3   3000.0   3000.0000     0.9599   0.0624      0.0773   0.9479
+      adam 5e-4  12000.0  11000.0000     0.5518   0.0672      0.0765   0.9595
+      sgd (rho)      NaN         NaN     0.0173  -0.0069     -0.0034   0.9662
+
+P1: t0.3 x lr by n (mean over seeds per lr), spread = max/min - 1:
+  n=500: {0.0005: 5.0, 0.001: 5.0, 0.002: 6.0}  max deviation from mean 0.12  -> holds (±30%)
+  n=10000: {0.0005: 6.0, 0.001: 6.0, 0.002: 6.0}  max deviation from mean 0.00  -> holds (±30%)
+
+P2: t0.3 at n=10000 vs n=500, per Adam lr:
+  lr 0.0005: 10000 vs 12000  ratio 1.20 -> holds (±25%)
+  lr 0.001: 5000 vs 6000  ratio 1.20 -> holds (±25%)
+  lr 0.002: 3000 vs 3000  ratio 1.00 -> holds (±25%)
+
+P3: SGD on rho, mean sigma_fc1 at 20k: {500: 0.6674, 10000: 0.0173}; t0.3: {500: 9000.0, 10000: nan}
+  ratio n=500 / n=10000 = 38.54 -> holds
+
+P4: onset (first dK >= 0.04) x lr at n=10000:
+  {0.0005: 5.5, 0.001: 5.333, 0.002: 6.0}  max deviation 0.07 -> holds (±40%)

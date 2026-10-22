@@ -1,13 +1,14 @@
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,booktabs,graphicx,hyperref,xcolor}
 \usepackage[numbers]{natbib}
 \usepackage[section]{placeins}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=blue!50!black,urlcolor=blue!50!black}
 \newcommand{\pending}[1]{\textcolor{red}{[#1]}}
 
-\title{Bayes by Backprop's OOD Advantage Depends on Where Training Stops\\[4pt]
-\large A softness-controlled study of mean-field VI along the optimization path}
+\title{On MNIST, Bayes by Backprop's OOD Advantage Runs on Optimizer Time\\[4pt]
+\large A softness-controlled study of mean-field VI on MNIST}
 \author{Saalik Mubeen\\Georgia Institute of Technology}
 \date{October 2026}
 
@@ -21,20 +22,24 @@ everywhere, and a deterministic network can be softened for free by a
 temperature. I compare each method with a deterministic network softened to
 the same in-distribution entropy, in a series of pre-registered experiments
 on MLPs trained on MNIST. At typical training budgets, mean-field Bayes by
-Backprop (BBB) is no better than this softness-matched network. Its advantage
-($+0.06$ to $+0.08$ AUROC, more than a deep ensemble) appears only after
-enough optimizer steps, and the number of steps, not the amount of data,
-decides it. The posterior standard deviations grow along an almost identical
-path for training sets of 500 to 10{,}000 images, suggesting that the
-optimizer, not the data, sets the pace. Which uncertainty score is used then
-matters. With predictive entropy the advantage can disappear later in
-training, because the model also becomes uncertain on in-distribution inputs
-as it underfits. With mutual information (MI) it persists, but MI also
-``detects'' OOD inputs in runs that never learned the task. Neither held-out
-NLL nor the ELBO selects a good stopping point, and a simple rule based on
-synthetic outliers does no better than stopping at a fixed step. On CIFAR-10
-with small, underfit models (37--68\% accuracy), no comparable advantage
-appears.
+Backprop (BBB) is no better than this softness-matched network. With longer
+training it beats it by $+0.06$ to $+0.08$ AUROC, and it also scores higher
+than a deep ensemble and than every deterministic score I tried, including
+energy, max-logit and a temperature tuned with knowledge of the OOD set. Those
+baselines were trained with a smaller step budget, so these last comparisons
+are not budget-matched. When this happens is set by
+the optimizer, not the data. Under Adam the posterior standard deviations grow
+on a clock of learning rate $\times$ steps: halving or doubling the learning rate
+halves or doubles the time, while a 20-fold change in training-set size changes
+it by at most 20\%. Under SGD the same growth depends strongly on the
+training-set size, and where the standard deviations stay small BBB shows no
+advantage at all. Which uncertainty score is reported also matters. With the
+default $\mathcal N(0,1)$ prior, the entropy-based advantage can disappear later
+in training as the model starts to underfit, while the mutual-information (MI)
+advantage persists. With a prior of scale 0.3 both persist. MI is also high in
+runs that never learned the task, so on its own it does not show a useful
+model. On CIFAR-10 with small, underfit models (37--68\% accuracy), no
+comparable advantage appears.
 \end{abstract}
 
 \section{Introduction}
@@ -64,12 +69,16 @@ softness.
 softness-matched network on MNIST $\to$ Fashion-MNIST and KMNIST. Deep
 ensembles are slightly better; MC dropout ties; last-layer Laplace is worse
 (\S\ref{sec:grid}).
-\item BBB's advantage is set by the number of optimizer steps, not by the
-training-set size (\S\ref{sec:steps}). The posterior standard deviations
-follow nearly the same trajectory at every $n$ (\S\ref{sec:clock}).
+\item With enough optimizer steps BBB beats the control, whatever the
+training-set size, and scores higher than every deterministic score tested
+(baselines not budget-matched; \S\ref{sec:steps}, \S\ref{sec:mechanism}).
+\item Under Adam, the posterior standard deviations grow on a learning-rate
+$\times$ steps clock that is nearly independent of the training-set size; under
+SGD it is not. No growth, no advantage (\S\ref{sec:clock}).
 \item Along training, the entropy-based advantage can rise and fall while the
-MI-based advantage persists; MI is also high for models that never learned
-(\S\ref{sec:window}).
+MI-based advantage persists. With a better-scaled prior both persist. MI is
+also high for models that never learned (\S\ref{sec:window},
+\S\ref{sec:prior}).
 \item The advantage needs posterior noise in both hidden layers together, and
 it is not a pixel shortcut (\S\ref{sec:mechanism}).
 \item Neither held-out NLL nor the ELBO picks a good stopping point. A
@@ -79,7 +88,9 @@ synthetic-outlier rule does no better than a fixed step count
 appears (\S\ref{sec:cifar}).
 \end{enumerate}
 Every experiment had its hypothesis, predictions and falsification criteria
-committed to git before it ran. Appendix~\ref{app:ledger} lists all
+written before it ran (committed to git for E1--E9; for E10--E11, SHA-256
+hashes that I recorded before launch, which are self-attested rather than
+independently timestamped). Appendix~\ref{app:ledger} lists all
 predictions, including the many that failed.
 
 \section{Setup}\label{sec:setup}
@@ -118,20 +129,25 @@ reported quantity is
 $\Delta = \mathrm{AUROC}(M) - \mathrm{AUROC}(\mathrm{DNN}_T)$, where AUROC
 measures the separation of test from OOD images by predictive entropy.
 $\Delta>0$ means $M$ ranks OOD inputs better than a network of the same
-softness. I report both entropy- and MI-based AUROC where relevant.
+softness. The MI-based $\Delta$ uses $M$'s mutual-information AUROC minus the
+same softness-matched DNN's entropy AUROC; a single deterministic network has
+no mutual information, so this compares two different scores and should be
+read as ``does $M$'s best epistemic score beat the softened network''.
 Comparisons are paired by seed, with bootstrap confidence intervals and sign
 counts (wins out of seeds). Wilcoxon tests are reported only with 10 seeds,
 since with 5 seeds they cannot fall below $p=0.0625$. Unless stated otherwise,
 BBB predictions use 50 posterior samples. The training-dynamics runs
-(\S\ref{sec:window}, \S\ref{sec:select}) use 20, which slightly
-under-estimates OOD entropy, so their $\Delta$ values are conservative.
+(\S\ref{sec:window}--\S\ref{sec:select}) use 20; I did not compare the two
+directly, so numbers from the two kinds of run are not interchangeable.
 
 \section{Results on MNIST}
 
 \subsection{At standard budgets, only ensembles beat the control}\label{sec:grid}
 Table~\ref{tab:grid} compares each method with its own softness-matched DNN
-over 10 seeds. At $n=500$ and $2{,}000$, BBB is significantly \emph{worse}
-than the control; at $n=10{,}000$ it is much better, in all 10 seeds.
+over 10 seeds. At $n=500$, BBB is worse than the control on both OOD sets
+(0/10 seeds better). At $n=2{,}000$ it is worse on KMNIST (0/10) and borderline
+on Fashion-MNIST (3/10 seeds better, CI upper bound $-0.001$, Wilcoxon
+$p=0.16$). At $n=10{,}000$ it is much better, in all 10 seeds.
 \S\ref{sec:steps} shows that this jump is not about data. Deep ensembles beat
 the control at every $n$ by $+0.01$ to $+0.02$; against a stronger,
 budget-matched MAP network their edge mostly disappears at $n=2{,}000$. MC
@@ -175,7 +191,7 @@ $n=10{,}000$ vs 4{,}800 at $n\le 2{,}000$. Figure~\ref{fig:steps} decouples
 the two. With the same data, 23{,}550 steps give $\Delta=+0.06$ to $+0.08$ in
 5/5 seeds at every $n$, including $n=500$. 4{,}800 steps give no advantage,
 including at $n=10{,}000$. Over this range the training-set size barely
-matters.
+matters for whether the advantage appears; \S\ref{sec:clock} shows why.
 
 \begin{figure}[!htb]
 \centering
@@ -227,30 +243,91 @@ below the plotted range. Source: \texttt{experiments/E6\_dynamics}.}
 \end{figure}
 
 \subsection{An optimizer clock}\label{sec:clock}
-Why do steps matter more than data? In the E9 runs (constant learning rate
-$10^{-3}$, $\rho_0=-5$), the mean first-layer $\rho$ (with
-$\sigma=\mathrm{softplus}(\rho)$) follows nearly the same path at every
-training-set size. It is $-3.54$, $-3.52$ and $-3.62$ after 1{,}000 steps,
-$-1.88$, $-1.85$ and $-1.92$ after 3{,}000, and $-1.01$, $-0.99$ and $-1.09$
-after 5{,}000, for $n = 500$, $2{,}000$ and $10{,}000$. With $\sigma$ tiny at
-initialisation, the gradient on $\rho$ is dominated by the KL term. Adam
-normalises its updates, so each step moves $\rho$ by roughly the learning rate
-whatever the KL weight $1/N$ is. Unlu and Aitchison
-\citep{unlu2020variational} point out this step bound for mean-field
-variances. If this explanation is right, BBB's state, and hence its OOD
-behaviour, is set by the learning rate times the number of steps and the
-initial $\sigma$, not by $N$. I have not yet tested this directly (by varying
-the learning rate, or by replacing Adam with SGD, where $1/N$ should matter),
-so it is a hypothesis.
+Why do steps matter more than data? With $\sigma$ tiny at initialisation, the
+gradient on $\rho$ (with $\sigma=\mathrm{softplus}(\rho)$) is dominated by the KL
+term, whose per-example weight is $1/N$. Adam normalises its updates, so each
+step moves $\rho$ by roughly the learning rate whatever $N$ is; Unlu and
+Aitchison \citep{unlu2020variational} point out this step bound for mean-field
+variances. Under plain SGD the step is proportional to the gradient, so growth
+should slow down as $N$ grows. A first hint was already in the E9 runs (Adam,
+learning rate $10^{-3}$): the mean first-layer $\rho$ was $-3.54$, $-3.52$ and
+$-3.62$ after 1{,}000 steps, $-1.88$, $-1.85$ and $-1.92$ after 3{,}000, and
+$-1.01$, $-0.99$ and $-1.09$ after 5{,}000, for $n = 500$, $2{,}000$ and
+$10{,}000$.
+
+I then tested this directly (Figure~\ref{fig:clock}; 3 seeds per arm, 40{,}000
+steps, $n\in\{500, 10{,}000\}$). With Adam, the time for the mean first-layer
+$\sigma$ to reach 0.3 was 10{,}000, 5{,}000 and 3{,}000 steps at $n=500$ and
+12{,}000, 6{,}000 and 3{,}000 at $n=10{,}000$, for learning rates
+$5\times10^{-4}$, $10^{-3}$ and $2\times10^{-3}$. Time $\times$ learning rate was
+constant to within 12\%, and changing $n$ twenty-fold changed it by at most
+20\%. These times are measured on a 1{,}000-step grid, which at the highest
+learning rate (3{,}000 steps) is coarser than the 12\% figure; and the
+$n=500$, $2\times10^{-3}$ arm collapsed later in training (see below). The onset of the OOD advantage followed the same clock (onset $\times$
+learning rate constant to within 7\% at $n=10{,}000$). With SGD (momentum 0.9)
+on the $\rho$ parameters, the mean $\sigma$ after 20{,}000 steps was 0.67 at
+$n=500$ but 0.017 at $n=10{,}000$, a 39-fold difference. In that last setting
+$\sigma$ never grew, and BBB had \emph{no} OOD advantage (peak $\Delta$ $-0.007$)
+while reaching the best accuracy (0.966). At $n=500$, however, SGD grew $\sigma$
+to 0.67 by 20{,}000 steps but gave only a small advantage (peak $\Delta$ on
+KMNIST $+0.03$, never reaching the $+0.04$ onset criterion; accuracy 0.882).
+So $\sigma$ growth appears necessary for the advantage but not sufficient; how
+the mean weights co-evolve under each optimizer likely matters too. One caveat
+on the SGD arm: gradient clipping in my implementation acts on all parameters
+jointly, so under SGD the $\rho$ step also depends on the size of the
+cross-entropy gradient. A test without joint clipping, and with the $\rho$
+learning rate scaled with $N$, would be cleaner. All four pre-registered
+predictions held. Two side observations: at $n=500$ a learning rate of $2\times10^{-3}$
+collapsed training (final accuracy 0.09--0.67), and plotted against learning
+rate $\times$ steps the Adam curves coincide during growth, with $n$ only
+shifting the plateau slightly.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.92\linewidth]{../figures/E10_clock.pdf}
+\caption{Mean first-layer posterior $\sigma$ (mean of 3 seeds). Left: Adam at
+three learning rates and two training-set sizes, against learning rate $\times$
+steps. Right: SGD on the $\rho$ parameters, against steps. Source:
+\texttt{experiments/E10\_optimizer\_clock}.}
+\label{fig:clock}
+\end{figure}
+
+\subsection{Prior scale}\label{sec:prior}
+The $\mathcal N(0,1)$ prior is badly misspecified for layers whose weights have
+scale $\sim0.05$ \citep{fortuin2022priors}. I reran the dynamics at $n=2{,}000$
+with priors of scale 0.1 and 0.3 (3 seeds, 40{,}000 steps). The MI-based
+advantage survived both: its peak on KMNIST was $+0.055$ ($\sigma_p=0.1$) and
+$+0.075$ ($\sigma_p=0.3$), against $+0.080$ for $\sigma_p=1$. With $\sigma_p=0.3$
+the posterior $\sigma$ reached the prior scale by about 10{,}000 steps and stayed
+there, and the entropy-based advantage no longer disappeared: at 40{,}000 steps
+it was $+0.045$ (KMNIST) and $+0.048$ (Fashion-MNIST), against $-0.009$ and
+$+0.015$ for $\sigma_p=1$. Much of the entropy collapse in \S\ref{sec:window} is
+therefore $\sigma$ drifting all the way to an oversized prior. A tighter prior
+did not help fit, contrary to my prediction: with $\sigma_p=0.1$ accuracy was
+lower (0.870 vs 0.896), because the prior also pulls the weight means towards
+zero, and the Fashion-MNIST advantage mostly vanished.
 
 \subsection{What produces the advantage}\label{sec:mechanism}
 \paragraph{Noise in both hidden layers.} Taking BBB models trained for 23{,}550 steps,
 I switched posterior noise off layer by layer. Noise in the first and second
-layers together keeps 73--82\% of $\Delta$. Noise in any single layer keeps
+layers together keeps 72--82\% of $\Delta$. Noise in any single layer keeps
 essentially none (first layer: 16\% on Fashion-MNIST, $-26\%$ on KMNIST).
 The posterior-mean network on its own is a worse OOD detector than the DNN.
-The advantage comes from noise compounding across the hidden layers, which a
-last-layer method cannot produce.
+The advantage comes from noise compounding across the hidden layers. Noise
+in the last layer alone does not reproduce it in this model, which may explain
+why last-layer Laplace did poorly in Table~\ref{tab:grid}.
+
+\paragraph{Not a weak baseline.} The softness-matched DNN is one particular
+deterministic score. I also scored the DNNs by maximum softmax probability,
+maximum logit, energy (log-sum-exp of the logits), and entropy at the best
+temperature chosen \emph{with knowledge of the OOD set}, an upper bound for any
+temperature. Their best average AUROC was 0.888--0.918. BBB trained for
+23{,}550 steps reached 0.951--0.987 by entropy and 0.960--0.995 by MI, and beat
+the best deterministic score in all 20 seed-and-dataset pairs, by at least
+0.04 ($n\in\{2{,}000, 10{,}000\}$, 5 seeds, both OOD sets). The comparison is not
+budget-matched: the deterministic networks trained for 40 epochs, BBB for
+23{,}550 steps, and feature-space detectors (e.g.\ Mahalanobis, kNN) and a
+plain-network-plus-weight-noise control were not tried.
 
 \paragraph{Not a pixel shortcut.} Many pixels are constant (always
 background) across a training subset: on average 192, 148 and 104 at
@@ -271,8 +348,10 @@ data. I built three synthetic outlier sets from the validation images
 (uniform noise, flipped digits, pixel-permuted digits) and picked the
 checkpoint that best separates validation images from them by MI
 (Table~\ref{tab:select}; 12 runs, $n\in\{500, 2{,}000, 10{,}000\}$). It reaches
-73\% of the best achievable entropy-based advantage (the ``oracle''), but
-simply stopping at a fixed 8{,}000 steps reaches 72\%. Scoring the last
+74\% of the best achievable entropy-based advantage (the ``oracle''), but
+simply stopping at a fixed 8{,}000 steps reaches 72\%. Given the clock in
+\S\ref{sec:clock}, a fixed step count is a sensible rule for a fixed learning
+rate. Scoring the last
 checkpoint by MI instead of entropy, with no selection at all, does as well
 ($+0.049$). The oracle is a maximum over 40 checkpoints and is optimistic. These
 runs also share configurations and seeds with \S\ref{sec:window}. The proxy
@@ -285,15 +364,16 @@ rule therefore does not beat trivial alternatives here.
 rule & mean step & $\bar\Delta$ (entropy) & fraction of oracle \\
 \midrule
 oracle (uses real OOD; optimistic) & 10{,}917 & $+0.067$ & 1.00 \\
-synthetic-outlier proxies (MI) & 10{,}417 & $+0.049$ & 0.73 \\
+synthetic-outlier proxies (MI) & 10{,}417 & $+0.049$ & 0.74 \\
 fixed stop at 8{,}000 steps & 8{,}000 & $+0.048$ & 0.72 \\
 fixed stop at 10{,}000 steps & 10{,}000 & $+0.047$ & 0.71 \\
-minimum $-$ELBO & 39{,}417 & $+0.034$ & 0.52 \\
-minimum validation NLL & 2{,}250 & $-0.032$ & $-0.49$ \\
+minimum $-$ELBO & 39{,}417 & $+0.034$ & 0.51 \\
+minimum validation NLL & 2{,}250 & $-0.032$ & $-0.48$ \\
 \bottomrule
 \end{tabular}
 \caption{Stopping rules ($\bar\Delta$ = mean of Fashion-MNIST and KMNIST
-entropy-based $\Delta$ at the chosen checkpoint; 12 runs). Source:
+entropy-based $\Delta$ at the chosen checkpoint; 12 runs; fraction = mean
+$\bar\Delta$ of the rule / mean $\bar\Delta$ of the oracle). Source:
 \texttt{experiments/E9\_selection}, \texttt{results/E9/}.}
 \label{tab:select}
 \end{table}
@@ -344,8 +424,18 @@ Coker et al.\ \citep{coker2022wide} prove that the optimal mean-field
 posterior predictive approaches the prior predictive as width grows; the drift
 in \S\ref{sec:window} is consistent with that effect along the optimisation
 path of a standard-width ReLU classifier, a setting their theorem does not cover. Unlu and Aitchison \citep{unlu2020variational} note
-that mean-field variances are often unconverged when training stops; here
-that state is exactly where BBB looks like a tempered DNN. Izmailov et al.\
+that mean-field variances are often unconverged when training stops and that
+Adam bounds each update; \S\ref{sec:clock} shows that this bound sets an
+$N$-independent clock for when BBB's OOD advantage appears. Foong et al.\
+\citep{foong2020expressiveness} show what mean-field and MC dropout
+approximations cannot represent. Wenzel et al.\ \citep{wenzel2020good} show
+that tempered (``cold'') posteriors can predict better than the Bayes
+posterior; the softness-matched control here asks a related question about
+temperature, for OOD detection. Depeweg et al.\ \citep{depeweg2018decomposition}
+decompose predictive uncertainty into aleatoric and epistemic (MI) parts, the
+split behind \S\ref{sec:window}. Shen et al.\ \citep{shen2024variational}
+show that a natural-gradient variational method (IVON) trains large networks
+as well as Adam; whether its variances follow a similar clock is open. Izmailov et al.\
 \citep{izmailov2021dangers} show that weights on always-zero pixels keep their
 prior under HMC and hurt accuracy under covariate shift; I find no such
 pixel-specific effect in BBB's OOD detection. Ovadia et al.\
@@ -368,27 +458,36 @@ softness before attributing such advantages to the posterior.
 MNIST-family data. The CIFAR-10 models were small and underfit (37--68\%
 accuracy, no augmentation), so the CIFAR result says little about well-trained
 networks.
-\item \textbf{Prior.} The $\mathcal N(0,1)$ prior is badly misspecified for
-layers whose weights have scale $\sim0.05$ \citep{fortuin2022priors}, so a
-drift towards it is expected to hurt fit. I have not swept the prior scale.
+\item \textbf{Prior.} Only three prior scales (0.1, 0.3, 1) at one
+training-set size; per-layer or fan-in-scaled priors were not tried.
 \item \textbf{Schedule and samples.} The dynamics runs use a constant learning
 rate and 20 posterior samples; the fixed-budget runs use a cosine schedule and
 50 samples.
 \item \textbf{Statistics.} Dynamics results rest on 3 seeds per setting, and the
 selection analysis reuses those configurations and seeds.
+\item \textbf{The clock.} Tested with Adam and SGD on one architecture; other
+adaptive optimizers and natural-gradient methods such as IVON
+\citep{shen2024variational} were not tried. The SGD arm used one $\rho$
+learning rate and joint gradient clipping.
+\item \textbf{Baselines.} Deterministic baselines and ensembles were not
+budget-matched to the longer BBB runs; no weight-noise or feature-space
+baselines.
 \item \textbf{No exact posterior.} Without HMC or similar, I cannot say whether
 any of this reflects Bayesian behaviour or only mean-field VI under Adam.
 \end{itemize}
 
 \section{Conclusion}
 For Bayes by Backprop on MNIST-family data, ``knowing what it doesn't know''
-is not a fixed property of the method. It depends on how many optimizer steps
-were taken and on which uncertainty score is reported. At typical budgets BBB
-behaves like a temperature-scaled network. With longer training its
-mutual-information signal separates OOD inputs well, but the same signal
-appears in models that never learned, and entropy-based scores can lose the
-advantage as the model underfits. Comparisons between BBB and deterministic
-or ensemble methods should report the training budget, the score and a
+is not a fixed property of the method. It is set by optimizer time. Under
+Adam the posterior variances grow on a learning-rate $\times$ steps clock,
+almost regardless of how much data there is, and the OOD advantage switches on
+with them. Where the variances stay small, as under SGD with more data, there
+is no advantage. At typical budgets BBB therefore behaves like a
+temperature-scaled network; with longer training it beats the
+softness-matched control and scores higher than every deterministic score
+tested (those baselines not budget-matched). The uncertainty score and the prior scale then decide whether
+the advantage lasts. Comparisons between BBB and other methods should report
+the optimizer, learning rate and training budget, the score, and a
 softness-matched baseline.
 
 \paragraph{Reproducibility.} Code: \texttt{bnnstudy/}; every command:
@@ -404,9 +503,12 @@ at $N=2{,}000$, $B=64$). In a 3-seed pilot it cost BBB 3.2 points of accuracy
 (0.904 vs 0.936) and raised ECE from 0.022 to 0.185.
 
 \section{Pre-registered predictions and outcomes}\label{app:ledger}
-Each protocol (\texttt{experiments/<id>/protocol.md}) was committed before its
-runs. Of the 29 entries below, 9 were confirmed, 16 falsified, 3 had mixed
-outcomes and 1 had no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
+Each protocol (\texttt{experiments/<id>/protocol.md}) was written before its
+runs: committed to git for E1--E9, and for E10--E11 with SHA-256 hashes I
+recorded before launch (\texttt{experiments/E10\_E11\_prereg.txt}; self-attested,
+not independently timestamped). Of the 36
+entries below, 14 were confirmed, 17 falsified, 4 had mixed outcomes and 1 had
+no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
 just softness?'' to the training-path account.
 
 \begin{center}\small
@@ -443,6 +545,13 @@ E7 & P2: window closes & no outcome (no window) \\
 E7 & P3: proxy selection beats NLL & falsified \\
 E7 & P4: ensemble beats the control on SVHN & falsified \\
 E7b & rule: architecture vs data & ``architecture'' by the rule; weak \\
+E10 & P1: time to $\sigma=0.3$ $\times$ learning rate constant ($\pm30\%$) & confirmed \\
+E10 & P2: under Adam, $n$ changes that time by $\le25\%$ & confirmed \\
+E10 & P3: under SGD, $\sigma$ grows $\ge3\times$ faster at $n=500$ than $10{,}000$ & confirmed (39$\times$) \\
+E10 & P4: onset of the OOD advantage follows the same clock ($\pm40\%$) & confirmed \\
+E11 & P1: a tighter prior improves final accuracy & falsified \\
+E11 & P2: a tighter prior keeps the entropy advantage to the end & $\sigma_p=0.3$ yes; 0.1 no \\
+E11 & P3: MI advantage survives $\sigma_p\in\{0.1, 0.3\}$ (kill test) & confirmed \\
 \bottomrule
 \end{tabular}
 \end{center}

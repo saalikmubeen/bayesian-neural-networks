@@ -1,0 +1,13 @@
+Pre-registration record (written before any E10/E11 run started)
+2026-10-22T01:21:37+02:00
+d44a9542b0f73994d160098692d06a50b0f1420c2d496e4f04daf548d2e7cf25  experiments/E10_optimizer_clock/protocol.md
+689886b1c874e33cb0a9d1e9347d54008558af9f9839d96f3c110fece25a0aa9  experiments/E11_prior_scale/protocol.md
+
+How to verify: in each protocol, replace everything from the line
+"## Result (filled after running, 2026-10-22)" to the end with the original
+placeholder:
+## Result (filled after running)
+- Outcome:
+- CONFIRMATORY / EXPLORATORY
+- What it rules out / suggests:
+and compute sha256sum. It matches the hashes above (checked 2026-10-22).

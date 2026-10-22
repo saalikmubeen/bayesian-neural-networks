@@ -1,11 +1,11 @@
-# Bayes by Backprop's OOD Advantage Depends on Where Training Stops
+# On MNIST, Bayes by Backprop's OOD Advantage Runs on Optimizer Time
 
 A study of out-of-distribution (OOD) detection with Bayesian neural networks,
 built around a Bayes-by-Backprop (BBB) implementation written from scratch in
 PyTorch. Every experiment's hypothesis, predictions and falsification
 criteria were committed to git before it ran.
 
-**Report:** [bnn.pdf](bnn.pdf) (10 pages; source `report/bnn.tex`)
+**Report:** [bnn.pdf](bnn.pdf) (12 pages; source `report/bnn.tex`)
 
 ## The question
 
@@ -23,43 +23,51 @@ On MLPs trained on MNIST (OOD sets: Fashion-MNIST, KMNIST):
 1. **At standard training budgets, BBB is no better than the softness-matched
    network.** Deep ensembles are slightly better, MC dropout ties, and
    last-layer Laplace is worse (10 seeds per setting).
-2. **BBB's advantage is set by the number of optimizer steps, not by the
-   amount of data.** With the same data, about 23,500 steps give +0.06 to
-   +0.08 AUROC over the control (5/5 seeds); 4,800 steps give none. The
-   posterior standard deviations follow almost the same path for 500 to
-   10,000 training images, which suggests the optimizer (Adam) sets the pace.
-   This is a hypothesis I have not yet tested directly.
-3. **The uncertainty score matters.** Along training, the entropy-based
-   advantage can rise and then disappear as the model starts to underfit and
-   becomes uncertain on normal digits too. The mutual-information (MI)
-   advantage persists. But MI is also high for runs that never learned the
-   task, so MI alone does not show a useful model.
-4. **The advantage needs posterior noise in both hidden layers together**, and
-   it is not explained by a pixel shortcut (removing ink on always-blank pixels
-   changes nothing).
-5. **Choosing when to stop is unsolved.** Held-out NLL stops too early and the
-   ELBO too late. A synthetic-outlier selection rule does no better than
-   stopping at a fixed step count.
+2. **With enough optimizer steps, BBB beats the control by +0.06 to +0.08
+   AUROC.** It also scores higher than a deep ensemble and every
+   deterministic score tried (energy, max-logit, and a temperature tuned with
+   knowledge of the OOD set) in 20 of 20 runs. Those baselines were trained
+   for fewer steps, so that comparison is not budget-matched.
+3. **When this happens is set by the optimizer, not the data.** Under Adam,
+   the posterior standard deviations grow on a learning-rate × steps clock.
+   Halving or doubling the learning rate doubles or halves the time, while a
+   20-fold change in training-set size changes it by at most 20%. Under SGD,
+   growth depends strongly on the data size, and where σ stays small BBB shows
+   no advantage at all. Growth alone is not enough, though: at n = 500, SGD
+   grew σ but gave only a small advantage (about +0.03).
+4. **The uncertainty score and the prior matter.** With the default N(0,1)
+   prior, the entropy-based advantage can disappear later in training as the
+   model underfits, while the mutual-information (MI) advantage persists. With
+   a prior of scale 0.3, both persist. MI is also high for runs that never
+   learned, so MI alone does not show a useful model.
+5. **The advantage needs posterior noise in both hidden layers together**, and
+   it is not a pixel shortcut.
+6. **Neither held-out NLL nor the ELBO picks a good stopping point.** A
+   synthetic-outlier rule does no better than a fixed step count, which is
+   what the optimizer clock predicts.
 
 On CIFAR-10 with small, underfit models (37–68% accuracy), no comparable
 advantage appears. That result says little about well-trained networks.
+
+![Optimizer clock](figures/E10_clock.png)
 
 ![BBB training dynamics](figures/E6_dynamics.png)
 
 ## How the study got here
 
 The project started from a simpler question ("is the BNN's advantage just
-softness?"). Most of my pre-registered predictions failed: 16 of 29, listed
+softness?"). Many of my pre-registered predictions failed: 17 of 36, listed
 in the report's appendix. Those failures are what led to the training-path
 account. Each step is in [experiments/](experiments/) (E1–E9, E7b), with the
 prediction written first and the result added after the run.
 
 ## Limitations and next steps
 
-The N(0,1) prior is misspecified for these layers and has not been swept; the
-dynamics runs use a constant learning rate and 3 seeds; there is no
-exact-posterior (HMC) reference; and the CIFAR models are small and underfit.
-Planned next experiments: learning-rate and SGD tests of the optimizer-clock hypothesis, a prior-scale sweep, ResNet-20 on CIFAR-10, HMC.
+Only three prior scales were tried, at one data size. The dynamics runs use
+a constant learning rate and 3 seeds, and the clock was tested with Adam and
+SGD on one architecture. There is no exact-posterior (HMC) reference, and the
+CIFAR models are small and underfit. Planned next: ResNet-20 with augmentation
+on CIFAR-10 (BBB, IVON, ensembles), HMC on a small MLP, and IVON on MNIST.
 
 ## Methodological notes
 

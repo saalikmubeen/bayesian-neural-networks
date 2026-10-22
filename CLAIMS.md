@@ -87,3 +87,18 @@ listed result files. Check with
 | Fixed stop at 8k / 10k: Δ̄ +0.048 / +0.047, 72% / 71% of oracle; MI at last checkpoint +0.049 | 0.048, 0.047, 0.72, 0.71, 72, 0.049 | recomputed from `results/E9/dyn_*.csv` (12 runs) |
 | CIFAR CNN SVHN MI-AUROC 0.24–0.60 | 0.238, 0.599 | `results/E7/dyn_*.csv` (`auroc_svhn_mi`) |
 | CIFAR accuracy range 37–68% | 0.367 (E7b BBB max), 0.683 (E7 BBB max) | `results/E7b/summary.txt`, `results/E7/summary.txt` |
+
+## Additions with E10, E11 and the stronger-baseline analysis
+| Claim | Values | Source |
+|---|---|---|
+| n = 2,000 Fashion: 3/10 seeds better, CI upper −0.001, Wilcoxon p = 0.16 | 0.16 | `results/E2/paired_dnn.csv` (bbb, n 2000, auroc_fashion_entropy) |
+| Time to σ = 0.3: 10,000 / 5,000 / 3,000 (n = 500) and 12,000 / 6,000 / 3,000 (n = 10,000) for lr 5e-4 / 1e-3 / 2e-3; × lr within 12%; n changes it ≤ 20%; onset × lr within 7% | 10,000, 5,000, 3,000, 12,000, 6,000, 12, 20, 7 | `results/E10/summary.txt`, `results/E10/per_run.csv`; `experiments/E10_optimizer_clock/protocol.md` |
+| SGD on ρ: σ at 20,000 steps 0.67 vs 0.017 (39×); peak Δ −0.007; accuracy 0.966 | 20,000, 0.67, 0.017, 39, 0.007, 0.966 | same |
+| lr 2e-3 at n = 500 collapses (final acc 0.09–0.67) | 0.09, 0.67 | `results/E10/per_run.csv` |
+| E10 setup: 3 seeds, 40,000 steps, SGD momentum 0.9 | 3, 40,000, 0.9 | `scripts/run_E10_E11.sh`, `bnnstudy/dynamics.py` |
+| Prior scale: peak MI-Δ KMNIST +0.055 (0.1), +0.075 (0.3), +0.080 (1); entropy Δ at 40k +0.045 / +0.048 (0.3) vs −0.009 / +0.015 (1); σ reaches prior by ~10,000 steps; acc 0.870 vs 0.896 | as written | `results/E11/summary.txt`, `results/E11/per_run.csv`; `experiments/E11_prior_scale/protocol.md` |
+| Stronger deterministic scores: best average 0.888–0.918; BBB 0.951–0.987 (entropy), 0.960–0.995 (MI); beats best in 20 of 20 pairs by ≥ 0.04 (min 0.0402) | 0.888, 0.918, 0.951, 0.987, 0.960, 0.995, 20, 0.04 | `results/E45/strong_baselines.csv` from `scripts/analyze_strong_baselines.py` |
+| Stopping table (one estimator, ratio of means): proxies 0.74, fixed 8k 0.72, fixed 10k 0.71, −ELBO 0.51, NLL −0.48 | 74, 0.74, 0.51, 0.48 | `results/E9/selection_ratio_of_means.txt` |
+| Ledger: 36 entries; 14 confirmed, 17 falsified, 4 mixed, 1 none | 36, 14, 17, 4, 1 | tally of the appendix table |
+| SGD on ρ at n = 500: σ 0.67 at 20k, peak entropy Δ_K +0.03 (mean 0.0316), never ≥ 0.04, accuracy 0.882 | 0.67, 0.03, 0.04, 0.882 | `results/E10/summary.txt` (sgd (rho), n 500), `results/E10/per_run.csv` |
+| DNN 40 epochs vs BBB 23,550 steps (budgets not matched) | 40, 23,550 | `bnnstudy/train.py` METHODS |

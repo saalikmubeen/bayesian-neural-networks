@@ -1,0 +1,7 @@
+Selection rules, 12 E9 runs; fraction = mean(d_selected) / mean(d_oracle) (ratio of means for every row)
+oracle         step    10917  d +0.0665  frac 1.00  acc 0.922
+proxies (MI)   step    10417  d +0.0490  frac 0.74  acc 0.924
+min -ELBO      step    39417  d +0.0340  frac 0.51  acc 0.906
+min val NLL    step     2250  d -0.0317  frac -0.48  acc 0.922
+fixed 8000     step     8000  d +0.0478  frac 0.72  acc 0.924
+fixed 10000    step    10000  d +0.0470  frac 0.71  acc 0.923

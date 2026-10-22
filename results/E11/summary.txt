@@ -1,0 +1,9 @@
+
+E11 per prior scale (mean over seeds; end = 40k steps):
+             acc_end  dK_end  dF_end  dK_mi_end  peak_dK  peak_dK_mi  peak_dF_mi  sigma_end  H_id_end
+prior_sigma                                                                                          
+0.1           0.8700 -0.0072 -0.0192     0.0451   0.0114      0.0546      0.0384     0.0995    0.9234
+0.3           0.8968  0.0453  0.0481     0.0713   0.0514      0.0749      0.0760     0.2975    0.7922
+1.0           0.8961 -0.0087  0.0153     0.0645   0.0705      0.0796      0.0929     0.9817    0.9421
+  sigma_p 0.1: P1 acc gain -0.0261 (fails); P2 dK_end gain +0.0014 (fails); P3 peak MI-dK +0.0546 (holds)
+  sigma_p 0.3: P1 acc gain +0.0007 (fails); P2 dK_end gain +0.0540 (holds); P3 peak MI-dK +0.0749 (holds)
