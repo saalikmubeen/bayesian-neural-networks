@@ -1,0 +1,21 @@
+{
+  "method": "dnn_steps23550",
+  "n": 2000,
+  "seed": 1,
+  "config": {
+    "kind": "dnn",
+    "steps": 23550,
+    "lr": 0.001
+  },
+  "epochs": 736,
+  "batch": 64,
+  "hidden": 256,
+  "id": "mnist04",
+  "prior_precision": null,
+  "train_seconds": 21.5,
+  "test_acc": 0.9803463708892781,
+  "torch": "1.9.0+cu111",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "host": "morgoth",
+  "date": "2026-10-22 16:48"
+}

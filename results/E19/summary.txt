@@ -1,0 +1,16 @@
+
+n=2000: 4 chains x 100 samples; mean acceptance after warm-up [0.74, 0.74, 0.7, 0.72]; split-R-hat on p(true class), 1000 test images: median 1.067, 90th pct 2.794 -> NOT converged (exploratory)
+n=2000 accuracy: HMC 0.8992 | BBB 0.9196 | DNN 0.9101
+n=2000 HMC: dF +0.0612 dK +0.0307 | MI: dF +0.0613 dK +0.0310 | AUROC F/K 0.889/0.926 | FPR95 K 0.422 (DNN_T 0.509)
+n=2000 BBB: dF +0.0716 dK +0.0386 | MI: dF +0.1087 dK +0.0815 | AUROC F/K 0.910/0.944 | FPR95 K 0.335 (DNN_T 0.465)
+n=2000 P1 (decision rule): exact posterior also has an advantage beyond softness
+n=2000 P2: fraction |mean| > std in hidden layers: HMC 0.9061 vs BBB 0.0220 -> holds (>= 2x)
+n=2000 P3: HMC accuracy >= BBB: 0.8992 vs 0.9196 -> fails
+
+n=500: 4 chains x 100 samples; mean acceptance after warm-up [0.71, 0.72, 0.75, 0.7]; split-R-hat on p(true class), 1000 test images: median 1.437, 90th pct 2.543 -> NOT converged (exploratory)
+n=500 accuracy: HMC 0.8325 | BBB 0.8807 | DNN 0.8726
+n=500 HMC: dF +0.0034 dK +0.0002 | MI: dF +0.0037 dK +0.0006 | AUROC F/K 0.866/0.895 | FPR95 K 0.561 (DNN_T 0.506)
+n=500 BBB: dF -0.0364 dK -0.0650 | MI: dF +0.0981 dK +0.0653 | AUROC F/K 0.814/0.833 | FPR95 K 0.794 (DNN_T 0.486)
+n=500 P1 (decision rule): BBB's advantage is not a property of the exact posterior
+n=500 P2: fraction |mean| > std in hidden layers: HMC 0.8676 vs BBB 0.0164 -> holds (>= 2x)
+n=500 P3: HMC accuracy >= BBB: 0.8325 vs 0.8807 -> fails

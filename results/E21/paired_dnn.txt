@@ -1,0 +1,49 @@
+    n              method               metric                   vs  seeds  mean_M  mean_dnnT    diff   ci_lo   ci_hi  M_higher  dnnT_higher  wilcoxon_p      T
+ 2000                 bbb auroc_kmnist_entropy auroc_kmnist_entropy      5  0.8029     0.7372  0.0657  0.0571  0.0743         5            0      0.0625 1.9787
+ 2000                 bbb      auroc_kmnist_mi auroc_kmnist_entropy      5  0.8465     0.7372  0.1093  0.1000  0.1191         5            0      0.0625 1.9787
+ 2000                 bbb  auroc_mnist_entropy  auroc_mnist_entropy      5  0.8976     0.8180  0.0796  0.0719  0.0872         5            0      0.0625 1.9787
+ 2000                 bbb       auroc_mnist_mi  auroc_mnist_entropy      5  0.9232     0.8180  0.1052  0.0986  0.1126         5            0      0.0625 1.9787
+ 2000                 bbb                  acc                  acc      5  0.8312     0.8270  0.0043  0.0030  0.0056         5            0      0.0625 1.9787
+ 2000                 bbb                  nll                  nll      5  0.5280     0.5257  0.0023 -0.0016  0.0073         2            3      0.8125 1.9787
+ 2000                 bbb                  ece                  ece      5  0.0260     0.0401 -0.0141 -0.0165 -0.0117         0            5      0.0625 1.9787
+ 2000                 bbb                 aurc                 aurc      5  0.0454     0.0474 -0.0020 -0.0030 -0.0010         0            5      0.0625 1.9787
+ 2000      bbb_steps23550 auroc_kmnist_entropy auroc_kmnist_entropy      5  0.8269     0.7451  0.0819  0.0715  0.0925         5            0      0.0625 4.1200
+ 2000      bbb_steps23550      auroc_kmnist_mi auroc_kmnist_entropy      5  0.9499     0.7451  0.2048  0.1968  0.2158         5            0      0.0625 4.1200
+ 2000      bbb_steps23550  auroc_mnist_entropy  auroc_mnist_entropy      5  0.9800     0.8443  0.1357  0.1258  0.1465         5            0      0.0625 4.1200
+ 2000      bbb_steps23550       auroc_mnist_mi  auroc_mnist_entropy      5  0.8590     0.8443  0.0147 -0.0259  0.0580         2            3      0.8125 4.1200
+ 2000      bbb_steps23550                  acc                  acc      5  0.7616     0.8270 -0.0653 -0.0717 -0.0590         0            5      0.0625 4.1200
+ 2000      bbb_steps23550                  nll                  nll      5  0.7153     0.6127  0.1026  0.0854  0.1183         5            0      0.0625 4.1200
+ 2000      bbb_steps23550                  ece                  ece      5  0.1332     0.1466 -0.0135 -0.0199 -0.0070         0            5      0.0625 4.1200
+ 2000      bbb_steps23550                 aurc                 aurc      5  0.0824     0.0531  0.0293  0.0236  0.0342         5            0      0.0625 4.1200
+ 2000      dnn_steps23550 auroc_kmnist_entropy auroc_kmnist_entropy      5  0.7223     0.7046  0.0176  0.0098  0.0269         5            0      0.0625 0.2854
+ 2000      dnn_steps23550      auroc_kmnist_mi auroc_kmnist_entropy      5  0.5016     0.7046 -0.2030 -0.2145 -0.1954         0            5      0.0625 0.2854
+ 2000      dnn_steps23550  auroc_mnist_entropy  auroc_mnist_entropy      5  0.7992     0.7592  0.0400  0.0338  0.0486         5            0      0.0625 0.2854
+ 2000      dnn_steps23550       auroc_mnist_mi  auroc_mnist_entropy      5  0.4996     0.7592 -0.2596 -0.2680 -0.2511         0            5      0.0625 0.2854
+ 2000      dnn_steps23550                  acc                  acc      5  0.8233     0.8270 -0.0036 -0.0051 -0.0021         0            5      0.0625 0.2854
+ 2000      dnn_steps23550                  nll                  nll      5  2.3044     2.2181  0.0864  0.0440  0.1287         5            0      0.0625 0.2854
+ 2000      dnn_steps23550                  ece                  ece      5  0.1594     0.1554  0.0040  0.0020  0.0056         5            0      0.0625 0.2854
+ 2000      dnn_steps23550                 aurc                 aurc      5  0.0531     0.0484  0.0047  0.0035  0.0063         5            0      0.0625 0.2854
+ 2000            ensemble auroc_kmnist_entropy auroc_kmnist_entropy      5  0.7598     0.7171  0.0427  0.0384  0.0474         5            0      0.0625 1.0671
+ 2000            ensemble      auroc_kmnist_mi auroc_kmnist_entropy      5  0.8294     0.7171  0.1123  0.1066  0.1180         5            0      0.0625 1.0671
+ 2000            ensemble  auroc_mnist_entropy  auroc_mnist_entropy      5  0.8198     0.7819  0.0379  0.0309  0.0463         5            0      0.0625 1.0671
+ 2000            ensemble       auroc_mnist_mi  auroc_mnist_entropy      5  0.8805     0.7819  0.0987  0.0922  0.1061         5            0      0.0625 1.0671
+ 2000            ensemble                  acc                  acc      5  0.8289     0.8270  0.0019  0.0008  0.0030         4            1      0.1250 1.0671
+ 2000            ensemble                  nll                  nll      5  0.7358     0.7442 -0.0084 -0.0107 -0.0063         0            5      0.0625 1.0671
+ 2000            ensemble                  ece                  ece      5  0.1029     0.1056 -0.0027 -0.0041 -0.0011         1            4      0.1250 1.0671
+ 2000            ensemble                 aurc                 aurc      5  0.0458     0.0475 -0.0017 -0.0022 -0.0011         0            5      0.0625 1.0671
+ 2000 ensemble_steps23550 auroc_kmnist_entropy auroc_kmnist_entropy      5  0.7920     0.7079  0.0841  0.0744  0.0951         5            0      0.0625 0.5839
+ 2000 ensemble_steps23550      auroc_kmnist_mi auroc_kmnist_entropy      5  0.8017     0.7079  0.0939  0.0834  0.1049         5            0      0.0625 0.5839
+ 2000 ensemble_steps23550  auroc_mnist_entropy  auroc_mnist_entropy      5  0.8495     0.7649  0.0845  0.0738  0.0956         5            0      0.0625 0.5839
+ 2000 ensemble_steps23550       auroc_mnist_mi  auroc_mnist_entropy      5  0.8568     0.7649  0.0919  0.0808  0.1038         5            0      0.0625 0.5839
+ 2000 ensemble_steps23550                  acc                  acc      5  0.8274     0.8270  0.0004 -0.0007  0.0018         2            3      1.0000 0.5839
+ 2000 ensemble_steps23550                  nll                  nll      5  1.7866     1.2449  0.5417  0.5068  0.5766         5            0      0.0625 0.5839
+ 2000 ensemble_steps23550                  ece                  ece      5  0.1335     0.1367 -0.0032 -0.0053 -0.0016         0            5      0.0625 0.5839
+ 2000 ensemble_steps23550                 aurc                 aurc      5  0.0490     0.0481  0.0009  0.0002  0.0015         4            1      0.1250 0.5839
+10000                 bbb auroc_kmnist_entropy auroc_kmnist_entropy      5  0.8845     0.6781  0.2064  0.1977  0.2150         5            0      0.0625 4.1654
+10000                 bbb      auroc_kmnist_mi auroc_kmnist_entropy      5  0.9735     0.6781  0.2954  0.2886  0.3010         5            0      0.0625 4.1654
+10000                 bbb  auroc_mnist_entropy  auroc_mnist_entropy      5  0.9558     0.7959  0.1598  0.1454  0.1753         5            0      0.0625 4.1654
+10000                 bbb       auroc_mnist_mi  auroc_mnist_entropy      5  0.9762     0.7959  0.1803  0.1678  0.1928         5            0      0.0625 4.1654
+10000                 bbb                  acc                  acc      5  0.8492     0.8626 -0.0134 -0.0149 -0.0114         0            5      0.0625 4.1654
+10000                 bbb                  nll                  nll      5  0.4311     0.4149  0.0162  0.0124  0.0210         5            0      0.0625 4.1654
+10000                 bbb                  ece                  ece      5  0.0493     0.0399  0.0094  0.0065  0.0123         5            0      0.0625 4.1654
+10000                 bbb                 aurc                 aurc      5  0.0368     0.0330  0.0038  0.0030  0.0045         5            0      0.0625 4.1654

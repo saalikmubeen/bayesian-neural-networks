@@ -1,0 +1,16 @@
+Means over 5 seeds. AUROCs: long-trained BBB; DNN at T = 1, at the softness-matched T, worst and best T on a
+log grid 0.25-50 (best = oracle choice using the OOD set). Delta = BBB - DNN_Tmatch; Delta_correct on images both
+classify correctly.
+Fashion-MNIST n= 2000 kmnist  | BBB 0.827 | DNN T=1 0.716, T_match 0.745 (T 4.12), range over T 0.662-0.747 (best T 3.32) | BBB - best-T DNN +0.079 | Delta +0.082, Delta_correct +0.053 (both correct 0.713; acc BBB 0.762, DNN 0.827)
+Fashion-MNIST n= 2000 mnist   | BBB 0.980 | DNN T=1 0.779, T_match 0.844 (T 4.12), range over T 0.747-0.845 (best T 4.42) | BBB - best-T DNN +0.134 | Delta +0.136, Delta_correct +0.082 (both correct 0.713; acc BBB 0.762, DNN 0.827)
+Fashion-MNIST n=10000 kmnist  | BBB 0.885 | DNN T=1 0.682, T_match 0.678 (T 4.17), range over T 0.481-0.689 (best T 2.60) | BBB - best-T DNN +0.196 | Delta +0.206, Delta_correct +0.175 (both correct 0.813; acc BBB 0.849, DNN 0.863)
+Fashion-MNIST n=10000 mnist   | BBB 0.956 | DNN T=1 0.756, T_match 0.796 (T 4.17), range over T 0.663-0.797 (best T 4.42) | BBB - best-T DNN +0.158 | Delta +0.160, Delta_correct +0.117 (both correct 0.813; acc BBB 0.849, DNN 0.863)
+MNIST         n=  500 fashion | BBB 0.907 | DNN T=1 0.813, T_match 0.837 (T 2.47), range over T 0.750-0.860 (best T 12.97) | BBB - best-T DNN +0.047 | Delta +0.070, Delta_correct +0.058 (both correct 0.859; acc BBB 0.886, DNN 0.876)
+MNIST         n=  500 kmnist  | BBB 0.955 | DNN T=1 0.852, T_match 0.891 (T 2.47), range over T 0.833-0.913 (best T 7.14) | BBB - best-T DNN +0.042 | Delta +0.064, Delta_correct +0.046 (both correct 0.859; acc BBB 0.886, DNN 0.876)
+MNIST         n= 2000 fashion | BBB 0.951 | DNN T=1 0.862, T_match 0.875 (T 2.58), range over T 0.808-0.888 (best T 18.14) | BBB - best-T DNN +0.063 | Delta +0.076, Delta_correct +0.062 (both correct 0.913; acc BBB 0.933, DNN 0.925)
+MNIST         n= 2000 kmnist  | BBB 0.968 | DNN T=1 0.871, T_match 0.899 (T 2.58), range over T 0.857-0.909 (best T 5.25) | BBB - best-T DNN +0.059 | Delta +0.069, Delta_correct +0.055 (both correct 0.913; acc BBB 0.933, DNN 0.925)
+MNIST         n=10000 fashion | BBB 0.973 | DNN T=1 0.904, T_match 0.916 (T 3.71), range over T 0.868-0.917 (best T 4.04) | BBB - best-T DNN +0.056 | Delta +0.057, Delta_correct +0.050 (both correct 0.956; acc BBB 0.964, DNN 0.967)
+MNIST         n=10000 kmnist  | BBB 0.987 | DNN T=1 0.903, T_match 0.917 (T 3.71), range over T 0.844-0.918 (best T 4.24) | BBB - best-T DNN +0.070 | Delta +0.070, Delta_correct +0.058 (both correct 0.956; acc BBB 0.964, DNN 0.967)
+
+Seeds where BBB beats the oracle-temperature DNN: Fashion-MNIST n=2000 kmnist: 5/5, Fashion-MNIST n=2000 mnist: 5/5, Fashion-MNIST n=10000 kmnist: 5/5, Fashion-MNIST n=10000 mnist: 5/5, MNIST n=500 fashion: 5/5, MNIST n=500 kmnist: 5/5, MNIST n=2000 fashion: 5/5, MNIST n=2000 kmnist: 5/5, MNIST n=10000 fashion: 5/5, MNIST n=10000 kmnist: 5/5
+Spread of DNN AUROC over the whole T grid (max - min), mean over settings: 0.097; gain of the oracle T over T = 1: +0.035

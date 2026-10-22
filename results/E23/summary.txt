@@ -1,0 +1,24 @@
+
+n=500 (mean [range] over data seeds 0-2):
+  dnn                  acc +0.870 [+0.868,+0.873]
+  hmc                  acc +0.887 [+0.882,+0.890] | delta_fashion +0.077 [+0.074,+0.079] | delta_kmnist +0.060 [+0.051,+0.070] | delta_fashion_mi +0.084 [+0.080,+0.086] | delta_kmnist_mi +0.065 [+0.056,+0.075]
+  bbb_50               acc +0.784 [+0.747,+0.808] | delta_fashion -0.009 [-0.026,+0.001] | delta_kmnist -0.032 [-0.054,-0.020] | delta_fashion_mi +0.065 [+0.043,+0.100] | delta_kmnist_mi +0.065 [+0.055,+0.081]
+  bbb_800              acc +0.792 [+0.754,+0.821] | delta_fashion +0.012 [-0.014,+0.027] | delta_kmnist +0.000 [-0.019,+0.012] | delta_fashion_mi +0.076 [+0.056,+0.106] | delta_kmnist_mi +0.069 [+0.060,+0.086]
+  map_sp0.3            acc +0.868 [+0.863,+0.877] | delta_fashion -0.064 [-0.072,-0.048] | delta_kmnist -0.015 [-0.020,-0.008] | delta_fashion_mi -0.350 [-0.364,-0.341] | delta_kmnist_mi -0.401 [-0.406,-0.391]
+  map_ensemble_sp0.3   acc +0.867 [+0.862,+0.877] | delta_fashion -0.053 [-0.077,-0.028] | delta_kmnist -0.014 [-0.016,-0.009] | delta_fashion_mi -0.020 [-0.042,+0.004] | delta_kmnist_mi -0.023 [-0.033,-0.017]
+  P1 (HMC entropy dK, dF > MAP ensemble on every subset): holds (fashion: 3/3, kmnist: 3/3)
+  P2 (single MAP mean dK <= +0.02): -0.0153 -> holds
+  P3 (BBB 800 vs 50 samples, |change| <= 0.01): delta_kmnist 0.0318, delta_fashion 0.0216, delta_kmnist_mi 0.0042 -> fails
+
+n=2000 (mean [range] over data seeds 0-2):
+  dnn                  acc +0.917 [+0.910,+0.923]
+  hmc                  acc +0.931 [+0.929,+0.934] | delta_fashion +0.088 [+0.074,+0.115] | delta_kmnist +0.075 [+0.074,+0.077] | delta_fashion_mi +0.092 [+0.078,+0.119] | delta_kmnist_mi +0.078 [+0.077,+0.080]
+  bbb_50               acc +0.906 [+0.899,+0.910] | delta_fashion +0.035 [+0.010,+0.077] | delta_kmnist +0.030 [+0.027,+0.033] | delta_fashion_mi +0.047 [+0.030,+0.080] | delta_kmnist_mi +0.071 [+0.069,+0.074]
+  bbb_800              acc +0.908 [+0.902,+0.913] | delta_fashion +0.041 [+0.015,+0.081] | delta_kmnist +0.039 [+0.037,+0.042] | delta_fashion_mi +0.057 [+0.040,+0.088] | delta_kmnist_mi +0.077 [+0.075,+0.079]
+  map_sp0.3            acc +0.927 [+0.923,+0.930] | delta_fashion +0.017 [-0.022,+0.051] | delta_kmnist +0.017 [+0.013,+0.024] | delta_fashion_mi -0.357 [-0.379,-0.329] | delta_kmnist_mi -0.383 [-0.385,-0.381]
+  map_ensemble_sp0.3   acc +0.929 [+0.926,+0.933] | delta_fashion +0.033 [-0.002,+0.076] | delta_kmnist +0.024 [+0.020,+0.030] | delta_fashion_mi +0.055 [+0.029,+0.097] | delta_kmnist_mi +0.035 [+0.030,+0.040]
+  P1 (HMC entropy dK, dF > MAP ensemble on every subset): holds (fashion: 3/3, kmnist: 3/3)
+  P2 (single MAP mean dK <= +0.02): +0.0174 -> holds
+  P3 (BBB 800 vs 50 samples, |change| <= 0.01): delta_kmnist 0.0095, delta_fashion 0.0063, delta_kmnist_mi 0.0052 -> holds
+
+Falsification (MAP ensemble mean >= HMC on both OOD sets at both n): not met

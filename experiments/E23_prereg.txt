@@ -1,0 +1,9 @@
+E23 pre-registration (self-attested). Recorded 2026-10-22 17:18 CEST before any E23 run.
+205a0921670aeedab0349762f27b5759034820165e3a3adc04e1148c5b6014bc  experiments/E23_hmc_controls_r1_baselines/protocol.md
+b50af942bb6b99f74727e88d245b06e76e4fe0270bc134717fc2a4c8c59c3bf7  bnnstudy/train.py
+e6446c8ae7ab98aa4f824700edb175d0a4ebff8ff0a7434bc2e0cbf2a156a46a  scripts/run_E23.sh
+186ff62713208963ca0e5905d8a384f6c0efec96ba43a44ed28880d502a5176f  scripts/analyze_E23.py
+2d16f5f08c7ea94313d15ff322bb5ef504e9bd429a87d18a6aaf480de6f8cdd5  scripts/analyze_E23_r1.py
+
+Amendment 2026-10-22 17:18 CEST, before any E23 analysis was run (training only had started): scripts/analyze_E23.py had a nested-quote syntax error in one print statement (line with the P1 counts); fixed without changing any computation. New hash:
+5af6a32c265a9bac89d4ff4f510f34af38efcd6bebeb3500161781e9a3babd7d  scripts/analyze_E23.py

@@ -165,3 +165,44 @@ listed result files. Check with
 | Accuracy means HMC vs BBB 0.887 vs 0.784 (n = 500), 0.931 vs 0.906 (n = 2000) | 0.887, 0.784, 0.931, 0.906 | `results/E20/seeds_summary.txt` |
 | Entropy Δ_K means: BBB +0.030 vs HMC +0.075 (n = 2000); BBB −0.032 vs HMC +0.060 (n = 500); Q4 gaps +0.092, +0.045; Fashion MI at n = 2000: BBB +0.047 vs HMC +0.092 | 0.030, 0.075, 0.032, 0.060, 0.092, 0.045, 0.047 | `results/E20/seeds_summary.txt` |
 | Ledger: 72 entries; 32 confirmed, 26 falsified, 10 mixed, 3 none, 1 decision rule; 6/6 runs | 72, 32, 26, 10, 3, 1, 6 | scripted tally of the appendix rows |
+
+## Additions in the TMLR paper (`paper/main.tex`, HMC appendix)
+| Claim | Values | Source |
+|---|---|---|
+| E20 sampler: dual averaging target 0.8; trajectory 0.471; leapfrog steps 360–430 (n = 500), 702–856 (n = 2000); ~25 / 55 min per run on one RTX 3090 | 0.8, 0.471, 360, 430, 702, 856, 25, 55, 3090 | `scripts/run_E20.sh`, `results/E20/extra.txt`, `logs/E20_n*.log` |
+| Drift between halves −1.9 / +11.6 with batch-means s.e. 5.5 / 5.3 | 1.9, 11.6, 5.5, 5.3 | `results/E20/extra.txt` |
+| E19: 1,500 warm-up iterations, Robbins–Monro; adapted step 2.3–5.4e-5 | 1500, 2.3, 5.4 | `bnnstudy/hmc.py` defaults, `logs/E19_c*.log` |
+
+## Additions with E21 (Fashion-MNIST as in-distribution)
+| Claim | Values | Source |
+|---|---|---|
+| Table: acc DNN 0.827 / 0.863; BBB standard 0.831, Δ +0.080 / +0.066, MI +0.105 / +0.109; BBB 23,550 0.762, Δ +0.136 / +0.082, MI +0.015 / +0.205; DNN 23,550 0.823, Δ +0.040 / +0.018; ensemble 0.829, Δ +0.038 / +0.043, MI +0.099 / +0.112; ensemble 23,550 0.827, Δ +0.085 / +0.084, MI +0.092 / +0.094; n = 10,000 BBB 0.849, Δ +0.160 / +0.206, MI +0.180 / +0.295; 5/5 seeds; 2/5 (vs ensemble on KMNIST) | as listed | `results/E21/E21_summary.txt`, `results/E21/E21_deltas.csv` |
+| Abstract/intro range +0.08 to +0.21 (0.08–0.21); 6.5 points accuracy; absolute entropy AUROC BBB 0.827 vs ensemble 0.792 (KMNIST), 0.980 vs 0.849 (MNIST); plain networks 0.68–0.84 | 0.08, 0.21, 6.5, 0.827, 0.792, 0.980, 0.849, 0.68, 0.84 | `results/E21/metrics.csv` (group means by method) |
+| Ledger: 77 entries; 34 confirmed, 27 falsified, 12 mixed, 3 none, 1 decision rule | 77, 34, 27, 12, 3, 1 | scripted tally of the appendix rows |
+
+## Additions in the TMLR revision (post-hoc review analyses, `results/posthoc/summary.txt`)
+| Claim | Values | Source |
+|---|---|---|
+| Temperature sweep T ∈ [0.25, 50]: DNN AUROC spread ≈ 0.10 (0.097); oracle T gains +0.035 over T = 1; BBB beats oracle-T DNN 50/50 by +0.042 to +0.070 (MNIST), +0.079 to +0.196 (Fashion); Table: all AUROCs as listed (0.907/0.813/0.837/0.860 … 0.885/0.682/0.678/0.689) | 0.25, 50, 0.10, 0.035, 50, 0.042, 0.070, 0.079, 0.196 | `results/posthoc/summary.txt`, `results/posthoc/softness_and_accuracy.csv` |
+| Accuracy-controlled Δ +0.046 to +0.062 (MNIST), +0.053 to +0.175 (Fashion); BBB acc 0.933 vs DNN 0.925 at n = 2000 (cosine, 23,550 steps) | 0.046, 0.062, 0.053, 0.175, 0.933, 0.925 | `results/posthoc/summary.txt` |
+| E10 onset × lr: 5.5, 5.3, 6.0 (n = 10000); 6.5, 7.7, 10 (n = 500; 13,000×5e-4, 7,667×1e-3, 5,000×2e-3); n = 500, lr 2e-3 final acc 0.32 | 5.5, 5.3, 6.0, 6.5, 7.7, 10, 0.32, 1,000 | `results/E10/summary.txt` |
+| HMC: 800 samples per run; table means/ranges over 3 subsets (acc 0.887/0.784/0.931/0.906; Δ_F, Δ_K, MI as listed) | 800 | `results/E20/seeds.csv` |
+
+## Additions with E22 (held-out digits 5–9; MNIST 0–4 as ID)
+| Claim | Values | Source |
+|---|---|---|
+| DNN acc 0.979; AUROC 0.890 / 0.897 / 0.922; long BBB Δ held-out +0.011 (4/5), far-OOD +0.047 / +0.034 (mean +0.041); step-matched DNN +0.010 (BBB higher 3/5), ensemble +0.018 (1/5); standard BBB +0.023 (5/5); pixel rule 0.569 (0.540–0.605; 0.57) vs 1.000 / 0.999; thresholds +0.02, 0.80; 0–4, 5–9 | 0.979, 0.890, 0.011, 0.047, 0.034, 0.041, 0.010, 0.018, 0.023, 0.569, 0.57, 1.000, 0.999, 0.02, 0.80, 4, 5, 9 | `results/E22/E22_summary.txt` |
+| Ledger: 82 entries; 36 confirmed, 30 falsified, 12 mixed, 3 none, 1 decision rule | 82, 36, 30, 12, 3, 1 | scripted tally of the appendix rows |
+| Temperature-sweep table (BBB / DNN T=1 / matched / oracle / Δ correct): MNIST 500 F 0.907/0.813/0.837/0.860/+0.058, K 0.955/0.852/0.891/0.913/+0.046; 2000 F 0.951/0.862/0.875/0.888/+0.062, K 0.968/0.871/0.899/0.909/+0.055; 10000 F 0.973/0.904/0.916/0.917/+0.050, K 0.987/0.903/0.917/0.918/+0.058; Fashion 2000 M 0.980/0.779/0.844/0.845/+0.082, K 0.827/0.716/0.745/0.747/+0.053; 10000 M 0.956/0.756/0.796/0.797/+0.117, K 0.885/0.682/0.678/0.689/+0.175 | 0.955, 0.852, 0.891, 0.913, 0.862, 0.875, 0.968, 0.871, 0.973, 0.916, 0.917, 0.903, 0.779, 0.844, 0.845, 0.716, 0.745, 0.747, 0.956, 0.756, 0.796, 0.797, 0.117 | `results/posthoc/summary.txt` |
+| HMC Δ_K range over subsets at n = 500: +0.051 to +0.070 | 0.051 | `results/E20/seeds.csv` |
+| HMC median per-weight lag-1 autocorrelation of kept samples −0.010 / −0.009 (≈ −0.01); abstract oracle-T margin 0.04–0.07 | 0.01, 0.04, 0.07 | `results/E20/extra.txt`; `results/posthoc/summary.txt` |
+
+## Additions with E23 (HMC controls; R₁ vs input-only baselines)
+| Claim | Values | Source |
+|---|---|---|
+| Part A means: DNN 0.870 / 0.917; BBB 800 samples 0.792, +0.012, +0.000, MI +0.076, +0.069 (n = 500); 0.908, +0.041, +0.039, MI +0.057, +0.077 (n = 2000); MAP ensemble 0.867, −0.053, −0.014, MI −0.020, −0.023 (500); 0.929, +0.033, +0.024, MI +0.055, +0.035 (2000); MAP −0.015 / +0.017; 800 vs 50 change ≤ 0.01 at 2000, ≈ 0.03 (+0.032) at 500; 5 members; HMC MI +0.078 | 0.870, 0.917, 0.792, 0.012, 0.000, 0.076, 0.069, 0.908, 0.041, 0.039, 0.057, 0.077, 0.867, 0.053, 0.014, 0.020, 0.023, 0.929, 0.033, 0.024, 0.055, 0.035, 0.015, 0.017, 0.01, 0.03, 0.032, 800, 50, 5, 0.078 | `results/E23/summary.txt` |
+| Part B: pixel rule |ρ| 0.77–0.87 (0.772–0.865) vs R₁ 0.71–0.83 (0.711–0.825); rotated digits R₁ AUROC 0.86–0.88 (0.863, 0.875) vs baselines 0.50–0.55 | 0.77, 0.87, 0.71, 0.83, 0.86, 0.88, 0.50, 0.55 | `results/E23/r1_baselines.txt` |
+| E1 Fig. 1 4,800 steps at n = 10,000: −0.006 Fashion, +0.008 KMNIST; n = 500 budget 600 epochs = 4,800 steps | 0.006, 0.008, 600 | `results/E45/paired_dnn.txt`; `bnnstudy/train.py` (REF_N scaling) |
+| SGD unclipped n = 500 advantage +0.057 to +0.060 | 0.057, 0.060 | `results/E13/summary.txt` |
+| Ledger: 87 entries; 39 confirmed, 31 falsified, 13 mixed, 3 none, 1 decision rule | 87, 39, 31, 13, 3, 1 | scripted tally |
+| Abstract: 198 words (not a claim) | | |

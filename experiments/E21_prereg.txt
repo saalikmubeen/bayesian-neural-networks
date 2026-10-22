@@ -1,0 +1,7 @@
+E21 pre-registration (self-attested). Recorded 2026-10-22 16:19 CEST before any E21 run.
+d6840a3c7689d0d94a4ec70e4f9023459cbdddf28b9f3e69cfddd0da670f8e73  experiments/E21_fashion_id/protocol.md
+14273b261cc0069e51b9b4f37b4458b2c26d6d63183f5f23b5955071331f817b  bnnstudy/data.py
+08d3e9827f67f4c70edb8f7036cc7da4faedf5a416ef945e488524a40641fa1f  bnnstudy/train.py
+afb63fd92d36c5ab4bd6966023930dbbca543350df0de184c1250346f76dff5a  bnnstudy/evaluate.py
+7754ae06863485269741bc5673065c5ed7fa87c00d7fcc3bfbe80201343ec5ae  scripts/run_E21.sh
+391fd76c52e80f114f0f43deb158751df281aa7ac464d3962f0151c809c64ec9  scripts/analyze_E21.py

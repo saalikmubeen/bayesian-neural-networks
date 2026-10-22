@@ -1,0 +1,15 @@
+Mean over seeds (Delta vs softness-matched 40-epoch DNN; + = method better):
+n=2000 bbb                  seeds 5 acc 0.8312 (DNN 0.8270) | mnist: d +0.0796 (5/5 >0) MI d +0.1052 | kmnist: d +0.0657 (5/5 >0) MI d +0.1093
+n=2000 bbb_steps23550       seeds 5 acc 0.7616 (DNN 0.8270) | mnist: d +0.1357 (5/5 >0) MI d +0.0147 | kmnist: d +0.0819 (5/5 >0) MI d +0.2048
+n=2000 dnn_steps23550       seeds 5 acc 0.8233 (DNN 0.8270) | mnist: d +0.0400 (5/5 >0) MI d -0.2596 | kmnist: d +0.0176 (5/5 >0) MI d -0.2030
+n=2000 ensemble             seeds 5 acc 0.8289 (DNN 0.8270) | mnist: d +0.0379 (5/5 >0) MI d +0.0987 | kmnist: d +0.0427 (5/5 >0) MI d +0.1123
+n=2000 ensemble_steps23550  seeds 5 acc 0.8274 (DNN 0.8270) | mnist: d +0.0845 (5/5 >0) MI d +0.0919 | kmnist: d +0.0841 (5/5 >0) MI d +0.0939
+n=10000 bbb                  seeds 5 acc 0.8492 (DNN 0.8626) | mnist: d +0.1598 (5/5 >0) MI d +0.1803 | kmnist: d +0.2064 (5/5 >0) MI d +0.2954
+
+P1 (standard-budget bbb, mean d <= +0.02 on both): fails (mnist +0.0796, kmnist +0.0657)
+P2 (bbb_steps23550 mean d >= +0.03 and >= 4/5 seeds > 0): mnist holds (+0.1357, 5/5), kmnist holds (+0.0819, 5/5)
+P3 vs dnn_steps23550: BBB d higher in mnist 5/5, kmnist 5/5 -> holds (dnn_steps23550 mean d: mnist +0.0400, kmnist +0.0176)
+P3 vs ensemble_steps23550: BBB d higher in mnist 5/5, kmnist 2/5 -> fails (ensemble_steps23550 mean d: mnist +0.0845, kmnist +0.0841)
+P4 (n=10000 bbb mean d >= +0.03 on both): holds (mnist +0.1598, kmnist +0.2064)
+P5 (bbb_steps23550 mean MI d >= +0.03 on both): fails (mnist +0.0147, kmnist +0.2048)
+Falsification (P2 fails on both OOD sets): not met

@@ -5,7 +5,8 @@ built around a Bayes-by-Backprop (BBB) implementation written from scratch in
 PyTorch. Every experiment's hypothesis, predictions and falsification
 criteria were committed to git before it ran.
 
-**Report:** [bnn.pdf](bnn.pdf) (20 pages; source `report/bnn.tex`)
+**Report:** [bnn.pdf](bnn.pdf) (20 pages; source `report/bnn.tex`). A shorter,
+anonymised journal version is in `paper/main.tex`.
 
 ## The question
 
@@ -75,7 +76,16 @@ On MLPs trained on MNIST (OOD sets: Fashion-MNIST, KMNIST):
    marginals gives chance accuracy. All the information is in correlations
    that mean-field VI cannot hold. Under BBB's default N(0,1) prior, HMC does
    not mix at this scale (the logits reach ~700 and the step size collapses).
-10. **Neither held-out NLL nor the ELBO picks a good stopping point.** A
+10. **Beyond MNIST (E21):** with Fashion-MNIST as the in-distribution data
+   (MNIST, KMNIST as OOD), long-trained BBB again beats the softness-matched
+   network (+0.08 to +0.21) and the step-matched plain network (5/5 seeds).
+   But there BBB already wins at the standard budget, a step-matched ensemble
+   ties it on KMNIST, and long training costs 6.5 points of accuracy.
+11. **It is a far-OOD effect (E22).** Trained on digits 0–4 and tested against
+   held-out digits 5–9 (where a pixel shortcut is near chance, AUROC 0.57),
+   long-trained BBB's advantage shrinks to +0.011, no better than step-matched
+   plain networks or ensembles.
+12. **Neither held-out NLL nor the ELBO picks a good stopping point.** A
    synthetic-outlier rule does no better than a fixed step count, which is
    what the optimizer clock predicts.
 
@@ -97,9 +107,9 @@ advantage appears. That result says little about well-trained networks.
 ## How the study got here
 
 The project started from a simpler question ("is the BNN's advantage just
-softness?"). Many of my pre-registered predictions failed: 26 of 72, listed
+softness?"). Many of my pre-registered predictions failed: 30 of 82, listed
 in the report's appendix. Those failures are what led to the training-path
-account. Each step is in [experiments/](experiments/) (E1–E20), with the
+account. Each step is in [experiments/](experiments/) (E1–E22), with the
 prediction written first and the result added after the run.
 
 ## Limitations and next steps

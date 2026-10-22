@@ -1,0 +1,16 @@
+Means over seeds 5-9. |Spearman| with BBB's per-image MI (test + OOD pooled); AUROC (baselines in their better direction).
+n= 2000 cifar10_gray | R1: rho 0.726 AUROC 0.987 | l1: rho 0.739 AUROC 0.997 | ink_count: rho 0.603 AUROC 0.906 | pixel_rule: rho 0.863 AUROC 1.000
+n= 2000 fashion      | R1: rho 0.711 AUROC 0.960 | l1: rho 0.595 AUROC 0.877 | ink_count: rho 0.473 AUROC 0.808 | pixel_rule: rho 0.772 AUROC 1.000
+n= 2000 kmnist       | R1: rho 0.767 AUROC 0.982 | l1: rho 0.382 AUROC 0.745 | ink_count: rho 0.364 AUROC 0.733 | pixel_rule: rho 0.828 AUROC 0.996
+n= 2000 rotated      | R1: rho 0.495 AUROC 0.875 | l1: rho 0.029 AUROC 0.500 | ink_count: rho 0.029 AUROC 0.500 | pixel_rule: rho 0.159 AUROC 0.548
+n= 2000 svhn_gray    | R1: rho 0.724 AUROC 0.985 | l1: rho 0.740 AUROC 0.980 | ink_count: rho 0.312 AUROC 0.676 | pixel_rule: rho 0.857 AUROC 1.000
+n=10000 cifar10_gray | R1: rho 0.722 AUROC 0.981 | l1: rho 0.729 AUROC 0.997 | ink_count: rho 0.591 AUROC 0.906 | pixel_rule: rho 0.865 AUROC 1.000
+n=10000 fashion      | R1: rho 0.813 AUROC 0.983 | l1: rho 0.635 AUROC 0.877 | ink_count: rho 0.524 AUROC 0.808 | pixel_rule: rho 0.851 AUROC 0.998
+n=10000 kmnist       | R1: rho 0.825 AUROC 0.991 | l1: rho 0.412 AUROC 0.745 | ink_count: rho 0.394 AUROC 0.733 | pixel_rule: rho 0.856 AUROC 0.991
+n=10000 rotated      | R1: rho 0.581 AUROC 0.863 | l1: rho 0.062 AUROC 0.500 | ink_count: rho 0.061 AUROC 0.500 | pixel_rule: rho 0.067 AUROC 0.508
+n=10000 svhn_gray    | R1: rho 0.722 AUROC 0.984 | l1: rho 0.735 AUROC 0.980 | ink_count: rho 0.305 AUROC 0.676 | pixel_rule: rho 0.860 AUROC 1.000
+P4 n=2000 (R1 rho > every baseline on all 4 far-OOD sets): fails (baseline >= R1 on ['fashion', 'kmnist', 'cifar10_gray', 'svhn_gray'])
+P5 n=2000 (R1 AUROC > every baseline on rotated digits): holds (R1 0.875; l1 0.500, ink_count 0.500, pixel_rule 0.548)
+P4 n=10000 (R1 rho > every baseline on all 4 far-OOD sets): fails (baseline >= R1 on ['fashion', 'kmnist', 'cifar10_gray', 'svhn_gray'])
+P5 n=10000 (R1 AUROC > every baseline on rotated digits): holds (R1 0.863; l1 0.500, ink_count 0.500, pixel_rule 0.508)
+Falsification (a baseline's rho >= R1's on >= 2 far-OOD sets at either n): MET

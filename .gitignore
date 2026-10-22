@@ -43,3 +43,12 @@ report/*.log
 report/*.out
 report/bnn.pdf
 results/*/*.pt
+
+# TMLR paper build files and downloads
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+tmlr-style-file-main.zip
+paper/SUBMISSION_CHECKLIST.md

@@ -363,3 +363,63 @@ PYTHONPATH=. $PY scripts/make_figures_mechanism.py      # E20 figure: mean and r
 ```
 
 Result: all runs converged; Q1–Q4 confirmed on every subset.
+
+---
+
+## 20. E21 Fashion-MNIST as in-distribution
+
+Protocol: `experiments/E21_fashion_id/protocol.md`; hash in `E21_prereg.txt`.
+
+```bash
+scripts/run_E21.sh 0 0 2 4 & scripts/run_E21.sh 1 1 3      # train.py --id fashion, seeds 0-4
+PYTHONPATH=. $PY -m bnnstudy.evaluate results/E21
+PYTHONPATH=. $PY -m bnnstudy.compare results/E21
+PYTHONPATH=. $PY scripts/analyze_E21.py
+```
+
+Result: the long-training advantage replicates (P2, P4); BBB already wins at
+the standard budget (P1 falsified); the step-matched ensemble ties on KMNIST.
+
+---
+
+## 21. E22 held-out digits (near OOD) and post-hoc review analyses
+
+Protocol: `experiments/E22_heldout_digits/protocol.md`; hash in `E22_prereg.txt`.
+
+```bash
+scripts/run_E22.sh 0 0 2 4 & scripts/run_E22.sh 1 1 3      # train.py --id mnist04, seeds 0-4
+PYTHONPATH=. $PY -m bnnstudy.evaluate results/E22
+PYTHONPATH=. $PY -m bnnstudy.compare results/E22
+PYTHONPATH=. $PY scripts/analyze_E22.py
+PYTHONPATH=. $PY scripts/analyze_posthoc_review.py      # temperature sweep, accuracy-controlled Delta (exploratory)
+```
+
+Result: falsified as pre-registered; on held-out digits the advantage is +0.011,
+no better than step-matched deterministic models. BBB beats even the
+oracle-temperature DNN on every far-OOD setting (50/50).
+
+---
+
+## 22. TMLR paper
+
+```bash
+cd paper && pdflatex main && bibtex main && pdflatex main && pdflatex main
+python3 ../scripts/check_claims.py main.tex ../CLAIMS.md
+```
+
+---
+
+## 23. E23 HMC controls (MAP, MAP ensemble under the prior; BBB 800 samples) and R₁ baselines
+
+Protocol: `experiments/E23_hmc_controls_r1_baselines/protocol.md`; hash and amendment in `E23_prereg.txt`.
+
+```bash
+scripts/run_E23.sh 0 500 & scripts/run_E23.sh 1 2000
+PYTHONPATH=. $PY scripts/analyze_E23.py         # part A
+PYTHONPATH=. $PY scripts/analyze_E23_r1.py      # part B (E18 models, inference only)
+```
+
+Result: HMC beats a MAP ensemble under the same prior on every subset; 50
+samples understate BBB's entropy Δ at n = 500; R₁ does not beat a pixel rule as
+a predictor of BBB's far-OOD MI (falsified), but beats input statistics on
+rotated digits.

@@ -137,6 +137,16 @@ for n in (500, 2000):
     se_diff = np.sqrt((se(U[:h]) ** 2 + se(U[h:]) ** 2).sum()) / U.shape[1]
     say(f"n={n} potential drift between halves {diff:+.1f} (batch-means s.e. {se_diff:.1f}, "
         f"{diff / se_diff:+.1f} s.e.; chains with positive drift {int((U[h:].mean(0) > U[:h].mean(0)).sum())}/{U.shape[1]})")
+    # 5d. per-weight lag-1 autocorrelation of kept samples (hidden layers, 5,000 random weights per chain)
+    rng = np.random.default_rng(0)
+    idx = torch.as_tensor(rng.choice(SIZES[0] + SIZES[1] + SIZES[2], 5000, replace=False))
+    ac = []
+    for c in range(C):
+        w = S[c][:, idx].double()
+        w = w - w.mean(0)
+        ac.append(float(((w[1:] * w[:-1]).sum(0) / (w ** 2).sum(0)).median()))
+    say(f"n={n} median per-weight lag-1 autocorrelation of kept samples: {np.mean(ac):+.3f} "
+        f"(chains {min(ac):+.3f} to {max(ac):+.3f})")
     Ls = [t["n_leapfrog"] for t in run["trace"][run["warmup"]:]]
     say(f"n={n} leapfrog steps per iteration while sampling: {min(Ls)}-{max(Ls)}")
 

@@ -42,8 +42,10 @@ for steps in [4800, 23550]:
 # deterministic baselines with BBB's long step budget (E12)
 METHODS["dnn_steps23550"] = dict(kind="dnn", steps=23550, lr=1e-3)
 METHODS["ensemble_steps23550"] = dict(kind="ensemble", steps=23550, lr=1e-3, members=5)
-# BBB under an N(0, 0.3^2) prior, the HMC reference prior of E20
+# BBB under an N(0, 0.3^2) prior, the HMC reference prior of E20; MAP and a MAP ensemble under it (E23)
 METHODS["bbb_steps23550_sp0.3"] = dict(kind="bbb", steps=23550, lr=1e-3, kl="1/N", prior_sigma=0.3)
+METHODS["map_sp0.3"] = dict(kind="dnn", epochs=150, lr=1e-3, prior_sigma=0.3, clip=1.0)
+METHODS["map_ensemble_sp0.3"] = dict(kind="ensemble", epochs=150, lr=1e-3, members=5, prior_sigma=0.3, clip=1.0)
 for beta in [0.1, 0.3, 3, 10, 30]:  # KL weight beta/N (bbb is beta = 1)
     METHODS[f"bbb_beta{beta}"] = dict(kind="bbb", epochs=150, lr=1e-3, kl="1/N", beta=beta)
 
@@ -67,7 +69,8 @@ def build_and_train(cfg, splits, gen):
         members = []
         for _ in range(cfg["members"]):  # different init and batch order per member
             mem = DNN().cuda()
-            train_dnn(mem, x, y, epochs, cfg["lr"], BATCH, gen)
+            train_dnn(mem, x, y, epochs, cfg["lr"], BATCH, gen,
+                      prior_sigma=cfg.get("prior_sigma"), clip=cfg.get("clip"))
             members.append(mem)
         m = Ensemble(members)
     else:
@@ -87,9 +90,12 @@ def main():
     ap.add_argument("--on-support", action="store_true", help="also evaluate on-support OOD variants")
     ap.add_argument("--save-model", action="store_true", help="save the state_dict next to the outputs")
     ap.add_argument("--hidden", type=int, default=256, help="hidden-layer width (E19 uses 100)")
+    ap.add_argument("--id", choices=["mnist", "fashion", "mnist04"], default="mnist",
+                    help="in-distribution data (E21: fashion, OOD mnist/kmnist; E22: mnist04, OOD digits 5-9)")
     a = ap.parse_args()
     from . import models as _models
     _models.HIDDEN = a.hidden
+    data.ID = a.id
 
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -124,7 +130,7 @@ def main():
         torch.save(model.state_dict(), path.with_suffix(".pt"))
 
     acc = (arrays["test_p"].argmax(-1) == arrays["test_y"]).mean()
-    info = dict(method=a.method, n=a.n, seed=a.seed, config=cfg, epochs=epochs, batch=BATCH, hidden=a.hidden,
+    info = dict(method=a.method, n=a.n, seed=a.seed, config=cfg, epochs=epochs, batch=BATCH, hidden=a.hidden, id=a.id,
                 prior_precision=getattr(model, "prior_precision", None),
                 train_seconds=round(t_train, 1), test_acc=float(acc),
                 torch=torch.__version__, gpu=torch.cuda.get_device_name(),

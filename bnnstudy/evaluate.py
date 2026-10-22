@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import softmax
 
-from .data import OOD_SETS
+from .data import ALL_OOD
 from .metrics import (auroc, classification, entropy, fit_temperature_entropy,
                       fit_temperature_nll, scores, selective)
 
@@ -55,7 +55,7 @@ def main(root):
         m = re.match(r"(.+)_n(\d+)_s(\d+)\.npz", f.name)
         runs[(m[1], int(m[2]), int(m[3]))] = f
     keys = set(np.load(next(iter(runs.values()))).files)
-    ood = [o for name in OOD_SETS for o in (name, f"{name}_onsupp") if f"{o}_p" in keys]
+    ood = [o for name in ALL_OOD for o in (name, f"{name}_onsupp") if f"{o}_p" in keys]
     splits = ["val", "test"] + ood
 
     rows = []

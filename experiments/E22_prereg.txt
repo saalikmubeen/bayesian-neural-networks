@@ -1,0 +1,6 @@
+E22 pre-registration (self-attested). Recorded 2026-10-22 16:45 CEST before any E22 run.
+e8384233300118da7e4936cc8d0a1c406f04da77abc9b08bcc9cfd80d93e25e9  experiments/E22_heldout_digits/protocol.md
+0c2dd3f1c762ecbc7ec354a33833fd1209544e2531efa757b1baa83983cb48a5  bnnstudy/data.py
+fa99969ae33a72c7c521bfa7ba940d7862809692cc1c63bcf2a28ac465a86d33  bnnstudy/train.py
+00e0e58b36ffcd828324f7e2ba8cbf24f4ea1981bd71093ebbbc8063e1335e4d  scripts/run_E22.sh
+0fb93e696d29be08403e54cbd3d8f602109207a33a05fca7211fee347a5206b0  scripts/analyze_E22.py

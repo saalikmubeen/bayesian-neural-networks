@@ -43,10 +43,10 @@ runs that never learned the task, so on its own it does not show a useful
 model. The mechanism is specific. Long training leaves BBB effectively
 overpruned: only 1--5\% of hidden weights carry more signal than noise, and the
 advantage needs BBB's own means paired with its own allocation of noise.
-OOD images drive the noisy first-layer weights much harder relative to their
-signal, and a single analytic pass over the first layer's means and
-variances reproduces BBB's sampled OOD detection within 0.02 AUROC, confirmed
-on fresh models and two unseen OOD sets. A natural-gradient method (IVON)
+A single analytic pass over the first layer's means and variances matches
+BBB's sampled far-OOD detection within 0.02 AUROC on fresh models and two
+unseen OOD sets, but a trivial pixel statistic tracks BBB's per-image
+uncertainty as well, so this is a cheap score rather than an explanation. A natural-gradient method (IVON)
 escapes the optimizer clock, its variances scaling as $1/\sqrt{N}$, and shows no
 advantage over the softness-matched network. Under a prior of scale 0.3, where full-batch HMC
 converges (8 chains per run, maximum $\hat R$ 1.022), the exact posterior also beats the
@@ -118,7 +118,7 @@ synthetic-outlier rule does no better than a fixed step count
 appears (\S\ref{sec:cifar}).
 \end{enumerate}
 Every experiment had its hypothesis, predictions and falsification criteria
-written before it ran (committed to git for E1--E9; for E10--E20, SHA-256
+written before it ran (committed to git for E1--E9; for E10--E23, SHA-256
 hashes that I recorded before launch, which are self-attested rather than
 independently timestamped). Appendix~\ref{app:ledger} lists all
 predictions, including the many that failed.
@@ -441,6 +441,23 @@ Source: \texttt{experiments/E12\_controls}, \texttt{results/E12/}.}
 \label{tab:controls}
 \end{table}
 
+\paragraph{With Fashion-MNIST as the in-distribution data.} Swapping roles
+(E21; Fashion-MNIST as ID, MNIST and KMNIST as OOD; 5 seeds), BBB trained for
+23{,}550 steps beats the softness-matched network by $+0.136$ and $+0.082$ at
+$n=2{,}000$ and by $+0.160$ and $+0.206$ at $n=10{,}000$ (5/5 seeds), and beats the
+step-matched plain network in 5/5 seeds on both OOD sets. But BBB already beats
+the control at the standard budget ($+0.080$, $+0.066$), the step-matched
+ensemble ties it on KMNIST ($+0.084$ against $+0.082$; 2/5 seeds), long-trained
+BBB's MI-based $\Delta$ on MNIST is only $+0.015$, and long training costs 6.5
+points of accuracy (0.762 against 0.827).
+
+\paragraph{Held-out classes.} Training on digits 0--4 and treating test
+digits 5--9 as OOD (E22; 5 seeds), the pixel rule below is close to chance
+(AUROC 0.569), and long-trained BBB's advantage shrinks to $+0.011$ (4/5 seeds),
+no larger than a step-matched plain network ($+0.010$) or ensemble ($+0.018$),
+while on Fashion-MNIST and KMNIST the same models keep $+0.047$ and $+0.034$.
+The advantage is a far-OOD effect.
+
 \paragraph{Not a pixel shortcut.} Many pixels are constant (always
 background) across a training subset: on average 192, 148 and 104 at
 $n=500$, $2{,}000$ and $10{,}000$. A model-free rule, ``flag
@@ -501,9 +518,15 @@ digits are computed through the low-noise subnetwork; OOD images also drive
 high-variance weights. Second-layer noise is then needed to turn this into
 disagreement between posterior samples (\S\ref{sec:mechanism}). The account is
 incomplete for near-OOD inputs: on digits rotated by 90° at $n=10{,}000$, BBB
-reached 0.950 and $R_1$ only 0.863, so deeper layers add information there. A
-practical side effect is that $R_1$ is a sampling-free OOD score for a trained
-BBB network.
+reached 0.950 and $R_1$ only 0.863, so deeper layers add information there.
+A later pre-registered check (E23) limits this account. On the far-OOD sets,
+where everything is near the ceiling, the rule ``ink on an always-background
+pixel'' correlates with BBB's per-image MI at least as well as $R_1$
+($|\rho|$ 0.77--0.87 against 0.71--0.83), so $R_1$ does not explain BBB's
+far-OOD signal better than where the ink is. On rotated digits, though, $R_1$
+reaches AUROC 0.86--0.88 while input-only statistics are at chance
+(0.50--0.55). $R_1$ is best read as a cheap sampling-free score for a trained
+BBB network, not as a full mechanism.
 
 \begin{figure}[!htb]
 \centering
@@ -629,6 +652,16 @@ score and OOD set: mean over three data subsets, bars show the range. Source:
 \texttt{experiments/E20\_hmc\_sp03}, \texttt{experiments/E20b\_hmc\_seeds}.}
 \label{fig:hmc}
 \end{figure}
+
+\paragraph{Controls for the prior and the sample count (E23).} The
+softness-matched network has no prior, while HMC and BBB use
+$\mathcal N(0,0.3^2)$. A 5-member ensemble of MAP networks under the same prior,
+on the same subsets, has a smaller advantage than HMC on every subset at both
+$n$ ($\Delta_K$ $+0.024$ and $\Delta_F$ $+0.033$ at $n=2{,}000$, negative at $n=500$),
+so HMC's advantage comes from posterior averaging, not from the prior plus
+ensembling. With 800 posterior samples instead of 50, BBB's numbers change by at
+most 0.01 at $n=2{,}000$, but its entropy-based $\Delta$ rises by about 0.03 at
+$n=500$: 50 samples understate BBB's entropy-based advantage at small $n$.
 
 \paragraph{BBB gets there by a different route.} I had predicted that the
 exact posterior would be less ``overpruned'' than BBB; it is the opposite
@@ -857,8 +890,8 @@ at $N=2{,}000$, $B=64$). In a 3-seed pilot it cost BBB 3.2 points of accuracy
 Each protocol (\texttt{experiments/<id>/protocol.md}) was written before its
 runs: committed to git for E1--E9, and for E10--E19 with SHA-256 hashes I
 recorded before launch (the files \texttt{experiments/E*\_prereg.txt};
-self-attested, not independently timestamped). Of the 72 entries below, 32 were confirmed, 26 falsified,
-10 had mixed outcomes, 3 had no outcome and 1 was a decision rule. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
+self-attested, not independently timestamped). Of the 87 entries below, 39 were confirmed, 31 falsified,
+13 had mixed outcomes, 3 had no outcome and 1 was a decision rule. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
 just softness?'' to the training-path account.
 \end{sloppypar}
 
@@ -946,6 +979,21 @@ E20b & Q1: HMC $\Delta_K,\Delta_F\ge+0.03$ on every subset & confirmed (6/6 runs
 E20b & Q2: mean $|$MI $\Delta_K$ HMC $-$ BBB$|\le0.03$ & confirmed (0.006, 0.007) \\
 E20b & Q3: HMC accuracy $\ge$ BBB on every subset & confirmed (6/6) \\
 E20b & Q4: HMC entropy $\Delta_K$ exceeds BBB's by $\ge0.02$ & confirmed ($+0.092$, $+0.045$) \\
+E21 & P1: Fashion-MNIST ID, standard-budget BBB $\Delta\le+0.02$ & falsified ($+0.080$, $+0.066$) \\
+E21 & P2: long-trained BBB $\Delta\ge+0.03$, $\ge4/5$ seeds, both OOD sets & confirmed ($+0.136$, $+0.082$; 5/5) \\
+E21 & P3: long BBB beats step-matched DNN and ensemble ($\ge4/5$ seeds) & DNN yes (5/5, 5/5); ensemble MNIST 5/5, KMNIST 2/5 \\
+E21 & P4: $n=10{,}000$ BBB $\Delta\ge+0.03$ & confirmed ($+0.160$, $+0.206$) \\
+E21 & P5: long BBB MI $\Delta\ge+0.03$ on both OOD sets & KMNIST yes ($+0.205$); MNIST no ($+0.015$) \\
+E22 & P1: digits 0--4 ID; long BBB $\Delta\ge+0.02$ on held-out digits 5--9 & falsified ($+0.011$, 4/5) \\
+E22 & P2: held-out-digit $\Delta$ below far-OOD $\Delta$ & confirmed ($+0.011$ vs $+0.041$) \\
+E22 & P3: long BBB beats step-matched DNN and ensemble on held-out digits & falsified (3/5, 1/5) \\
+E22 & P4: pixel rule AUROC on held-out digits $\le0.80$ & confirmed (0.569) \\
+E22 & P5: standard-budget BBB held-out $\Delta\le+0.02$ & falsified ($+0.023$) \\
+E23 & P1: HMC $\Delta$ exceeds a MAP ensemble's under the same prior, every subset & confirmed (3/3 at both $n$) \\
+E23 & P2: single MAP under the same prior, mean $\Delta_K\le+0.02$ & confirmed ($-0.015$, $+0.017$) \\
+E23 & P3: BBB with 800 vs 50 samples changes $\Delta$ by $\le0.01$ & $n=2{,}000$ yes; $n=500$ no ($+0.032$) \\
+E23 & P4: $R_1$ tracks BBB's MI better than input-only baselines (far OOD) & falsified (pixel rule $|\rho|$ 0.77--0.87 vs 0.71--0.83) \\
+E23 & P5: $R_1$ beats input-only baselines on rotated digits & confirmed (0.86--0.88 vs 0.50--0.55) \\
 \end{longtable}
 }
 
