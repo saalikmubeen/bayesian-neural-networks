@@ -121,3 +121,14 @@ listed result files. Check with
 | SGD clock: step ≈ 0.05·10/N = 5×10⁻⁵ at n = 10,000; after 20,000 steps less half of the 640-step warm-up, ρ ≈ −4.02, σ ≈ 0.018 (observed 0.0177 E13, 0.0173 E10); n = 500: 10⁻³ per step, σ = 0.3 after ≈ 4,300 steps (first checkpoint ≥ 0.3: 5,000) | 5, 10, −4.02, 0.018, 0.0177, 0.0173, 4,300, 640 | arithmetic (`python3 -c` in session; formula in report §3.4) against `results/E13/per_run.csv`, `results/E10/per_run.csv` |
 | Scaled SGD runs crossed σ = 0.3 then diverged at 6,000 and 9,000 | 6,000, 9,000 | `results/E13/per_run.csv` (diverged_step) |
 | Ledger after rescoring E13 P2: 43 entries; 18 confirmed, 19 falsified, 5 mixed, 1 none | 19, 5 | scripted tally of the appendix rows |
+
+## Additions with E14–E18 (IVON, inflation, swap, mechanism, confirmation)
+| Claim | Values | Source |
+|---|---|---|
+| Overpruning: hidden-layer median σ 0.71–0.84; |μ| > σ for 1.2–4.5% of hidden weights; fc2 corr(|μ|, σ) −0.64 to −0.72; last layer nearly deterministic | 0.71, 0.84, 1.2, 4.5, 0.64, 0.72 | `experiments/E16_swap/protocol.md` (exploratory follow-up, seed-0 models); `figures/E16_overpruning.pdf` |
+| Swap test: plain-network means + BBB σ → accuracy 0.13–0.15 (13–15%); shuffled σ → accuracy 0.81 / 0.59, Δ −0.16 to −0.32 | 13, 15, 0.81, 0.59, 0.16, 0.32 | `results/E16/summary.txt`, `results/E16/variants.csv` |
+| E17: second-layer ratio R₂ AUROC 0.45–0.69 (falsified) | 0.45, 0.69 | `results/E17/summary.txt` |
+| E18 (fresh seeds 5–9): R₁ AUROC 0.960–0.991 on four far-OOD sets; within 0.003–0.019 of BBB MI; Spearman 0.71–0.83; rotated digits at n = 10,000: BBB 0.950, R₁ 0.863; ten fresh models; 90° rotation | 0.960, 0.991, 0.003, 0.019, 0.71, 0.83, 0.950, 0.863, 90 | `results/E18/summary.txt`, `results/E18/per_seed.csv`; `experiments/E18_r1_confirm/protocol.md` |
+| E14 IVON: σ_fc1 0.170 / 0.086 / 0.039 (n = 500 / 2,000 / 10,000); ratio 4.41 vs √20 = 4.47; accuracy 0.930 / 0.969; peak Δ −0.005 / −0.008 vs BBB +0.07 / +0.065; BBB σ 0.96–0.98 | 0.170, 0.086, 0.039, 4.41, 4.47, 0.930, 0.969, 0.005, 0.008, 0.065 | `results/E14/summary.txt`, `results/E14/per_run.csv` |
+| E15 tempered IVON: σ raised 3.1–9.3×; n = 10,000, k = 10: accuracy 0.951, Δ −0.004; k ∈ {10, 100} | 3.1, 9.3, 0.951, 0.004, 10, 100 | `results/E15/summary.txt`, `results/E15/per_run.csv` |
+| Ledger: 61 entries; 26 confirmed, 24 falsified, 10 mixed, 1 none | 61, 26, 24, 10 | scripted tally of the appendix rows |

@@ -264,6 +264,46 @@ large. The report is now 14 pages, with all 216 numbers traced.
 
 ---
 
+## 15. E14 IVON, E15 tempered IVON ✅
+
+Protocols: `experiments/E14_ivon/`, `experiments/E15_ivon_inflation/`; hashes in
+`experiments/E14_prereg.txt`, `E15_prereg.txt`. Needs `pip install ivon-opt==0.1.3`.
+
+```bash
+scripts/run_E14_tune.sh 0 0.05 0.1 & scripts/run_E14_tune.sh 1 0.2 0.5     # tuning, seed 99, validation NLL only
+$PY scripts/analyze_E14.py tune                                             # -> lr 0.2, hess_init 0.1
+scripts/run_E14.sh 0 0.2 0.1 10000:0 10000:1 500:0 500:1 2000:2 &
+scripts/run_E14.sh 1 0.2 0.1 10000:2 2000:0 2000:1 500:2
+$PY scripts/analyze_E14.py score
+scripts/run_E15.sh 0 2000:0:100 2000:1:100 2000:2:100 2000:0:10 2000:1:10 2000:2:10 &
+scripts/run_E15.sh 1 10000:0:100 10000:1:100 10000:2:100 10000:0:10 10000:1:10 10000:2:10
+$PY scripts/analyze_E15.py
+```
+
+Result: IVON's σ follows 1/√N (4.41× vs 4.47×) and it has no advantage over
+the softened network. Tempering either collapses it or gives no gain.
+
+---
+
+## 16. E16 swap test, E17 mechanism, E18 confirmation ✅
+
+Protocols: `experiments/E16_swap/`, `E17_mechanism/`, `E18_r1_confirm/`;
+hashes in `E16_prereg.txt` to `E18_prereg.txt`.
+
+```bash
+PYTHONPATH=. $PY scripts/analyze_E16.py           # swap / shuffle (inference only)
+PYTHONPATH=. $PY scripts/analyze_E17.py           # noise-to-signal R1, R2 (inference only)
+scripts/run_E18.sh 0 bbb_steps23550 2000 & scripts/run_E18.sh 1 bbb 10000     # fresh BBB, seeds 5-9
+PYTHONPATH=. $PY scripts/analyze_E18.py
+PYTHONPATH=. $PY scripts/make_figures_mechanism.py
+```
+
+Result: BBB's means and per-weight σ must be paired (overpruned posterior).
+R₁ reproduces BBB's sampled OOD detection within 0.02 on fresh models and
+unseen OOD sets. The report is now 17 pages, with all 251 numbers traced.
+
+---
+
 ## Where things are
 
 | Path | What |

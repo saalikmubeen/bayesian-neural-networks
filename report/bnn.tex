@@ -40,7 +40,15 @@ default $\mathcal N(0,1)$ prior, the entropy-based advantage can disappear later
 in training as the model starts to underfit, while the mutual-information (MI)
 advantage persists. With a prior of scale 0.3 both persist. MI is also high in
 runs that never learned the task, so on its own it does not show a useful
-model. On CIFAR-10 with small, underfit models (37--68\% accuracy across a CNN and
+model. The mechanism is specific. Long training leaves BBB effectively
+overpruned: only 1--5\% of hidden weights carry more signal than noise, and the
+advantage needs BBB's own means paired with its own allocation of noise.
+OOD images drive the noisy first-layer weights much harder relative to their
+signal, and a single analytic pass over the first layer's means and
+variances reproduces BBB's sampled OOD detection within 0.02 AUROC, confirmed
+on fresh models and two unseen OOD sets. A natural-gradient method (IVON)
+escapes the optimizer clock, its variances scaling as $1/\sqrt{N}$, and shows no
+advantage over the softness-matched network. On CIFAR-10 with small, underfit models (37--68\% accuracy across a CNN and
 an MLP), no comparable advantage appears.
 \end{abstract}
 
@@ -85,6 +93,13 @@ also high for models that never learned (\S\ref{sec:window},
 \S\ref{sec:prior}).
 \item The advantage needs posterior noise in both hidden layers together, and
 it is not a pixel shortcut (\S\ref{sec:mechanism}).
+\item Long-trained BBB is effectively overpruned; the advantage needs its own
+means paired with its own per-weight noise (\S\ref{sec:prune}). OOD inputs
+separate in the first layer's noise-to-signal ratio, which reproduces BBB's
+sampled OOD detection in one analytic pass (\S\ref{sec:r1}).
+\item IVON, a natural-gradient variational method, follows $N$ rather than
+the step count and has no advantage over the control; inflating its
+variances does not create one (\S\ref{sec:ivon}).
 \item Neither held-out NLL nor the ELBO picks a good stopping point. A
 synthetic-outlier rule does no better than a fixed step count
 (\S\ref{sec:select}).
@@ -92,7 +107,7 @@ synthetic-outlier rule does no better than a fixed step count
 appears (\S\ref{sec:cifar}).
 \end{enumerate}
 Every experiment had its hypothesis, predictions and falsification criteria
-written before it ran (committed to git for E1--E9; for E10--E13, SHA-256
+written before it ran (committed to git for E1--E9; for E10--E18, SHA-256
 hashes that I recorded before launch, which are self-attested rather than
 independently timestamped). Appendix~\ref{app:ledger} lists all
 predictions, including the many that failed.
@@ -112,7 +127,11 @@ with BBB's budget (150 epochs, gradient clipping). \emph{MC dropout}
 \citep{gal2016dropout}: $p=0.1$, 50 samples. \emph{Deep ensemble}
 \citep{lakshminarayanan2017simple}: 5 DNNs. \emph{Last-layer Laplace}
 \citep{daxberger2021laplace}: full generalised Gauss--Newton covariance over
-the last layer of a DNN, prior precision tuned on validation NLL. \emph{BBB}
+the last layer of a DNN, prior precision tuned on validation NLL.
+\emph{IVON} \citep{shen2024variational}: the official implementation, with
+effective sample size $N$ and weight decay $1/N$ (the same $\mathcal N(0,1)$
+prior as BBB); learning rate and initial Hessian chosen once on a separate
+subset by validation NLL. \emph{BBB}
 \citep{blundell2015weight}: mean-field Gaussian posterior, $\mathcal N(0,1)$
 prior, per-example negative ELBO
 \begin{equation}
@@ -422,6 +441,103 @@ images leaves every method's AUROC and $\Delta$ essentially unchanged (BBB at
 $n=10{,}000$: $+0.057\to+0.055$ and $+0.070\to+0.070$). The growth of
 $\sigma$ is also global, not concentrated on those pixels (ratio 1.0--1.24).
 
+\subsection{An overpruned posterior}\label{sec:prune}
+What do BBB's long-trained variances look like? They are far from uniform
+(Figure~\ref{fig:prune}). In the two hidden layers the median $\sigma$ is
+0.71--0.84, close to the prior, and only 1.2--4.5\% of weights have $|\mu|>\sigma$.
+In the second layer $|\mu|$ and $\sigma$ are strongly anti-correlated ($-0.64$ to
+$-0.72$), and the last layer is nearly deterministic. This is the overpruning
+described by Trippe and Turner \citep{trippe2018overpruning}: a small, precise
+subnetwork computes the prediction and most other weights carry prior-scale
+noise. A pre-registered swap test shows that both halves of this pairing
+matter. Putting BBB's variances on the means of a plain network trained for
+the same number of steps collapses it to 13--15\% accuracy. Keeping BBB's means
+but shuffling its variances within each layer cuts accuracy to 0.81 and 0.59
+and turns the OOD advantage negative ($-0.16$ to $-0.32$). I had predicted that
+shuffling would not matter, because the \emph{average} variance on always-blank
+and active pixels was similar (\S\ref{sec:mechanism}); that summary hid the
+per-weight structure.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\linewidth]{../figures/E16_overpruning.pdf}
+\caption{Posterior mean magnitude against posterior $\sigma$ for every weight of a
+BBB network trained for 23{,}550 steps ($n=2{,}000$, seed 0; 20{,}000 weights
+sampled per layer). Source: \texttt{experiments/E16\_swap}.}
+\label{fig:prune}
+\end{figure}
+
+\subsection{Where OOD inputs separate: the first layer}\label{sec:r1}
+For an input $x$, the first layer's mean pre-activation is
+$m_j=\sum_i\mu_{ij}x_i+\mu_{b_j}$ and the variance that posterior noise adds to it
+is $v_j=\sum_i\sigma_{ij}^2x_i^2+\sigma_{b_j}^2$. Their ratio,
+\begin{equation}
+R_1(x)=\frac{\sum_j v_j}{\sum_j m_j^2},
+\label{eq:r1}
+\end{equation}
+measures how much noise an input routes through the first layer relative to
+the signal it produces. I had pre-registered the same ratio for the
+\emph{second} layer, computed from the mean first-layer activations, as the
+place where in- and out-of-distribution inputs separate; that prediction failed
+(AUROC 0.45--0.69), partly because it ignores noise passed on from the first
+layer. The first-layer ratio instead matched BBB's own detection. I then
+confirmed this in a separate pre-registered test on ten freshly trained BBB
+models and on two OOD sets never used before, grayscale CIFAR-10 and SVHN
+(Figure~\ref{fig:r1}). On all four far-OOD sets $R_1$ reached AUROC
+0.960--0.991, within 0.003--0.019 of BBB's 50-sample mutual information, and
+correlated with BBB's per-image MI (Spearman 0.71--0.83). In-distribution
+digits are computed through the low-noise subnetwork; OOD images also drive
+high-variance weights. Second-layer noise is then needed to turn this into
+disagreement between posterior samples (\S\ref{sec:mechanism}). The account is
+incomplete for near-OOD inputs: on digits rotated by 90° at $n=10{,}000$, BBB
+reached 0.950 and $R_1$ only 0.863, so deeper layers add information there. A
+practical side effect is that $R_1$ is a sampling-free OOD score for a trained
+BBB network.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.92\linewidth]{../figures/E18_r1.pdf}
+\caption{OOD AUROC of BBB's sampled mutual information and of the analytic
+first-layer ratio $R_1$ (Eq.~\ref{eq:r1}) on freshly trained models (mean of 5
+seeds). CIFAR-10 and SVHN were not used anywhere else in the MNIST study.
+Source: \texttt{experiments/E18\_r1\_confirm}.}
+\label{fig:r1}
+\end{figure}
+
+\subsection{Natural-gradient VI does not show the effect}\label{sec:ivon}
+IVON \citep{shen2024variational} keeps a Gaussian posterior
+$\mathcal N(m, 1/(N(h+\delta)))$ whose variance is set by the training-set size and
+a running estimate $h$ of the loss curvature, not by an Adam step count. In a
+pre-registered comparison (Figure~\ref{fig:ivon}; 3 seeds per $n$, 40{,}000
+steps), IVON's mean first-layer $\sigma$ was 0.170, 0.086 and 0.039 at $n=500$,
+$2{,}000$ and $10{,}000$: the $n=500$ to $n=10{,}000$ ratio of 4.41 is close to
+the $1/\sqrt{N}$ value of 4.47, and the variances stayed far below the prior
+instead of drifting to it as BBB's did (0.96--0.98). At $n\ge2{,}000$ IVON was as
+accurate as the plain network (0.930 and 0.969) and its OOD behaviour did not
+change with training length. But it had no advantage over the
+softness-matched network ($\Delta$ peaks of $-0.005$ and $-0.008$; FPR95 no
+better), against BBB's $+0.07$ and $+0.065$. At $n=500$ IVON was less accurate
+than the plain network and its $\Delta$ drifted down. To test whether
+variance size alone explains BBB's advantage, I then inflated IVON's
+variances by tempering the likelihood ($p(D\mid w)^{1/k}p(w)$, $k\in\{10, 100\}$,
+same prior). This raised $\sigma$ by 3.1--9.3$\times$, but no tempered model gained
+an advantage: the only one that still learned ($n=10{,}000$, $k=10$, accuracy
+0.951) stayed at $-0.004$, and the others collapsed to chance accuracy. Together
+with the weight-noise control and the swap test, this points to the specific
+pairing BBB learns, not to the size of its variances. One caveat: IVON's
+learning rate and initial Hessian were tuned for $k=1$ and kept fixed, so the
+collapses may partly reflect settings unsuited to tempering.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\linewidth]{../figures/E14_ivon_vs_bbb.pdf}
+\caption{IVON (solid) and BBB under Adam (dashed) at three training-set sizes
+(mean of 3 seeds; constant learning rate). Left: mean first-layer posterior
+$\sigma$ (log scale). Middle: entropy-AUROC difference from the softness-matched
+network on KMNIST. Right: test accuracy. Source: \texttt{experiments/E14\_ivon}.}
+\label{fig:ivon}
+\end{figure}
+
 \subsection{Choosing when to stop}\label{sec:select}
 Neither in-distribution criterion picks a good checkpoint. Minimum held-out
 NLL stops at 1{,}000--3{,}000 steps, before the advantage appears; minimum
@@ -513,8 +629,9 @@ Adam and propose a decoupled optimizer (AdamB). \S\ref{sec:clock} derives
 the $N$-independent clock behind this growth and links it to when BBB's OOD
 advantage appears. In natural-gradient variational methods such as Vadam
 \citep{khan2018fast} and IVON \citep{shen2024variational} the variances are
-tied to $N$ and the loss curvature by construction, so they should not follow
-the same clock. Foong et al.\
+tied to $N$ and the loss curvature by construction; \S\ref{sec:ivon} confirms
+that IVON does not follow the clock, and also shows that it does not reproduce
+BBB's OOD advantage. Foong et al.\
 \citep{foong2020expressiveness} show what mean-field and MC dropout
 approximations cannot represent. Wenzel et al.\ \citep{wenzel2020good} show
 that tempered (``cold'') posteriors can predict better than the Bayes
@@ -538,7 +655,8 @@ their in-distribution performance. Odgers et al.\ \citep{odgers2026gaussian} sho
 overestimate predictive variance on in-distribution points, which matches the
 rising in-distribution entropy in \S\ref{sec:window}. Trippe and Turner
 \citep{trippe2018overpruning} describe overpruning, where variational BNNs
-switch off units by sending their weights to the prior. Fortuin et al.\
+switch off units by sending their weights to the prior; \S\ref{sec:prune}
+finds the same structure in long-trained BBB and links it to OOD detection. Fortuin et al.\
 \citep{fortuin2022priors} show that isotropic Gaussian priors are often poor
 choices for neural networks. Henning et al.\ \citep{henning2021bayesian} question
 whether exact BNN posteriors are intrinsically good OOD detectors. Raina and
@@ -566,6 +684,10 @@ whenever $\sigma$ grew large, so the SGD contrast rests on the stable phase.
 \item \textbf{Baselines.} All methods use the same small MLP with default
 hyperparameters, without per-method tuning. A kNN feature detector comes within
 0.02 of BBB and ties it in one setting.
+\item \textbf{Mechanism.} The first-layer account was found in an
+exploratory analysis and then confirmed in a separate pre-registered test; it
+does not cover near-OOD inputs. IVON was run with one tuned setting, kept
+fixed when tempering.
 \item \textbf{No exact posterior.} Without HMC or similar, I cannot say whether
 any of this reflects Bayesian behaviour or only mean-field VI under Adam.
 \end{itemize}
@@ -580,7 +702,10 @@ is no advantage. At typical budgets BBB therefore behaves like a
 temperature-scaled network; with longer training it beats the
 softness-matched control, step-matched plain networks and ensembles, and a
 weight-noise control, with a kNN feature detector close behind. The uncertainty score and the prior scale then decide whether
-the advantage lasts. Comparisons between BBB and other methods should report
+the advantage lasts. Mechanistically, long training leaves BBB overpruned, and
+OOD inputs route disproportionate noise through its first layer; a
+natural-gradient method that ties its variances to the data instead shows no
+such advantage. Comparisons between BBB and other methods should report
 the optimizer, learning rate and training budget, the score, and a
 softness-matched baseline.
 
@@ -598,11 +723,12 @@ at $N=2{,}000$, $B=64$). In a 3-seed pilot it cost BBB 3.2 points of accuracy
 
 \section{Pre-registered predictions and outcomes}\label{app:ledger}
 Each protocol (\texttt{experiments/<id>/protocol.md}) was written before its
-runs: committed to git for E1--E9, and for E10--E13 with SHA-256 hashes I
+runs: committed to git for E1--E9, and for E10--E18 with SHA-256 hashes I
 recorded before launch (\texttt{experiments/E10\_E11\_prereg.txt},
-\texttt{experiments/E12\_E13\_prereg.txt}; self-attested, not independently
-timestamped). Of the 43 entries below, 18 were confirmed, 19 falsified,
-5 had mixed outcomes and 1 had no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
+\texttt{experiments/E12\_E13\_prereg.txt}, \texttt{experiments/E14\_prereg.txt}
+to \texttt{E18\_prereg.txt}; self-attested, not independently
+timestamped). Of the 61 entries below, 26 were confirmed, 24 falsified,
+10 had mixed outcomes and 1 had no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
 just softness?'' to the training-path account.
 
 {\small
@@ -660,6 +786,24 @@ E12 & P4: feature detectors $\ge0.95$ and within 0.03 of BBB & kNN yes; Mahalano
 E13 & P1: without joint clipping, SGD $\sigma$ still grows $\ge3\times$ faster at $n=500$ & confirmed (53$\times$, one $n=500$ seed past 20k) \\
 E13 & P2: $\rho$ learning rate $\propto N$ aligns the clocks across $n$ & falsified as scored (1 run diverged first; 2 crossed just before diverging) \\
 E13 & P3: with that scaling, the OOD advantage appears at $n=10{,}000$ & falsified (runs diverged first) \\
+E14 & P1: IVON's $\sigma$ is $\ge2\times$ larger at $n=500$ than $10{,}000$ & confirmed (4.41$\times$) \\
+E14 & P2: IVON's $\sigma\le0.3$ at $n\ge2{,}000$ & confirmed \\
+E14 & P3: IVON shows no transient & $n\ge2{,}000$ yes; $n=500$ no \\
+E14 & P4: IVON's advantage below BBB's but $\ge0$ & below BBB yes; $\ge0$ no \\
+E14 & P5: IVON accuracy within 0.01 of the plain network & $n\ge2{,}000$ yes; $n=500$ no \\
+E15 & P1: tempering raises IVON's $\sigma$ & confirmed \\
+E15 & P2: at $k=100$, IVON gains an advantage $\ge0.03$ & falsified (collapse) \\
+E15 & P3: at $k=10$, accuracy within 0.02 & $n=10{,}000$ yes; $n=2{,}000$ no \\
+E16 & P1: BBB's $\sigma$ on plain-network means collapses accuracy & confirmed \\
+E16 & P2: that swap loses $\ge0.05$ of the advantage & confirmed \\
+E16 & P3: shuffling $\sigma$ within layers keeps $\ge80\%$ & falsified \\
+E17 & P1: second-layer ratio $R_2$ separates OOD (AUROC $\ge0.90$) & falsified \\
+E17 & P2: $R_2$ correlates with MI ($\ge0.6$) & falsified \\
+E17 & P3: $R_2$ separates better than $R_1$ & falsified \\
+E18 & P1: $R_1$ AUROC $\ge0.90$ on four far-OOD sets (fresh models) & confirmed \\
+E18 & P2: $R_1$ within 0.03 of BBB's MI & confirmed \\
+E18 & P3: Spearman($R_1$, MI) $\ge0.6$ & confirmed \\
+E18 & P4: $R_1$ within 0.05 of MI on rotated digits & $n=2{,}000$ yes; $n=10{,}000$ no \\
 \end{longtable}
 }
 

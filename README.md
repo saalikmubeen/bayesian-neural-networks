@@ -5,7 +5,7 @@ built around a Bayes-by-Backprop (BBB) implementation written from scratch in
 PyTorch. Every experiment's hypothesis, predictions and falsification
 criteria were committed to git before it ran.
 
-**Report:** [bnn.pdf](bnn.pdf) (14 pages; source `report/bnn.tex`)
+**Report:** [bnn.pdf](bnn.pdf) (17 pages; source `report/bnn.tex`)
 
 ## The question
 
@@ -49,7 +49,20 @@ On MLPs trained on MNIST (OOD sets: Fashion-MNIST, KMNIST):
    (0.018 predicted, 0.0177 observed).
 6. **The advantage needs posterior noise in both hidden layers together**, and
    it is not a pixel shortcut.
-7. **Neither held-out NLL nor the ELBO picks a good stopping point.** A
+7. **The mechanism (E16–E18):** long training leaves BBB effectively
+   *overpruned*. Only 1–5% of hidden weights carry more signal than noise,
+   and the advantage needs BBB's own means paired with its own per-weight
+   noise (swapping or shuffling either destroys it). OOD images push far more
+   noise through the first layer relative to their signal. A single analytic
+   pass over the first layer (no sampling) reproduces BBB's 50-sample OOD
+   detection within 0.02 AUROC, confirmed on fresh models and two unseen OOD
+   sets (grayscale CIFAR-10 and SVHN). It does not fully explain near-OOD
+   (rotated digits).
+8. **Natural-gradient VI is different (E14–E15):** IVON's variances follow
+   the data (σ ∝ 1/√N, as predicted) instead of the step count, and it has no
+   OOD advantage over the softened network. Inflating its variances doesn't
+   create one.
+9. **Neither held-out NLL nor the ELBO picks a good stopping point.** A
    synthetic-outlier rule does no better than a fixed step count, which is
    what the optimizer clock predicts.
 
@@ -60,10 +73,16 @@ advantage appears. That result says little about well-trained networks.
 
 ![BBB training dynamics](figures/E6_dynamics.png)
 
+![Overpruned posterior](figures/E16_overpruning.png)
+
+![First-layer noise-to-signal vs BBB](figures/E18_r1.png)
+
+![IVON vs BBB](figures/E14_ivon_vs_bbb.png)
+
 ## How the study got here
 
 The project started from a simpler question ("is the BNN's advantage just
-softness?"). Many of my pre-registered predictions failed: 19 of 43, listed
+softness?"). Many of my pre-registered predictions failed: 24 of 61, listed
 in the report's appendix. Those failures are what led to the training-path
 account. Each step is in [experiments/](experiments/) (E1–E9, E7b), with the
 prediction written first and the result added after the run.
@@ -73,8 +92,9 @@ prediction written first and the result added after the run.
 Only three prior scales were tried, at one data size. The dynamics runs use
 a constant learning rate and 3 seeds, and the clock was tested with Adam and
 SGD on one architecture; a kNN feature detector comes within about 0.02 of BBB. There is no exact-posterior (HMC) reference, and the
-CIFAR models are small and underfit. Planned next: ResNet-20 with augmentation
-on CIFAR-10 (BBB, IVON, ensembles), HMC on a small MLP, and IVON on MNIST.
+CIFAR models are small and underfit. Planned next: an HMC reference posterior
+on a small MLP, and ResNet-20 with augmentation on CIFAR-10 (BBB, IVON,
+ensembles).
 
 ## Methodological notes
 
