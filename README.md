@@ -24,25 +24,29 @@ On MLPs trained on MNIST (OOD sets: Fashion-MNIST, KMNIST):
    network.** Deep ensembles are slightly better, MC dropout ties, and
    last-layer Laplace is worse (10 seeds per setting).
 2. **With enough optimizer steps, BBB beats the control by +0.06 to +0.08
-   AUROC.** It also scores higher than a deep ensemble and every
-   deterministic score tried (energy, max-logit, and a temperature tuned with
-   knowledge of the OOD set) in 20 of 20 runs. Those baselines were trained
-   for fewer steps, so that comparison is not budget-matched.
+   AUROC**, and it also beats a plain network and a 5-member ensemble
+   trained for the same number of steps (5/5 seeds everywhere). Adding random
+   weight noise to a trained network does not reproduce it (BBB wins by
+   +0.10 to +0.15), so the advantage depends on the variances BBB learns. A kNN
+   detector on network features comes closest, within 0.02.
 3. **When this happens is set by the optimizer, not the data.** Under Adam,
    the posterior standard deviations grow on a learning-rate × steps clock.
    Halving or doubling the learning rate doubles or halves the time, while a
    20-fold change in training-set size changes it by at most 20%. Under SGD,
    growth depends strongly on the data size, and where σ stays small BBB shows
-   no advantage at all. Growth alone is not enough, though: at n = 500, SGD
-   grew σ but gave only a small advantage (about +0.03).
+   no advantage at all. This holds without gradient clipping too, but
+   unclipped SGD on σ diverges once σ grows large.
 4. **The uncertainty score and the prior matter.** With the default N(0,1)
    prior, the entropy-based advantage can disappear later in training as the
    model underfits, while the mutual-information (MI) advantage persists. With
    a prior of scale 0.3, both persist. MI is also high for runs that never
    learned, so MI alone does not show a useful model.
-5. **The advantage needs posterior noise in both hidden layers together**, and
+5. **Why it happens is derived, not just observed:** Adam turns the KL term's
+   nearly constant gradient into a fixed step per update, which predicts the
+   timing to within a factor of 1.3–1.5 with no fitted constants (report §3.4).
+6. **The advantage needs posterior noise in both hidden layers together**, and
    it is not a pixel shortcut.
-6. **Neither held-out NLL nor the ELBO picks a good stopping point.** A
+7. **Neither held-out NLL nor the ELBO picks a good stopping point.** A
    synthetic-outlier rule does no better than a fixed step count, which is
    what the optimizer clock predicts.
 
@@ -56,7 +60,7 @@ advantage appears. That result says little about well-trained networks.
 ## How the study got here
 
 The project started from a simpler question ("is the BNN's advantage just
-softness?"). Many of my pre-registered predictions failed: 17 of 36, listed
+softness?"). Many of my pre-registered predictions failed: 18 of 43, listed
 in the report's appendix. Those failures are what led to the training-path
 account. Each step is in [experiments/](experiments/) (E1–E9, E7b), with the
 prediction written first and the result added after the run.
@@ -65,7 +69,7 @@ prediction written first and the result added after the run.
 
 Only three prior scales were tried, at one data size. The dynamics runs use
 a constant learning rate and 3 seeds, and the clock was tested with Adam and
-SGD on one architecture. There is no exact-posterior (HMC) reference, and the
+SGD on one architecture; a kNN feature detector comes within 0.02 of BBB. There is no exact-posterior (HMC) reference, and the
 CIFAR models are small and underfit. Planned next: ResNet-20 with augmentation
 on CIFAR-10 (BBB, IVON, ensembles), HMC on a small MLP, and IVON on MNIST.
 

@@ -1,0 +1,4 @@
+Pre-registration record (written before any E12/E13 run started; self-attested)
+2026-10-22T02:28:37+02:00
+cf9e568af1d5c26dfaa2babe036c5d83ee90f0fae88b7bfbdec0b637ff976d2f  experiments/E12_controls/protocol.md
+b54247e57e486ccd390d52503b0c691c2d5ce780388ff55cbfa90de70c227c1f  experiments/E13_sgd_clean/protocol.md

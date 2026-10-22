@@ -23,11 +23,12 @@ temperature. I compare each method with a deterministic network softened to
 the same in-distribution entropy, in a series of pre-registered experiments
 on MLPs trained on MNIST. At typical training budgets, mean-field Bayes by
 Backprop (BBB) is no better than this softness-matched network. With longer
-training it beats it by $+0.06$ to $+0.08$ AUROC, and it also scores higher
-than a deep ensemble and than every deterministic score I tried, including
-energy, max-logit and a temperature tuned with knowledge of the OOD set. Those
-baselines were trained with a smaller step budget, so these last comparisons
-are not budget-matched. When this happens is set by
+training it beats it by $+0.06$ to $+0.08$ AUROC. The advantage holds against
+a plain network and a 5-member deep ensemble trained for the same number of
+steps, and it is not reproduced by adding random weight noise to a trained
+network, so it depends on the variances BBB learns. Among deterministic
+detectors, a kNN detector on network features comes closest (within 0.02
+AUROC). When this happens is set by
 the optimizer, not the data. Under Adam the posterior standard deviations grow
 on a clock of learning rate $\times$ steps: halving or doubling the learning rate
 halves or doubles the time, while a 20-fold change in training-set size changes
@@ -69,9 +70,10 @@ softness.
 softness-matched network on MNIST $\to$ Fashion-MNIST and KMNIST. Deep
 ensembles are slightly better; MC dropout ties; last-layer Laplace is worse
 (\S\ref{sec:grid}).
-\item With enough optimizer steps BBB beats the control, whatever the
-training-set size, and scores higher than every deterministic score tested
-(baselines not budget-matched; \S\ref{sec:steps}, \S\ref{sec:mechanism}).
+\item With enough optimizer steps BBB beats the control whatever the
+training-set size, and also beats step-matched plain networks and ensembles
+and a weight-noise control; a kNN detector on features comes within 0.02
+(\S\ref{sec:steps}, \S\ref{sec:mechanism}).
 \item Under Adam, the posterior standard deviations grow on a learning-rate
 $\times$ steps clock that is nearly independent of the training-set size; under
 SGD it is not. No growth, no advantage (\S\ref{sec:clock}).
@@ -88,7 +90,7 @@ synthetic-outlier rule does no better than a fixed step count
 appears (\S\ref{sec:cifar}).
 \end{enumerate}
 Every experiment had its hypothesis, predictions and falsification criteria
-written before it ran (committed to git for E1--E9; for E10--E11, SHA-256
+written before it ran (committed to git for E1--E9; for E10--E13, SHA-256
 hashes that I recorded before launch, which are self-attested rather than
 independently timestamped). Appendix~\ref{app:ledger} lists all
 predictions, including the many that failed.
@@ -243,13 +245,37 @@ below the plotted range. Source: \texttt{experiments/E6\_dynamics}.}
 \end{figure}
 
 \subsection{An optimizer clock}\label{sec:clock}
-Why do steps matter more than data? With $\sigma$ tiny at initialisation, the
-gradient on $\rho$ (with $\sigma=\mathrm{softplus}(\rho)$) is dominated by the KL
-term, whose per-example weight is $1/N$. Adam normalises its updates, so each
-step moves $\rho$ by roughly the learning rate whatever $N$ is; Unlu and
-Aitchison \citep{unlu2020variational} point out this step bound for mean-field
-variances. Under plain SGD the step is proportional to the gradient, so growth
-should slow down as $N$ grows. A first hint was already in the E9 runs (Adam,
+Why do steps matter more than data? For one weight with posterior
+$\mathcal N(\mu,\sigma^2)$ and prior $\mathcal N(0,\sigma_p^2)$,
+\begin{equation}
+\mathrm{KL}=\log\frac{\sigma_p}{\sigma}+\frac{\sigma^2+\mu^2}{2\sigma_p^2}-\frac12,
+\qquad
+\frac{\partial\,\mathrm{KL}}{\partial\rho}
+=\Big(\frac{\sigma}{\sigma_p^2}-\frac{1}{\sigma}\Big)\,\mathrm{sigmoid}(\rho)
+\;\approx\;-1 \quad\text{for } \rho\ll 0,
+\label{eq:klgrad}
+\end{equation}
+because $\sigma=\mathrm{softplus}(\rho)\approx\mathrm{sigmoid}(\rho)\approx e^{\rho}$
+when $\rho\ll0$. In Eq.~\ref{eq:elbo} this gradient is weighted by $1/N$, and
+while $\sigma$ is tiny the likelihood term's gradient on $\rho$ (which scales
+with $\sigma$) is negligible. So the gradient on each $\rho$ is roughly the
+constant $-1/N$. Adam divides each gradient by a running estimate of its
+magnitude, so a gradient of constant sign and size produces a step of about
+the learning rate $\eta$, independently of $N$. Hence
+\begin{equation}
+t^\star \approx \frac{\rho^\star-\rho_0}{\eta},
+\label{eq:clock}
+\end{equation}
+the number of steps for $\rho$ to travel from $\rho_0$ to a target $\rho^\star$.
+For $\sigma=0.3$ ($\rho^\star=-1.05$) from $\rho_0=-5$ this gives $t^\star\approx
+3{,}950$ steps at $\eta=10^{-3}$. Under SGD the step is instead $\eta_\rho/N$
+(times $1/(1-\beta)$ with momentum $\beta$), so the same growth takes $N$ times
+longer as $N$ grows. The approximation breaks down once $\sigma$ is no longer
+small compared with the prior, or once the likelihood term pulls back. Unlu
+and Aitchison \citep{unlu2020variational} observe that mean-field variance
+parameters are often unconverged when training stops, and Nishida and Taiji
+\citep{nishida2022adamb} report that BBB's variational parameters grow when it
+is trained with Adam. Eq.~\ref{eq:clock} makes that growth quantitative. A first hint was already in the E9 runs (Adam,
 learning rate $10^{-3}$): the mean first-layer $\rho$ was $-3.54$, $-3.52$ and
 $-3.62$ after 1{,}000 steps, $-1.88$, $-1.85$ and $-1.92$ after 3{,}000, and
 $-1.01$, $-0.99$ and $-1.09$ after 5{,}000, for $n = 500$, $2{,}000$ and
@@ -261,23 +287,37 @@ $\sigma$ to reach 0.3 was 10{,}000, 5{,}000 and 3{,}000 steps at $n=500$ and
 12{,}000, 6{,}000 and 3{,}000 at $n=10{,}000$, for learning rates
 $5\times10^{-4}$, $10^{-3}$ and $2\times10^{-3}$. Time $\times$ learning rate was
 constant to within 12\%, and changing $n$ twenty-fold changed it by at most
-20\%. These times are measured on a 1{,}000-step grid, which at the highest
+20\%. Eq.~\ref{eq:clock} predicts 7{,}900, 3{,}950 and 1{,}975 steps with no
+fitted constant: it gets the $1/\eta$ scaling and the independence from $n$
+right, and the observed times are 1.27--1.52 times longer, consistent with
+gradient noise making Adam's steps somewhat smaller than $\eta$. These times are measured on a 1{,}000-step grid, which at the highest
 learning rate (3{,}000 steps) is coarser than the 12\% figure; and the
 $n=500$, $2\times10^{-3}$ arm collapsed later in training (see below). The onset of the OOD advantage followed the same clock (onset $\times$
 learning rate constant to within 7\% at $n=10{,}000$). With SGD (momentum 0.9)
 on the $\rho$ parameters, the mean $\sigma$ after 20{,}000 steps was 0.67 at
 $n=500$ but 0.017 at $n=10{,}000$, a 39-fold difference. In that last setting
 $\sigma$ never grew, and BBB had \emph{no} OOD advantage (peak $\Delta$ $-0.007$)
-while reaching the best accuracy (0.966). At $n=500$, however, SGD grew $\sigma$
-to 0.67 by 20{,}000 steps but gave only a small advantage (peak $\Delta$ on
-KMNIST $+0.03$, never reaching the $+0.04$ onset criterion; accuracy 0.882).
-So $\sigma$ growth appears necessary for the advantage but not sufficient; how
-the mean weights co-evolve under each optimizer likely matters too. One caveat
-on the SGD arm: gradient clipping in my implementation acts on all parameters
-jointly, so under SGD the $\rho$ step also depends on the size of the
-cross-entropy gradient. A test without joint clipping, and with the $\rho$
-learning rate scaled with $N$, would be cleaner. All four pre-registered
-predictions held. Two side observations: at $n=500$ a learning rate of $2\times10^{-3}$
+while reaching the best accuracy (0.966). At $n=500$, SGD grew $\sigma$ to 0.67 by
+20{,}000 steps but gave only a small advantage (peak $\Delta$ on KMNIST $+0.03$,
+never reaching the $+0.04$ onset criterion; accuracy 0.882). All four
+pre-registered predictions held.
+
+In these runs gradient clipping acted on all parameters jointly, so under SGD
+the $\rho$ step also depended on the cross-entropy gradient. I therefore
+repeated the SGD arm with clipping on the means only (3 seeds per arm). The
+dependence on $n$ remained. At $n=500$, $\sigma$ reached 0.3 by 5{,}000 steps in
+every seed; at $n=10{,}000$ it never did ($\sigma=0.018$ at 20{,}000 steps, against
+0.945 at $n=500$). Without clipping, the $n=500$ runs also reached a larger
+advantage ($+0.057$ to $+0.060$), so the small $+0.03$ above was partly the
+clipping slowing $\sigma$ down. Scaling the $\rho$ learning rate with $N$ (1.0 at
+$n=10{,}000$) made $\sigma$ reach 0.3 at exactly the same step as at $n=500$
+(5{,}000) in two of three seeds, as Eq.~\ref{eq:clock} predicts. But
+unclipped SGD on $\rho$ turned out to be unstable: it diverged in 6 of 9 runs,
+every run in which $\sigma$ grew large (at 17{,}000--34{,}000 steps for $n=500$,
+and 5{,}000--9{,}000 for the scaled runs). The scaled runs therefore stopped
+before any OOD advantage could appear (peak $+0.022$). Two of the three
+pre-registered predictions of this follow-up failed or could not be scored as
+stated. Two side observations: at $n=500$ a learning rate of $2\times10^{-3}$
 collapsed training (final accuracy 0.09--0.67), and plotted against learning
 rate $\times$ steps the Adam curves coincide during growth, with $n$ only
 shifting the plateau slightly.
@@ -317,17 +357,43 @@ The advantage comes from noise compounding across the hidden layers. Noise
 in the last layer alone does not reproduce it in this model, which may explain
 why last-layer Laplace did poorly in Table~\ref{tab:grid}.
 
-\paragraph{Not a weak baseline.} The softness-matched DNN is one particular
-deterministic score. I also scored the DNNs by maximum softmax probability,
-maximum logit, energy (log-sum-exp of the logits), and entropy at the best
-temperature chosen \emph{with knowledge of the OOD set}, an upper bound for any
-temperature. Their best average AUROC was 0.888--0.918. BBB trained for
-23{,}550 steps reached 0.951--0.987 by entropy and 0.960--0.995 by MI, and beat
-the best deterministic score in all 20 seed-and-dataset pairs, by at least
-0.04 ($n\in\{2{,}000, 10{,}000\}$, 5 seeds, both OOD sets). The comparison is not
-budget-matched: the deterministic networks trained for 40 epochs, BBB for
-23{,}550 steps, and feature-space detectors (e.g.\ Mahalanobis, kNN) and a
-plain-network-plus-weight-noise control were not tried.
+\paragraph{Not a weak baseline, and not just noise.} I compared BBB trained
+for 23{,}550 steps with stronger controls (5 seeds; $n\in\{2{,}000,
+10{,}000\}$; both OOD sets; Table~\ref{tab:controls}).
+\emph{Weight noise:} adding Gaussian noise to every layer of a trained plain
+network (scaled to each layer's weight spread and matched to BBB's
+validation entropy) gave AUROC 0.81--0.89, and BBB beat it by $+0.10$ to
+$+0.15$. Even the best noise scale chosen with knowledge of the OOD set
+stayed $+0.07$ to $+0.10$ below BBB. So the advantage is not produced by
+\emph{any} weight noise; it depends on the variances BBB learns.
+\emph{Matched training budgets:} a plain network and a 5-member ensemble
+trained for the same 23{,}550 steps stayed below BBB in all 5 seeds in every
+setting ($+0.040$ to $+0.087$ against the softened network, $+0.041$ to $+0.075$
+against the ensemble). \emph{Other scores:} on the plain networks, maximum
+softmax probability, maximum logit, energy and an oracle-tuned temperature
+reached at most 0.888--0.918 on average, and a Mahalanobis detector on
+penultimate features 0.86--0.94. A kNN detector on normalised features came
+closest, 0.93--0.97, within $+0.006$ to $+0.023$ of BBB; at $n=10{,}000$ on
+Fashion-MNIST it ties BBB (2/5 seeds better).
+
+\begin{table}[!htb]
+\centering\small
+\begin{tabular}{lcc}
+\toprule
+control (vs BBB, 23{,}550 steps) & $\Delta$ Fashion & $\Delta$ KMNIST \\
+\midrule
+plain network + weight noise (softness-matched) & $+0.11$ to $+0.14$ & $+0.10$ to $+0.15$ \\
+step-matched plain network, softened & $+0.040$ to $+0.087$ & $+0.075$ to $+0.078$ \\
+step-matched 5-member ensemble & $+0.041$ to $+0.058$ & $+0.058$ to $+0.075$ \\
+Mahalanobis on features & $+0.021$ to $+0.109$ & $+0.030$ to $+0.059$ \\
+kNN on features & $+0.006$ to $+0.023$ & $+0.017$ to $+0.023$ \\
+\bottomrule
+\end{tabular}
+\caption{BBB minus each control (entropy AUROC; range over $n\in\{2{,}000,
+10{,}000\}$ and, for feature detectors, two base networks; 5 seeds each).
+Source: \texttt{experiments/E12\_controls}, \texttt{results/E12/}.}
+\label{tab:controls}
+\end{table}
 
 \paragraph{Not a pixel shortcut.} Many pixels are constant (always
 background) across a training subset: on average 192, 148 and 104 at
@@ -424,23 +490,35 @@ Coker et al.\ \citep{coker2022wide} prove that the optimal mean-field
 posterior predictive approaches the prior predictive as width grows; the drift
 in \S\ref{sec:window} is consistent with that effect along the optimisation
 path of a standard-width ReLU classifier, a setting their theorem does not cover. Unlu and Aitchison \citep{unlu2020variational} note
-that mean-field variances are often unconverged when training stops and that
-Adam bounds each update; \S\ref{sec:clock} shows that this bound sets an
-$N$-independent clock for when BBB's OOD advantage appears. Foong et al.\
+that mean-field variance parameters are often unconverged when training stops
+and recommend a larger learning rate for them; Nishida and Taiji
+\citep{nishida2022adamb} report that BBB's variational parameters grow under
+Adam and propose a decoupled optimizer (AdamB). \S\ref{sec:clock} derives
+the $N$-independent clock behind this growth and links it to when BBB's OOD
+advantage appears. In natural-gradient variational methods such as Vadam
+\citep{khan2018fast} and IVON \citep{shen2024variational} the variances are
+tied to $N$ and the loss curvature by construction, so they should not follow
+the same clock. Foong et al.\
 \citep{foong2020expressiveness} show what mean-field and MC dropout
 approximations cannot represent. Wenzel et al.\ \citep{wenzel2020good} show
 that tempered (``cold'') posteriors can predict better than the Bayes
 posterior; the softness-matched control here asks a related question about
 temperature, for OOD detection. Depeweg et al.\ \citep{depeweg2018decomposition}
 decompose predictive uncertainty into aleatoric and epistemic (MI) parts, the
-split behind \S\ref{sec:window}. Shen et al.\ \citep{shen2024variational}
+split behind \S\ref{sec:window}; Wimmer et al.\ \citep{wimmer2023quantifying}
+question whether conditional entropy and MI are appropriate measures of these
+parts, which fits the caution about MI in \S\ref{sec:window}. Shen et al.\ \citep{shen2024variational}
 show that a natural-gradient variational method (IVON) trains large networks
 as well as Adam; whether its variances follow a similar clock is open. Izmailov et al.\
 \citep{izmailov2021dangers} show that weights on always-zero pixels keep their
 prior under HMC and hurt accuracy under covariate shift; I find no such
 pixel-specific effect in BBB's OOD detection. Ovadia et al.\
 \citep{ovadia2019can} include temperature-scaled baselines and find ensembles
-strongest under shift. Odgers et al.\ \citep{odgers2026gaussian} show that mean-field VI can
+strongest under shift; Ashukha et al.\ \citep{ashukha2020pitfalls} argue that
+uncertainty methods should be compared after temperature scaling, which the
+softness-matched control extends to OOD detection; and Abe et al.\
+\citep{abe2022deep} find that ensembles' OOD gains are largely explained by
+their in-distribution performance. Odgers et al.\ \citep{odgers2026gaussian} show that mean-field VI can
 overestimate predictive variance on in-distribution points, which matches the
 rising in-distribution entropy in \S\ref{sec:window}. Trippe and Turner
 \citep{trippe2018overpruning} describe overpruning, where variational BNNs
@@ -467,11 +545,11 @@ rate and 20 posterior samples; the fixed-budget runs use a cosine schedule and
 selection analysis reuses those configurations and seeds.
 \item \textbf{The clock.} Tested with Adam and SGD on one architecture; other
 adaptive optimizers and natural-gradient methods such as IVON
-\citep{shen2024variational} were not tried. The SGD arm used one $\rho$
-learning rate and joint gradient clipping.
-\item \textbf{Baselines.} Deterministic baselines and ensembles were not
-budget-matched to the longer BBB runs; no weight-noise or feature-space
-baselines.
+\citep{shen2024variational} were not tried. Unclipped SGD on $\rho$ diverged
+whenever $\sigma$ grew large, so the SGD contrast rests on the stable phase.
+\item \textbf{Baselines.} All methods use the same small MLP with default
+hyperparameters, without per-method tuning. A kNN feature detector comes within
+0.02 of BBB and ties it in one setting.
 \item \textbf{No exact posterior.} Without HMC or similar, I cannot say whether
 any of this reflects Bayesian behaviour or only mean-field VI under Adam.
 \end{itemize}
@@ -484,8 +562,8 @@ almost regardless of how much data there is, and the OOD advantage switches on
 with them. Where the variances stay small, as under SGD with more data, there
 is no advantage. At typical budgets BBB therefore behaves like a
 temperature-scaled network; with longer training it beats the
-softness-matched control and scores higher than every deterministic score
-tested (those baselines not budget-matched). The uncertainty score and the prior scale then decide whether
+softness-matched control, step-matched plain networks and ensembles, and a
+weight-noise control, with a kNN feature detector close behind. The uncertainty score and the prior scale then decide whether
 the advantage lasts. Comparisons between BBB and other methods should report
 the optimizer, learning rate and training budget, the score, and a
 softness-matched baseline.
@@ -504,11 +582,11 @@ at $N=2{,}000$, $B=64$). In a 3-seed pilot it cost BBB 3.2 points of accuracy
 
 \section{Pre-registered predictions and outcomes}\label{app:ledger}
 Each protocol (\texttt{experiments/<id>/protocol.md}) was written before its
-runs: committed to git for E1--E9, and for E10--E11 with SHA-256 hashes I
-recorded before launch (\texttt{experiments/E10\_E11\_prereg.txt}; self-attested,
-not independently timestamped). Of the 36
-entries below, 14 were confirmed, 17 falsified, 4 had mixed outcomes and 1 had
-no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
+runs: committed to git for E1--E9, and for E10--E13 with SHA-256 hashes I
+recorded before launch (\texttt{experiments/E10\_E11\_prereg.txt},
+\texttt{experiments/E12\_E13\_prereg.txt}; self-attested, not independently
+timestamped). Of the 43 entries below, 18 were confirmed, 18 falsified,
+6 had mixed outcomes and 1 had no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
 just softness?'' to the training-path account.
 
 \begin{center}\small
@@ -552,6 +630,13 @@ E10 & P4: onset of the OOD advantage follows the same clock ($\pm40\%$) & confir
 E11 & P1: a tighter prior improves final accuracy & falsified \\
 E11 & P2: a tighter prior keeps the entropy advantage to the end & $\sigma_p=0.3$ yes; 0.1 no \\
 E11 & P3: MI advantage survives $\sigma_p\in\{0.1, 0.3\}$ (kill test) & confirmed \\
+E12 & P1: weight noise stays $\ge0.02$ below BBB & confirmed \\
+E12 & P2: step-matched softened network stays $\ge0.04$ below BBB & confirmed (narrowly) \\
+E12 & P3: step-matched ensemble stays below BBB & confirmed \\
+E12 & P4: feature detectors $\ge0.95$ and within 0.03 of BBB & kNN yes; Mahalanobis no \\
+E13 & P1: without joint clipping, SGD $\sigma$ still grows $\ge3\times$ faster at $n=500$ & confirmed (53$\times$) \\
+E13 & P2: $\rho$ learning rate $\propto N$ aligns the clocks across $n$ & 2 of 3 seeds exact; 1 diverged first \\
+E13 & P3: with that scaling, the OOD advantage appears at $n=10{,}000$ & falsified (runs diverged first) \\
 \bottomrule
 \end{tabular}
 \end{center}

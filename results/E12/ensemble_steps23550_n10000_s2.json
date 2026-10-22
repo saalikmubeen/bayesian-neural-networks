@@ -1,0 +1,20 @@
+{
+  "method": "ensemble_steps23550",
+  "n": 10000,
+  "seed": 2,
+  "config": {
+    "kind": "ensemble",
+    "steps": 23550,
+    "lr": 0.001,
+    "members": 5
+  },
+  "epochs": 150,
+  "batch": 64,
+  "prior_precision": null,
+  "train_seconds": 111.7,
+  "test_acc": 0.971,
+  "torch": "1.9.0+cu111",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "host": "morgoth",
+  "date": "2026-10-22 02:35"
+}

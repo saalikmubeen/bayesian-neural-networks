@@ -39,6 +39,9 @@ METHODS = {
 # (4800 = default budget at n = 500 and 2000; 23550 = default budget at n = 10000)
 for steps in [4800, 23550]:
     METHODS[f"bbb_steps{steps}"] = dict(kind="bbb", steps=steps, lr=1e-3, kl="1/N")
+# deterministic baselines with BBB's long step budget (E12)
+METHODS["dnn_steps23550"] = dict(kind="dnn", steps=23550, lr=1e-3)
+METHODS["ensemble_steps23550"] = dict(kind="ensemble", steps=23550, lr=1e-3, members=5)
 for beta in [0.1, 0.3, 3, 10, 30]:  # KL weight beta/N (bbb is beta = 1)
     METHODS[f"bbb_beta{beta}"] = dict(kind="bbb", epochs=150, lr=1e-3, kl="1/N", beta=beta)
 

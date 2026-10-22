@@ -241,6 +241,29 @@ The report is now 12 pages, with all 201 numbers traced.
 
 ---
 
+## 14. E12 controls + E13 clean SGD arm ✅
+
+Protocols: `experiments/E12_controls/`, `experiments/E13_sgd_clean/`. Hashes
+were recorded before launch in `experiments/E12_E13_prereg.txt`. E13's first
+run diverged and crashed; `bnnstudy/dynamics.py` now stops cleanly on
+non-finite values (deviation noted in the E13 protocol).
+
+```bash
+scripts/run_E12_E13.sh 0 a > logs/E12_E13_gpu0.log 2>&1 &     # step-matched DNN/ensemble n = 2000 (+ first E13 runs)
+scripts/run_E12_E13.sh 1 b > logs/E12_E13_gpu1.log 2>&1 &     # step-matched DNN/ensemble n = 10000
+scripts/run_E13_resume.sh 0 500:0.05:sgd_mu:0 500:0.05:sgd_mu:1 500:0.05:sgd_mu:2 10000:1.0:sgd_scaled:2
+scripts/run_E13_resume.sh 1 10000:0.05:sgd_mu:1 10000:0.05:sgd_mu:2 10000:1.0:sgd_scaled:0 10000:1.0:sgd_scaled:1
+PYTHONPATH=. $PY scripts/analyze_E12.py all     # weight noise, step-matched, Mahalanobis/kNN -> results/E12/
+$PY scripts/analyze_E13.py                      # results/E13/summary.txt
+```
+
+Result: BBB beats weight noise (+0.10 to +0.15), the step-matched DNN and
+ensemble, and Mahalanobis, all 5/5. kNN comes within 0.02. Under SGD without
+joint clipping, the dependence on n holds (53×), but runs diverge once σ grows
+large. The report is now 14 pages, with all 216 numbers traced.
+
+---
+
 ## Where things are
 
 | Path | What |

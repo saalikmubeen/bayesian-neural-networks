@@ -102,3 +102,15 @@ listed result files. Check with
 | Ledger: 36 entries; 14 confirmed, 17 falsified, 4 mixed, 1 none | 36, 14, 17, 4, 1 | tally of the appendix table |
 | SGD on ρ at n = 500: σ 0.67 at 20k, peak entropy Δ_K +0.03 (mean 0.0316), never ≥ 0.04, accuracy 0.882 | 0.67, 0.03, 0.04, 0.882 | `results/E10/summary.txt` (sgd (rho), n 500), `results/E10/per_run.csv` |
 | DNN 40 epochs vs BBB 23,550 steps (budgets not matched) | 40, 23,550 | `bnnstudy/train.py` METHODS |
+
+## Additions with E12 (controls), E13 (clean SGD) and the clock derivation
+| Claim | Values | Source |
+|---|---|---|
+| Clock derivation: ρ* = softplus⁻¹(0.3) = −1.05; Δρ = 3.95; t* ≈ 3,950 / 7,900 / 1,975 steps at η = 1e-3 / 5e-4 / 2e-3; observed/predicted 1.27–1.52 | −1.05, 3,950, 7,900, 1,975, 1.27, 1.52, 0.3, 5 | arithmetic in `report/bnn.tex` §3.4 against `results/E10/per_run.csv` |
+| Weight noise (softness-matched) AUROC 0.81–0.89; BBB beats by +0.10 to +0.15 (Fashion +0.11 to +0.14); oracle scale +0.07 to +0.10 | 0.81, 0.89, 0.10, 0.15, 0.11, 0.14, 0.07 | `results/E12/summary.txt`, `results/E12/noise.csv` |
+| Step-matched softened DNN +0.040 to +0.087 (KMNIST +0.075 to +0.078); step-matched ensemble +0.041 to +0.075 (Fashion +0.041 to +0.058; KMNIST +0.058 to +0.075) | as written | `results/E12/summary.txt`, `results/E12/matched.csv` |
+| Mahalanobis 0.86–0.94; BBB − Mahalanobis +0.021 to +0.109 (Fashion), +0.030 to +0.059 (KMNIST) | as written | `results/E12/features.csv` |
+| kNN 0.93–0.97; BBB − kNN +0.006 to +0.023 (Fashion), +0.017 to +0.023 (KMNIST); tie at n = 10,000 Fashion (2/5) | as written | `results/E12/features.csv` |
+| Abstract/finding: kNN within 0.02 | 0.02 | max BBB − kNN mean = 0.023 (rounded) — `results/E12/summary.txt` |
+| E13: σ reaches 0.3 by 5,000 at n = 500 (3/3), never at n = 10,000; σ at 20k 0.945 vs 0.018 (53× = 0.9452 / 0.0177); n = 500 advantage +0.057 to +0.060; scaled runs t₀.₃ 5,000 in 2/3; 6 of 9 runs diverged (17,000–34,000 at n = 500; 5,000–9,000 scaled); scaled peak +0.022; ρ lr 1.0 | as written | `results/E13/summary.txt`, `results/E13/per_run.csv`; `experiments/E13_sgd_clean/protocol.md` |
+| Ledger: 43 entries; 18 confirmed, 18 falsified, 6 mixed, 1 none | 43, 18, 6, 1 | scripted tally of the appendix rows |

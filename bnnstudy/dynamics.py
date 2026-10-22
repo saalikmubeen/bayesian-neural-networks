@@ -70,6 +70,8 @@ def main():
                     help="sgd: rho parameters use SGD+momentum 0.9 with --rho-lr; mu stays on Adam (E10)")
     ap.add_argument("--rho-lr", type=float, default=0.05)
     ap.add_argument("--tag", default="", help="suffix for the output file name")
+    ap.add_argument("--clip", choices=["all", "mu"], default="all",
+                    help="mu: clip only the mean parameters, leave rho unclipped (E13)")
     a = ap.parse_args()
 
     out = Path(a.out)
@@ -100,7 +102,8 @@ def main():
     else:
         opts = [torch.optim.Adam(model.parameters(), lr=a.lr)]
     rows, step, ce_sum, kl_sum, cnt, t0 = [], 0, 0.0, 0.0, 0, time.time()
-    while step < a.steps:
+    diverged = None
+    while step < a.steps and diverged is None:
         model.train()
         for xb, yb in batches(x, y, BATCH, gen):
             w = min(1.0, (step + 1) / WARMUP_STEPS) / len(x)
@@ -109,13 +112,20 @@ def main():
             ce = F.cross_entropy(model(xb), yb)
             kl = model.kl()
             (ce + w * kl).backward()
-            nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            clip_params = model.parameters() if a.clip == "all" else \
+                [p for name, p in model.named_parameters() if "rho" not in name]
+            nn.utils.clip_grad_norm_(clip_params, 1.0)
             for o in opts:
                 o.step()
             step += 1
             ce_sum, kl_sum, cnt = ce_sum + ce.item(), kl_sum + kl.item() / len(x), cnt + 1
             if step % a.every == 0:
                 ps = predict_all(model, splits, a.samples)
+                if not all(np.isfinite(v).all() for v in ps.values()):
+                    # diverged (e.g. unclipped SGD on rho): keep earlier checkpoints, record where it stopped
+                    print(f"non-finite predictions at step {step}; stopping this run", flush=True)
+                    diverged = step
+                    break
                 row = summarize({k: v for k, v in ps.items() if not k.startswith("proxy")},
                                 ys, dnn, OODS)
                 if a.proxies:
@@ -139,7 +149,8 @@ def main():
             if step >= a.steps:
                 break
     pd.DataFrame(rows).assign(n=a.n, seed=a.seed, rho_init=a.rho_init, lr=a.lr, prior_sigma=a.prior_sigma,
-                              rho_optimizer=a.rho_optimizer, rho_lr=a.rho_lr).to_csv(
+                              rho_optimizer=a.rho_optimizer, rho_lr=a.rho_lr, clip=a.clip,
+                              diverged_step=diverged).to_csv(
         path, index=False, float_format="%.5f")
     print("wrote", path)
 
