@@ -5,7 +5,7 @@ built around a Bayes-by-Backprop (BBB) implementation written from scratch in
 PyTorch. Every experiment's hypothesis, predictions and falsification
 criteria were committed to git before it ran.
 
-**Report:** [bnn.pdf](bnn.pdf) (15 pages; source `report/bnn.tex`)
+**Report:** [bnn.pdf](bnn.pdf) (14 pages; source `report/bnn.tex`)
 
 ## The question
 

@@ -4,6 +4,7 @@
 \usepackage{amsmath,amssymb,booktabs,graphicx,hyperref,xcolor}
 \usepackage[numbers]{natbib}
 \usepackage[section]{placeins}
+\usepackage{longtable}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=blue!50!black,urlcolor=blue!50!black}
 \newcommand{\pending}[1]{\textcolor{red}{[#1]}}
 
@@ -39,8 +40,8 @@ default $\mathcal N(0,1)$ prior, the entropy-based advantage can disappear later
 in training as the model starts to underfit, while the mutual-information (MI)
 advantage persists. With a prior of scale 0.3 both persist. MI is also high in
 runs that never learned the task, so on its own it does not show a useful
-model. On CIFAR-10 with small, underfit models (37--68\% accuracy), no
-comparable advantage appears.
+model. On CIFAR-10 with small, underfit models (37--68\% accuracy across a CNN and
+an MLP), no comparable advantage appears.
 \end{abstract}
 
 \section{Introduction}
@@ -305,8 +306,8 @@ $n=500$ but 0.017 at $n=10{,}000$, a 39-fold difference. In that last setting
 $\sigma$ never grew, and BBB had \emph{no} OOD advantage (peak $\Delta$ $-0.007$)
 while reaching the best accuracy (0.966). At $n=500$, SGD grew $\sigma$ to 0.67 by
 20{,}000 steps but gave only a small advantage (peak $\Delta$ on KMNIST $+0.03$,
-never reaching the $+0.04$ onset criterion; accuracy 0.882). All four
-pre-registered predictions held. Two side observations: at $n=500$ a learning rate of $2\times10^{-3}$
+never reaching the $+0.04$ onset criterion; accuracy 0.882). All four E10
+predictions held; the follow-up below (E13) did less well. Two side observations: at $n=500$ a learning rate of $2\times10^{-3}$
 collapsed training (final accuracy 0.09--0.67), and plotted against learning
 rate $\times$ steps the Adam curves coincide during growth, with $n$ only
 shifting the plateau slightly.
@@ -604,11 +605,18 @@ timestamped). Of the 43 entries below, 18 were confirmed, 19 falsified,
 5 had mixed outcomes and 1 had no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
 just softness?'' to the training-path account.
 
-\begin{center}\small
-\begin{tabular}{p{0.9cm}p{8.6cm}p{4.6cm}}
+{\small
+\begin{longtable}{p{0.9cm}p{8.6cm}p{4.6cm}}
 \toprule
 exp. & prediction & outcome \\
 \midrule
+\endfirsthead
+\toprule
+exp. & prediction & outcome \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
 E1 & P0: new pipeline reproduces old numbers ($\pm0.02$ acc, $\pm0.03$ AUROC) & acc/ECE yes; AUROC off by 0.035 \\
 E1 & P1: correct KL weight raises BBB accuracy & confirmed \\
 E1 & P2: BBB within 0.02 AUROC of softness-matched DNN & falsified (Fashion) \\
@@ -652,9 +660,8 @@ E12 & P4: feature detectors $\ge0.95$ and within 0.03 of BBB & kNN yes; Mahalano
 E13 & P1: without joint clipping, SGD $\sigma$ still grows $\ge3\times$ faster at $n=500$ & confirmed (53$\times$, one $n=500$ seed past 20k) \\
 E13 & P2: $\rho$ learning rate $\propto N$ aligns the clocks across $n$ & falsified as scored (1 run diverged first; 2 crossed just before diverging) \\
 E13 & P3: with that scaling, the OOD advantage appears at $n=10{,}000$ & falsified (runs diverged first) \\
-\bottomrule
-\end{tabular}
-\end{center}
+\end{longtable}
+}
 
 \bibliographystyle{unsrtnat}
 \bibliography{refs}
