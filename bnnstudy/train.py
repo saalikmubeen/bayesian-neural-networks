@@ -84,7 +84,10 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--on-support", action="store_true", help="also evaluate on-support OOD variants")
     ap.add_argument("--save-model", action="store_true", help="save the state_dict next to the outputs")
+    ap.add_argument("--hidden", type=int, default=256, help="hidden-layer width (E19 uses 100)")
     a = ap.parse_args()
+    from . import models as _models
+    _models.HIDDEN = a.hidden
 
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -119,7 +122,7 @@ def main():
         torch.save(model.state_dict(), path.with_suffix(".pt"))
 
     acc = (arrays["test_p"].argmax(-1) == arrays["test_y"]).mean()
-    info = dict(method=a.method, n=a.n, seed=a.seed, config=cfg, epochs=epochs, batch=BATCH,
+    info = dict(method=a.method, n=a.n, seed=a.seed, config=cfg, epochs=epochs, batch=BATCH, hidden=a.hidden,
                 prior_precision=getattr(model, "prior_precision", None),
                 train_seconds=round(t_train, 1), test_acc=float(acc),
                 torch=torch.__version__, gpu=torch.cuda.get_device_name(),

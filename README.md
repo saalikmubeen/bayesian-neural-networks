@@ -82,7 +82,7 @@ advantage appears. That result says little about well-trained networks.
 ## How the study got here
 
 The project started from a simpler question ("is the BNN's advantage just
-softness?"). Many of my pre-registered predictions failed: 24 of 61, listed
+softness?"). Many of my pre-registered predictions failed: 25 of 64, listed
 in the report's appendix. Those failures are what led to the training-path
 account. Each step is in [experiments/](experiments/) (E1–E9, E7b), with the
 prediction written first and the result added after the run.
@@ -91,9 +91,11 @@ prediction written first and the result added after the run.
 
 Only three prior scales were tried, at one data size. The dynamics runs use
 a constant learning rate and 3 seeds, and the clock was tested with Adam and
-SGD on one architecture; a kNN feature detector comes within about 0.02 of BBB. There is no exact-posterior (HMC) reference, and the
-CIFAR models are small and underfit. Planned next: an HMC reference posterior
-on a small MLP, and ResNet-20 with augmentation on CIFAR-10 (BBB, IVON,
+SGD on one architecture; a kNN feature detector comes within about 0.02 of BBB. An HMC reference posterior was attempted
+(E19) but its chains did not converge (split-R̂ up to 2.8), so whether the
+exact posterior shares BBB's advantage is still open. The CIFAR models are
+small and underfit. Planned next: a better-mixing sampler (adapted mass matrix
+or a smaller model), and ResNet-20 with augmentation on CIFAR-10 (BBB, IVON,
 ensembles).
 
 ## Methodological notes

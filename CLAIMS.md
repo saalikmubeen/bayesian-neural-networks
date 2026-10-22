@@ -131,4 +131,12 @@ listed result files. Check with
 | E18 (fresh seeds 5–9): R₁ AUROC 0.960–0.991 on four far-OOD sets; within 0.003–0.019 of BBB MI; Spearman 0.71–0.83; rotated digits at n = 10,000: BBB 0.950, R₁ 0.863; ten fresh models; 90° rotation | 0.960, 0.991, 0.003, 0.019, 0.71, 0.83, 0.950, 0.863, 90 | `results/E18/summary.txt`, `results/E18/per_seed.csv`; `experiments/E18_r1_confirm/protocol.md` |
 | E14 IVON: σ_fc1 0.170 / 0.086 / 0.039 (n = 500 / 2,000 / 10,000); ratio 4.41 vs √20 = 4.47; accuracy 0.930 / 0.969; peak Δ −0.005 / −0.008 vs BBB +0.07 / +0.065; BBB σ 0.96–0.98 | 0.170, 0.086, 0.039, 4.41, 4.47, 0.930, 0.969, 0.005, 0.008, 0.065 | `results/E14/summary.txt`, `results/E14/per_run.csv` |
 | E15 tempered IVON: σ raised 3.1–9.3×; n = 10,000, k = 10: accuracy 0.951, Δ −0.004; k ∈ {10, 100} | 3.1, 9.3, 0.951, 0.004, 10, 100 | `results/E15/summary.txt`, `results/E15/per_run.csv` |
-| Ledger: 61 entries; 26 confirmed, 24 falsified, 10 mixed, 1 none | 61, 26, 24, 10 | scripted tally of the appendix rows |
+| Ledger: 61 entries; 26 confirmed, 24 falsified, 10 mixed, 1 none (superseded below) | 61, 26, 24, 10 | scripted tally of the appendix rows |
+
+## Additions with E19 (HMC, not converged)
+| Claim | Values | Source |
+|---|---|---|
+| HMC split-R̂ 90th percentile 2.8 (n = 2000) and 2.5 (n = 500), threshold 1.1; width 100; 4 chains; 2,500 iterations; 300 leapfrog steps | 2.8, 2.5, 1.1, 100, 4, 2,500, 300 | `results/E19/summary.txt`; `experiments/E19_hmc/protocol.md` |
+| Spread of weight means across chains 6–8× the within-chain std | 6, 8 | `experiments/E19_hmc/protocol.md` (0.64/0.08, 0.75/0.13; in-session check of `results/E19/hmc_*.pt`) |
+| HMC accuracy 0.899 vs BBB 0.920 (n = 2000); 0.833 vs 0.881 (n = 500) | 0.899, 0.920, 0.833, 0.881 | `results/E19/summary.txt` |
+| Ledger: 64 entries; 26 confirmed, 25 falsified, 10 mixed, 3 none | 64, 26, 25, 10, 3 | scripted tally of the appendix rows |

@@ -688,8 +688,16 @@ hyperparameters, without per-method tuning. A kNN feature detector comes within
 exploratory analysis and then confirmed in a separate pre-registered test; it
 does not cover near-OOD inputs. IVON was run with one tuned setting, kept
 fixed when tempering.
-\item \textbf{No exact posterior.} Without HMC or similar, I cannot say whether
-any of this reflects Bayesian behaviour or only mean-field VI under Adam.
+\item \textbf{No exact posterior.} I cannot say whether any of this reflects
+Bayesian behaviour or only mean-field VI under Adam. A pre-registered
+full-batch HMC run (E19; width-100 MLP, $n\in\{500,2000\}$, 4 chains of 2,500
+iterations with 300 leapfrog steps) failed its own convergence check
+(split-$\hat R$ 90th percentile 2.8 and 2.5, threshold 1.1). The adapted step
+size was so small that each chain stayed near its starting MAP solution (the
+spread of weight means across chains was 6--8$\times$ the within-chain
+standard deviation), and its test accuracy was below both BBB's and the
+plain network's. I therefore draw no conclusion from it; a sampler with an
+adapted mass matrix, or a smaller model, would be needed.
 \end{itemize}
 
 \section{Conclusion}
@@ -722,14 +730,14 @@ at $N=2{,}000$, $B=64$). In a 3-seed pilot it cost BBB 3.2 points of accuracy
 (0.904 vs 0.936) and raised ECE from 0.022 to 0.185.
 
 \section{Pre-registered predictions and outcomes}\label{app:ledger}
+\begin{sloppypar}
 Each protocol (\texttt{experiments/<id>/protocol.md}) was written before its
-runs: committed to git for E1--E9, and for E10--E18 with SHA-256 hashes I
-recorded before launch (\texttt{experiments/E10\_E11\_prereg.txt},
-\texttt{experiments/E12\_E13\_prereg.txt}, \texttt{experiments/E14\_prereg.txt}
-to \texttt{E18\_prereg.txt}; self-attested, not independently
-timestamped). Of the 61 entries below, 26 were confirmed, 24 falsified,
-10 had mixed outcomes and 1 had no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
+runs: committed to git for E1--E9, and for E10--E19 with SHA-256 hashes I
+recorded before launch (the files \texttt{experiments/E*\_prereg.txt};
+self-attested, not independently timestamped). Of the 64 entries below, 26 were confirmed, 25 falsified,
+10 had mixed outcomes and 3 had no outcome. (E5's P1 held by construction and is omitted.) The falsified ones are what moved the study from ``is the advantage
 just softness?'' to the training-path account.
+\end{sloppypar}
 
 {\small
 \begin{longtable}{p{0.9cm}p{8.6cm}p{4.6cm}}
@@ -804,6 +812,9 @@ E18 & P1: $R_1$ AUROC $\ge0.90$ on four far-OOD sets (fresh models) & confirmed 
 E18 & P2: $R_1$ within 0.03 of BBB's MI & confirmed \\
 E18 & P3: Spearman($R_1$, MI) $\ge0.6$ & confirmed \\
 E18 & P4: $R_1$ within 0.05 of MI on rotated digits & $n=2{,}000$ yes; $n=10{,}000$ no \\
+E19 & P1: decision rule on HMC's $\Delta$ (exact posterior) & no outcome: chains did not converge ($\hat R$ 90th pct.\ 2.5--2.8) \\
+E19 & P2: HMC less overpruned than BBB ($\ge2\times$) & no outcome: within-chain spread reflects poor mixing \\
+E19 & P3: HMC accuracy $\ge$ BBB at $n\in\{500,2000\}$ & falsified (0.899 vs 0.920; 0.833 vs 0.881), exploratory \\
 \end{longtable}
 }
 

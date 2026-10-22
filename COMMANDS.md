@@ -312,3 +312,19 @@ unseen OOD sets. The report is now 17 pages, with all 251 numbers traced.
 | `bnnstudy/evaluate.py` | all metrics + `dnn_Tnll` / `dnn_Tmatch[ref]` variants from the saved outputs |
 | `scripts/run_E1.sh` | E1 pilot |
 | `logs/` | run logs |
+
+---
+
+## 17. E19 HMC reference posterior (not converged)
+
+Protocol: `experiments/E19_hmc/protocol.md`; hash in `E19_prereg.txt`.
+
+```bash
+scripts/run_E19_vi.sh 0                                 # width-100 BBB and DNN, seeds 0-2
+scripts/run_E19.sh 0 0 & scripts/run_E19.sh 1 1         # HMC chains 0,1 (then 2,3)
+scripts/run_E19.sh 0 2 & scripts/run_E19.sh 1 3
+PYTHONPATH=. $PY scripts/analyze_E19.py
+```
+
+Result: chains failed the R̂ check at both n (each stayed near its MAP start),
+so E19 is exploratory and the exact-posterior question remains open.
